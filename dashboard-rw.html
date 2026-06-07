@@ -77,7 +77,7 @@
         .btn-terima { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; text-transform: uppercase; }
         .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 15px; }
         .log-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; }
-        .log-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #2d2d2d; font-size: 13px; }
+        .log-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2d2d2d; font-size: 13px; }
         .log-item:last-child { border-bottom: none; }
         
         .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
@@ -148,7 +148,7 @@
     </div>
 
     <div id="kontenFinansial">
-        <div class="card d-none" id="formKasRW" style="margin-bottom: 20px;">
+        <div class="card d-none" id="formKasRW" style="margin-bottom: 20px; border-top: 4px solid var(--blue);">
             <div class="section-title" style="margin-top:0; color:var(--blue);">📝 Input Pembukuan Mandiri RW Pusat</div>
             <label>Jenis Aliran Dana</label>
             <div class="tipe-container">
@@ -183,7 +183,6 @@
         <div class="section-title">📊 Kondisi Keuangan Real-time Antar RT</div>
         <div class="table-container" style="margin-bottom:20px;"><table id="tabelRT"><thead><tr><th>Wilayah</th><th>Pemasukan</th><th>Pengeluaran</th><th>Saldo RT</th><th>Status</th></tr></thead><tbody id="tabelRTBody"></tbody></table></div>
 
-        <!-- LOG HISTORI HISTORIKAL YANG TADI TERLEWAT SUDAH AKTIF KEMBALI -->
         <div class="detail-grid">
             <div class="log-box">
                 <div class="section-title" style="color: var(--accent); margin-top: 0;">📥 5 Transaksi Masuk RW Terbaru</div>
@@ -510,7 +509,6 @@
         }
         document.getElementById('tabelRTBody').innerHTML = htmlTabel;
 
-        // PANGGIL ULANG LOG HISTORI DI SINI
         loadHistoriRWLogs();
     }
 
@@ -523,7 +521,7 @@
         let keterangan = document.getElementById('ketTx').value.trim();
         let tgl = new Date().toISOString().split('T')[0];
 
-        if (jumlahNum <= 0 || !keterangan) { alert("⚠️ Harap isi nominal and keterangan pembukuan Pusat!"); return; }
+        if (jumlahNum <= 0 || !keterangan) { alert("⚠️ Harap isi nominal dan keterangan pembukuan Pusat!"); return; }
 
         let { error } = await _sb.from('transaksi1').insert([{
             scope: 'RW_PUSAT', tipe: tipeDipilih, jumlah: jumlahNum, kategori: kategori, keterangan: keterangan, tanggal: tgl, status: 'selesai'
@@ -545,7 +543,6 @@
         muatDataDashboard();
     }
 
-    // FUNGSI LOG HISTORI YANG AMAN DAN TERINTEGRASI
     async function loadHistoriRWLogs() {
         let { data: masuk } = await _sb.from('transaksi1').select('*').eq('scope', 'RW_PUSAT').eq('tipe', 'masuk').order('created_at', {ascending: false}).limit(5);
         let { data: keluar } = await _sb.from('transaksi1').select('*').eq('scope', 'RW_PUSAT').eq('tipe', 'keluar').order('created_at', {ascending: false}).limit(5);
