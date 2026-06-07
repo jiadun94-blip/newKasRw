@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kas RW Jamaras | Panel Pengurus RT</title>
-    <!-- Supabase JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- SheetJS CDN Untuk Membaca Excel Langsung di Browser -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Google Fonts: Roboto Condensed -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -54,7 +51,6 @@
         
         .filter-container { display: flex; gap: 10px; margin-bottom: 12px; }
 
-        /* Grid Statistik Penduduk */
         .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
         .stat-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; text-align: center; }
         .stat-box.full-width { grid-column: span 3; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0; border: none; background: transparent; }
@@ -62,15 +58,12 @@
         .stat-label { font-size: 10px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; letter-spacing: 0.5px; }
         .stat-value { font-size: 18px; font-weight: bold; color: #fff; }
 
-        /* Kotak Scrollable */
         .scroll-box { max-height: 340px; overflow-y: auto; padding-right: 5px; }
         .scroll-box::-webkit-scrollbar { width: 6px; }
         .scroll-box::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 4px; }
         .scroll-box::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
 
-        /* Tombol Load More */
         .btn-load-more { width: 100%; padding: 10px; background-color: #252525; border: 1px dashed #555; color: #aaa; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; text-transform: uppercase; margin-top: 10px; }
-        .btn-load-more:hover { background-color: #2d2d2d; border-color: var(--accent); color: #fff; }
 
         .table-container { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
@@ -219,7 +212,6 @@
     </div>
 
     <div id="kontenWarga" class="d-none">
-        <!-- FITUR TERBARU: PANEL IMPORT EXCEL MASAL -->
         <div class="card" style="border-top: 4px solid var(--purple); padding: 15px;">
             <div style="font-size: 14px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; color:#fff;">📁 Import Data Warga Kolektif via Excel</div>
             <p style="font-size:11px; color:#aaa; margin:0 0 12px 0; line-height:1.4;">Unggah file Excel untuk memasukkan data seluruh KK secara instan. Pastikan urutan judul baris pertama: <b>no_kk, nik, nama_lengkap, no_rumah, tanggal_lahir, hubungan_keluarga, status_tinggal</b></p>
@@ -341,11 +333,7 @@
         let sisa = split[0].length % 3;
         let rupiah = split[0].substr(0, sisa);
         let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-        
-        if (ribuan) {
-            let separator = sisa ? '.' : '';
-            rupiah += separator + ribuan.join('.');
-        }
+        if (ribuan) { rupiah += (sisa ? '.' : '') + ribuan.join('.'); }
         input.value = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
     }
 
@@ -380,13 +368,11 @@
         if (tipe === 'masuk') {
             bMasuk.classList.add('active-masuk'); bKeluar.classList.remove('active-keluar'); 
             selectKat.innerHTML = `<option value="Iuran Bulanan Warga">Iuran Bulanan Warga</option><option value="Iuran Keamanan / Kebersihan">Iuran Keamanan / Kebersihan</option><option value="Sumbangan Sosial">Sumbangan Sosial</option><option value="Pemasukan Lainnya">Pemasukan Lainnya</option>`;
-            
             document.getElementById('wrapWargaSetor').classList.remove('d-none');
             rowWN.style.gridTemplateColumns = "1fr 1fr";
         } else {
             bKeluar.classList.add('active-keluar'); bMasuk.classList.remove('active-masuk'); 
             selectKat.innerHTML = `<option value="Setor Ke Kas RW">💸 Setor Ke Kas RW</option><option value="Operasional RT">Biaya Operasional RT</option><option value="Santunan Warga">Santunan Warga</option><option value="Pengeluaran Lainnya">Pengeluaran Lainnya</option>`;
-            
             document.getElementById('wrapWargaSetor').classList.add('d-none');
             rowWN.style.gridTemplateColumns = "1fr"; 
         }
@@ -401,12 +387,18 @@
         return umur;
     }
 
+    // REPARASI LIVE: MENGHITUNG SALDO RW PUSAT SECARA REALTIME LANGSUNG DARI TRANSAKSI1
     async function loadSaldoRwGlobal() {
-        const { data, error } = await _sb.from('rekap_saldo_kas').select('*').eq('kode_unit', 'RW_PUSAT').single();
+        const { data, error } = await _sb.from('transaksi1').select('tipe, jumlah').eq('scope', 'RW_PUSAT');
         if (!error && data) {
-            document.getElementById('rwTotalMasuk').innerText = "Rp " + parseInt(data.total_masuk || 0).toLocaleString('id-ID');
-            document.getElementById('rwTotalKeluar').innerText = "Rp " + parseInt(data.total_keluar || 0).toLocaleString('id-ID');
-            document.getElementById('rwSaldoAkhir').innerText = "Rp " + parseInt(data.saldo || 0).toLocaleString('id-ID');
+            let rwMasuk = 0, rwKeluar = 0;
+            data.forEach(tx => {
+                if (tx.tipe === 'masuk') rwMasuk += parseInt(tx.jumlah || 0);
+                if (tx.tipe === 'keluar') rwKeluar += parseInt(tx.jumlah || 0);
+            });
+            document.getElementById('rwTotalMasuk').innerText = "Rp " + rwMasuk.toLocaleString('id-ID');
+            document.getElementById('rwTotalKeluar').innerText = "Rp " + rwKeluar.toLocaleString('id-ID');
+            document.getElementById('rwSaldoAkhir').innerText = "Rp " + (rwMasuk - rwKeluar).toLocaleString('id-ID');
         }
     }
 
@@ -475,7 +467,7 @@
         }
 
         const { error } = await _sb.from('warga').insert([{
-            rt_scope: `RT_${currentRT}`, no_kk: kk, nik: nik, no_rumah: rumah, nama_lengkap: nama, tanggal_lahir: tgl, hubungan_keluarga: hub, status_tinggal: status
+            rt_scope: `RT_${currentRT}`, no_kk: kk, nik: nik, no_rumah: rumah, nama_lengkap: nama, tanggal_lahir: tgl, Black_scope: hub, hubungan_keluarga: hub, status_tinggal: status
         }]);
 
         if (error) { alert("Gagal menyimpan data: " + error.message); return; }
@@ -485,14 +477,10 @@
         ambilDataWargaDb();
     }
 
-    // INTERVENSI UTAMA: JALUR INJEKSI PARSING EXCEL SECARA MASSAL (BULK INSERT)
     async function prosesImportExcel(input) {
         if (!input.files || input.files.length === 0) return;
-        
         const file = input.files[0];
         const reader = new FileReader();
-        
-        // Animasi Loading Sementara pada tombol
         const btnExcel = document.querySelector('.btn-excel');
         const teksAsli = btnExcel.innerText;
         btnExcel.disabled = true;
@@ -502,26 +490,15 @@
             try {
                 const dataBytes = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(dataBytes, { type: 'array' });
-                
-                // Ambil Sheet Pertama di Excel
                 const namaSheet = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[namaSheet];
-                
-                // Konversi baris excel ke format JSON Object Array
                 const rowsJson = XLSX.utils.sheet_to_json(worksheet);
                 
-                if (rowsJson.length === 0) {
-                    alert("⚠️ File Excel kosong atau tidak terbaca!");
-                    restorTombol(); return;
-                }
+                if (rowsJson.length === 0) { alert("⚠️ File Excel kosong atau tidak terbaca!"); restorTombol(); return; }
 
-                // Siapkan wadah data hasil sanitasi mapping untuk Supabase
                 const dataSiapInsert = [];
-
                 for (let i = 0; i < rowsJson.length; i++) {
                     const row = rowsJson[i];
-                    
-                    // Ekstraksi data dan bersihkan spasi
                     let kk = String(row.no_kk || '').trim();
                     let nik = String(row.nik || '').trim();
                     let nama = String(row.nama_lengkap || '').trim();
@@ -530,62 +507,28 @@
                     let hub = String(row.hubungan_keluarga || '').trim();
                     let status = String(row.status_tinggal || '').trim();
 
-                    // Validasi field krusial per baris excel
-                    if (!kk || !nik || !nama || !tgl) {
-                        console.warn(`Baris indeks ${i+1} dilewati karena data no_kk/nik/nama/tgl kosong.`);
-                        continue;
-                    }
+                    if (!kk || !nik || !nama || !tgl) continue;
 
-                    // Format ulang tgl lahir jika excel mengubahnya ke bentuk angka serial data excel
                     if (!isNaN(tgl) && tgl.length > 4) {
-                        // Jika terdeteksi angka serial bawaan excel, parsing secara manual
                         const tanggalObj = XLSX.utils.sheet_to_date(worksheet[XLSX.utils.encode_cell({c:4, r:i+1})]);
-                        if(tanggalObj instanceof Date && !isNaN(tanggalObj)){
-                            tgl = tanggalObj.toISOString().split('T')[0];
-                        }
+                        if(tanggalObj instanceof Date && !isNaN(tanggalObj)){ tgl = tanggalObj.toISOString().split('T')[0]; }
                     }
 
                     dataSiapInsert.push({
-                        rt_scope: `RT_${currentRT}`,
-                        no_kk: kk,
-                        nik: nik,
-                        no_rumah: rumah || '-',
-                        nama_lengkap: nama,
-                        tanggal_lahir: tgl,
-                        hubungan_keluarga: hub || 'Lainnya',
-                        status_tinggal: status || 'Asli (Menetap)'
+                        rt_scope: `RT_${currentRT}`, no_kk: kk, nik: nik, no_rumah: rumah || '-', nama_lengkap: nama, tanggal_lahir: tgl, hubungan_keluarga: hub || 'Lainnya', status_tinggal: status || 'Asli (Menetap)'
                     });
                 }
 
-                if (dataSiapInsert.length === 0) {
-                    alert("❌ Tidak ada baris data valid yang siap dimasukkan. Periksa kembali struktur judul kolom Excel Anda!");
-                    restorTombol(); return;
-                }
+                if (dataSiapInsert.length === 0) { alert("❌ Tidak ada baris data valid!"); restorTombol(); return; }
 
-                // Kirim data kolektif secara massal (Bulk Insert) ke Supabase dalam 1 kali request
                 const { error } = await _sb.from('warga').insert(dataSiapInsert);
+                if (error) throw new Error(error.message);
 
-                if (error) {
-                    throw new Error(error.message);
-                }
-
-                alert(`✅ BERHASIL! ${dataSiapInsert.length} data warga dari Excel telah dimasukkan secara instan ke RT ${currentRT}!`);
+                alert(`✅ BERHASIL! ${dataSiapInsert.length} data warga telah diimport.`);
                 ambilDataWargaDb();
-
-            } catch (err) {
-                console.error(err);
-                alert("❌ Gagal memproses file Excel: " + err.message);
-            } finally {
-                restorTombol();
-                input.value = ""; // Reset input file
-            }
+            } catch (err) { alert("❌ Gagal memproses file Excel: " + err.message); } finally { restorTombol(); input.value = ""; }
         };
-
-        function restorTombol() {
-            btnExcel.disabled = false;
-            btnExcel.innerText = teksAsli;
-        }
-
+        function restorTombol() { btnExcel.disabled = false; btnExcel.innerText = teksAsli; }
         reader.readAsArrayBuffer(file);
     }
 
@@ -593,31 +536,17 @@
         let totalJiwa = listDataWargaLokal.length;
         let setKkUnik = new Set(listDataWargaLokal.map(w => w.no_kk));
         let totalKk = setKkUnik.size;
-
-        const setKkMemilikiKepala = new Set(
-            listDataWargaLokal
-                .filter(w => w.hubungan_keluarga === 'Kepala Keluarga')
-                .map(w => w.no_kk)
-        );
-
-        let totalPemilih = 0;
-        let totalManula = 0;
-        let totalYatim = 0;
-        let totalJanda = 0;
+        const setKkMemilikiKepala = new Set(listDataWargaLokal.filter(w => w.hubungan_keluarga === 'Kepala Keluarga').map(w => w.no_kk));
+        let totalPemilih = 0, totalManula = 0, totalYatim = 0, totalJanda = 0;
 
         listDataWargaLokal.forEach(w => {
             const umur = hitungUsia(w.tanggal_lahir);
             const kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
-
             if (umur >= 17) totalPemilih++;
             if (umur >= 60) totalManula++;
-
             if (!kkAdaKepala) {
-                if (w.hubungan_keluarga === 'Anak' && umur < 18) {
-                    totalYatim++;
-                } else if (w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') {
-                    totalJanda++;
-                }
+                if (w.hubungan_keluarga === 'Anak' && umur < 18) totalYatim++;
+                else if (w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') totalJanda++;
             }
         });
 
@@ -632,53 +561,34 @@
         const { data, error } = await _sb.from('warga').select('*').eq('rt_scope', `RT_${currentRT}`).order('no_kk', { ascending: true }).order('created_at', { ascending: true });
         if (!error && data) { 
             listDataWargaLokal = data; 
-            
             hitungStatistikDashboard();
             renderTabelWarga(); 
-            
             const dlWarga = document.getElementById('listWargaTx');
             dlWarga.innerHTML = '';
-            data.forEach(w => {
-                dlWarga.innerHTML += `<option value="${w.nama_lengkap}">`;
-            });
+            data.forEach(w => { dlWarga.innerHTML += `<option value="${w.nama_lengkap}">`; });
         }
     }
 
-    function setFilterWarga(jenis) {
-        filterAktif = jenis;
-        renderTabelWarga();
-    }
+    function setFilterWarga(jenis) { filterAktif = jenis; renderTabelWarga(); }
 
     function renderTabelWarga() {
         const tbody = document.getElementById('tabelWarga'); tbody.innerHTML = "";
-        
         const cariKk = document.getElementById('cariKk').value.toLowerCase();
         const filterHub = document.getElementById('filterHubungan').value;
-
-        const setKkMemilikiKepala = new Set(
-            listDataWargaLokal
-                .filter(w => w.hubungan_keluarga === 'Kepala Keluarga')
-                .map(w => w.no_kk)
-        );
+        const setKkMemilikiKepala = new Set(listDataWargaLokal.filter(w => w.hubungan_keluarga === 'Kepala Keluarga').map(w => w.no_kk));
 
         let dataTampil = listDataWargaLokal.filter(w => {
             let passKk = true; let passHub = true; let passFilterKhusus = true;
             const umur = hitungUsia(w.tanggal_lahir);
             const kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
 
-            if (filterAktif === 'pemilih') {
-                passFilterKhusus = (umur >= 17);
-            } else if (filterAktif === 'manula') {
-                passFilterKhusus = (umur >= 60);
-            } else if (filterAktif === 'yatim') {
-                passFilterKhusus = (w.hubungan_keluarga === 'Anak' && umur < 18 && !kkAdaKepala);
-            } else if (filterAktif === 'janda') {
-                passFilterKhusus = ((w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') && !kkAdaKepala);
-            }
+            if (filterAktif === 'pemilih') passFilterKhusus = (umur >= 17);
+            else if (filterAktif === 'manula') passFilterKhusus = (umur >= 60);
+            else if (filterAktif === 'yatim') passFilterKhusus = (w.hubungan_keluarga === 'Anak' && umur < 18 && !kkAdaKepala);
+            else if (filterAktif === 'janda') passFilterKhusus = ((w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') && !kkAdaKepala);
 
             if (cariKk) passKk = w.no_kk.toLowerCase().includes(cariKk);
             if (filterHub !== "Semua") passHub = (w.hubungan_keluarga === filterHub);
-            
             return passKk && passHub && passFilterKhusus;
         });
 
@@ -686,42 +596,23 @@
 
         dataTampil.forEach(w => {
             const umur = hitungUsia(w.tanggal_lahir); 
-            const isPemilih = umur >= 17;
-            const isManula = umur >= 60;
+            const isPemilih = umur >= 17; const isManula = umur >= 60;
             const kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
-
             let badgeClass = w.status_tinggal.includes("Kontrak") ? "kontrak" : (w.status_tinggal.includes("Luar") ? "luar" : "asli");
             
             let badgeTambahan = "";
             if (isPemilih) badgeTambahan += `<span class="badge pemilih">🗳️ Pemilih</span> `;
             if (isManula) badgeTambahan += `<span class="badge manula">🧓🏼 Manula</span> `;
-            
             if (!kkAdaKepala) {
-                if (w.hubungan_keluarga === 'Anak' && umur < 18) {
-                    badgeTambahan += `<span class="badge sosial">🧒🏻 Yatim</span> `;
-                } else if (w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') {
-                    badgeTambahan += `<span class="badge sosial">👩🏻‍🦱 Janda</span> `;
-                }
+                if (w.hubungan_keluarga === 'Anak' && umur < 18) badgeTambahan += `<span class="badge sosial">🧒🏻 Yatim</span> `;
+                else if (w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') badgeTambahan += `<span class="badge sosial">👩🏻‍🦱 Janda</span> `;
             }
 
             const cetakNik = w.nik ? w.nik : (w.no_nik ? w.no_nik : "-");
             const formatNama = w.hubungan_keluarga === 'Kepala Keluarga' ? `<span class="badge kk">KK</span> <b style="font-size:14px;">${w.nama_lengkap}</b>` : `<b style="font-size:14px;">${w.nama_lengkap}</b>`;
 
             tbody.innerHTML += `
-                <tr>
-                    <td>
-                        <div style="margin-bottom:4px;">${formatNama}</div>
-                        <div style="font-size:12px; color:#aaa; line-height: 1.4;">
-                            <span style="color: #3498db; font-weight:bold;">NIK: ${cetakNik}</span><br>
-                            KK: ${w.no_kk}
-                        </div>
-                    </td>
-                    <td><span style="font-size:12px; color:#bbb; font-weight:bold;">${w.hubungan_keluarga}</span></td>
-                    <td>
-                        <div>${umur} Tahun ${badgeTambahan}</div>
-                        <div style="font-size:11px; margin-top:4px;"><span class="badge ${badgeClass}">${w.status_tinggal}</span> Rumah: ${w.no_rumah}</div>
-                    </td>
-                </tr>
+                <tr><td><div style="margin-bottom:4px;">${formatNama}</div><div style="font-size:12px; color:#aaa; line-height: 1.4;"><span style="color: #3498db; font-weight:bold;">NIK: ${cetakNik}</span><br>KK: ${w.no_kk}</div></td><td><span style="font-size:12px; color:#bbb; font-weight:bold;">${w.hubungan_keluarga}</span></td><td><div>${umur} Tahun ${badgeTambahan}</div><div style="font-size:11px; margin-top:4px;"><span class="badge ${badgeClass}">${w.status_tinggal}</span> Rumah: ${w.no_rumah}</div></td></tr>
             `;
         });
     }
@@ -729,14 +620,12 @@
     async function simpanTransaksi() {
         const rawNominal = document.getElementById('jumlahTx').value.replace(/\./g, '');
         const jumlahNum = parseInt(rawNominal) || 0;
-        
         if (jumlahNum <= 0) { alert("⚠️ Harap isi nominal transaksi dengan benar!"); return; }
 
         const kategori = document.getElementById('kategoriTx').value; 
         const statusTx = (kategori === "Setor Ke Kas RW") ? 'pending' : 'selesai';
         let keteranganFinal = document.getElementById('ketTx').value.trim();
-
-        if (!keteranganFinal) { alert("⚠️ Harap isi catatan keterangan manual (contoh: Bulan/Tahun)!"); return; }
+        if (!keteranganFinal) { alert("⚠️ Harap isi catatan keterangan manual!"); return; }
 
         if (tipeDipilih === 'masuk') {
             const namaWarga = document.getElementById('wargaTx').value.trim();
@@ -745,44 +634,28 @@
         }
         
         const tgl = new Date().toISOString().split('T')[0];
-
         const { error } = await _sb.from('transaksi1').insert([{ 
-            scope: `RT_${currentRT}`, tipe: tipeDipilih, jumlah: jumlahNum, 
-            kategori: kategori, keterangan: keteranganFinal, tanggal: tgl, status: statusTx 
+            scope: `RT_${currentRT}`, tipe: tipeDipilih, jumlah: jumlahNum, kategori: kategori, keterangan: keteranganFinal, tanggal: tgl, status: statusTx 
         }]);
         
         if (error) { alert("Gagal menyimpan: " + error.message); return; }
-        
         document.getElementById('jumlahTx').value = ""; document.getElementById('ketTx').value = "";
         if (tipeDipilih === 'masuk') { document.getElementById('wargaTx').value = ""; }
         
-        if (statusTx === 'pending') {
-            alert("✅ Permintaan setor terkirim! Menunggu konfirmasi RW Pusat.");
-        } else {
-            alert("✅ Transaksi tersimpan!");
-        }
-        
-        loadHistoriRT();
-        loadSaldoRtLokal(); 
+        alert(statusTx === 'pending' ? "✅ Permintaan setor terkirim! Menunggu konfirmasi RW Pusat." : "✅ Transaksi tersimpan!");
+        loadHistoriRT(); loadSaldoRtLokal(); 
     }
 
     async function cekSesi() { 
         const { data: { session } } = await _sb.auth.getSession(); 
         if (!session) { window.location.href = "index.html"; return; } 
-        ambilDataWargaDb(); 
-        loadHistoriRT(); 
+        ambilDataWargaDb(); loadHistoriRT(); 
     }
-    
-    async function prosesKeluar() { 
-        if (confirm("Keluar sistem?")) { await _sb.auth.signOut(); window.location.href = "index.html"; } 
-    }
+    async function prosesKeluar() { if (confirm("Keluar sistem?")) { await _sb.auth.signOut(); window.location.href = "index.html"; } }
     
     window.onload = function() { 
-        ambilParameterURL(); 
-        setTipe('masuk'); 
-        cekSesi(); 
-        loadSaldoRwGlobal(); 
-        loadSaldoRtLokal(); 
+        ambilParameterURL(); setTipe('masuk'); cekSesi(); 
+        loadSaldoRwGlobal(); loadSaldoRtLokal(); 
     };
 </script>
 </body>

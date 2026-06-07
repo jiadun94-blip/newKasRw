@@ -39,7 +39,8 @@
         .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px; }
         .card { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; }
         .card.pusat { border-top: 4px solid #3498db; }
-        .card.gabungan { border-top: 4px solid var(--accent); }
+        .card.masuk-box { border-top: 4px solid var(--accent); }
+        .card.keluar-box { border-top: 4px solid var(--danger); }
         .card-title { font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 6px; }
         .card-value { font-size: 22px; font-weight: 700; color: #fff; }
         
@@ -64,7 +65,11 @@
         .section-title { font-size: 13px; font-weight: bold; text-transform: uppercase; margin: 20px 0 10px 0; color: #fff; letter-spacing: 0.5px; }
         
         .table-container { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; overflow-x: auto; }
-        .scroll-box { max-height: 300px; overflow-y: auto; }
+        .scroll-box { max-height: 300px; overflow-y: auto; padding-right: 5px; }
+        .scroll-box::-webkit-scrollbar { width: 6px; }
+        .scroll-box::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 4px; }
+        .scroll-box::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
         th, td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); }
         th { background-color: rgba(255,255,255,0.03); color: #aaa; text-transform: uppercase; font-size: 11px; position: sticky; top:0; z-index: 5; }
@@ -72,7 +77,7 @@
         .btn-terima { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; text-transform: uppercase; }
         .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 15px; }
         .log-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; }
-        .log-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2d2d2d; font-size: 12px; }
+        .log-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #2d2d2d; font-size: 13px; }
         .log-item:last-child { border-bottom: none; }
         
         .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
@@ -98,18 +103,17 @@
     </header>
 
     <div class="summary-grid">
-        <div class="card pusat">
-            <div class="card-title">💵 KAS RW PUSAT</div>
-            <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 5px;">
-                <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:#aaa;">Masuk:</span><span id="rwTotalMasuk" style="color:var(--accent); font-weight:bold;">Rp 0</span></div>
-                <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:#aaa;">Keluar:</span><span id="rwTotalKeluar" style="color:var(--danger); font-weight:bold;">Rp 0</span></div>
-                <div style="display:flex; justify-content:space-between; font-size:13px; border-top:1px solid #333; padding-top:4px; margin-top:2px;"><span style="color:#fff; font-weight:bold;">SALDO:</span><span id="kasPusat" style="color:#fff; font-weight:bold;">Rp 0</span></div>
-            </div>
+        <div class="card masuk-box">
+            <div class="card-title">📥 TOTAL TRANSAKSI MASUK (RW PUSAT)</div>
+            <div class="card-value" id="rwTotalMasuk" style="color: var(--accent);">Rp 0</div>
         </div>
-        <div class="card gabungan">
-            <div class="card-title">💰 TOTAL KAS GABUNGAN (Pusat + Seluruh RT)</div>
-            <div class="card-value" id="kasTotal" style="margin-top:10px;">Rp 0</div>
-            <div style="font-size:11px; color:#aaa; margin-top:5px;">Sinkronisasi Real-time dengan 7 Wilayah RT</div>
+        <div class="card keluar-box">
+            <div class="card-title">📤 TOTAL TRANSAKSI KELUAR (RW PUSAT)</div>
+            <div class="card-value" id="rwTotalKeluar" style="color: var(--danger);">Rp 0</div>
+        </div>
+        <div class="card pusat">
+            <div class="card-title">💵 SALDO AKHIR KAS RW PUSAT</div>
+            <div class="card-value" id="kasPusat">Rp 0</div>
         </div>
     </div>
 
@@ -179,9 +183,16 @@
         <div class="section-title">📊 Kondisi Keuangan Real-time Antar RT</div>
         <div class="table-container" style="margin-bottom:20px;"><table id="tabelRT"><thead><tr><th>Wilayah</th><th>Pemasukan</th><th>Pengeluaran</th><th>Saldo RT</th><th>Status</th></tr></thead><tbody id="tabelRTBody"></tbody></table></div>
 
+        <!-- LOG HISTORI HISTORIKAL YANG TADI TERLEWAT SUDAH AKTIF KEMBALI -->
         <div class="detail-grid">
-            <div class="log-box"><div class="section-title" style="color: var(--accent); margin-top: 0;">📥 5 Transaksi Masuk RW Terbaru</div><div id="logSetoran" class="scroll-box">Belum ada.</div></div>
-            <div class="log-box"><div class="section-title" style="color: var(--danger); margin-top: 0;">📤 5 Transaksi Keluar RW Terbaru</div><div id="logPengeluaran" class="scroll-box">Belum ada.</div></div>
+            <div class="log-box">
+                <div class="section-title" style="color: var(--accent); margin-top: 0;">📥 5 Transaksi Masuk RW Terbaru</div>
+                <div id="logSetoran" class="scroll-box">Memuat data masuk...</div>
+            </div>
+            <div class="log-box">
+                <div class="section-title" style="color: var(--danger); margin-top: 0;">📤 5 Transaksi Keluar RW Terbaru</div>
+                <div id="logPengeluaran" class="scroll-box">Memuat data pengeluaran...</div>
+            </div>
         </div>
     </div>
 
@@ -390,7 +401,6 @@
         }
     }
 
-    // MODIFIKASI ABSOLUT: SISTEM KUNCI JABATAN HANYA UNTUK EMAIL ANDA
     async function cekSesi() {
         let { data: { session } } = await _sb.auth.getSession();
         if (!session) { window.location.href = "index.html"; return; }
@@ -398,7 +408,6 @@
         let emailUser = session.user.email;
         let badge = document.getElementById('userBadgeRole');
 
-        // Proteksi Akun Tunggal Bendahara Finansial
         if (emailUser === "hadiatpermana@gmail.com") {
             isBendahara = true;
             badge.innerText = "👑 Bendahara RW";
@@ -414,7 +423,6 @@
         setTipe('masuk');
         muatDataDashboard();
         loadPendingSetoran();
-        loadHistoriRWLogs();
         ambilMasterWarga();
     }
 
@@ -463,7 +471,6 @@
 
         loadPendingSetoran();
         muatDataDashboard();
-        loadHistoriRWLogs();
     }
 
     async function muatDataDashboard() {
@@ -480,7 +487,6 @@
         document.getElementById('kasPusat').innerText = "Rp " + (rwMasuk - rwKeluar).toLocaleString('id-ID');
 
         let { data: semuaTx } = await _sb.from('transaksi1').select('*');
-        let gabunganTotalSaldo = rwMasuk - rwKeluar; 
         
         let unitData = { 
             "RT_01": {m:0, k:0}, "RT_02": {m:0, k:0}, "RT_03": {m:0, k:0}, 
@@ -500,12 +506,12 @@
         let htmlTabel = "";
         for (let key in unitData) {
             let saldoRT = unitData[key].m - unitData[key].k;
-            gabunganTotalSaldo += saldoRT;
             htmlTabel += `<tr><td><b>${key.replace('_',' ')}</b></td><td>Rp ${unitData[key].m.toLocaleString('id-ID')}</td><td>Rp ${unitData[key].k.toLocaleString('id-ID')}</td><td style="font-weight:bold; color:var(--accent);">Rp ${saldoRT.toLocaleString('id-ID')}</td><td><span class="badge pemilih">AKTIF</span></td></tr>`;
         }
-        
-        document.getElementById('kasTotal').innerText = "Rp " + gabunganTotalSaldo.toLocaleString('id-ID');
         document.getElementById('tabelRTBody').innerHTML = htmlTabel;
+
+        // PANGGIL ULANG LOG HISTORI DI SINI
+        loadHistoriRWLogs();
     }
 
     async function simpanTransaksiRW() {
@@ -517,7 +523,7 @@
         let keterangan = document.getElementById('ketTx').value.trim();
         let tgl = new Date().toISOString().split('T')[0];
 
-        if (jumlahNum <= 0 || !keterangan) { alert("⚠️ Harap isi nominal dan keterangan pembukuan Pusat!"); return; }
+        if (jumlahNum <= 0 || !keterangan) { alert("⚠️ Harap isi nominal and keterangan pembukuan Pusat!"); return; }
 
         let { error } = await _sb.from('transaksi1').insert([{
             scope: 'RW_PUSAT', tipe: tipeDipilih, jumlah: jumlahNum, kategori: kategori, keterangan: keterangan, tanggal: tgl, status: 'selesai'
@@ -537,9 +543,9 @@
 
         document.getElementById('jumlahTx').value = ""; document.getElementById('ketTx').value = "";
         muatDataDashboard();
-        loadHistoriRWLogs();
     }
 
+    // FUNGSI LOG HISTORI YANG AMAN DAN TERINTEGRASI
     async function loadHistoriRWLogs() {
         let { data: masuk } = await _sb.from('transaksi1').select('*').eq('scope', 'RW_PUSAT').eq('tipe', 'masuk').order('created_at', {ascending: false}).limit(5);
         let { data: keluar } = await _sb.from('transaksi1').select('*').eq('scope', 'RW_PUSAT').eq('tipe', 'keluar').order('created_at', {ascending: false}).limit(5);

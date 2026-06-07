@@ -31,21 +31,32 @@
         .welcome-card h3 { margin: 0 0 5px 0; font-size: 18px; color: #fff; }
         .welcome-card p { margin: 0; font-size: 13px; color: #aaa; }
 
-        /* Grid Finansial Baru Sesuai Request */
-        .grid-finansial { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
-        .card-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; position: relative; }
-        .card-box.pusat { border-top: 4px solid var(--blue); }
-        .card-box.masuk-box { border-top: 4px solid var(--accent); }
-        .card-box.keluar-box { border-top: 4px solid var(--danger); }
-        .box-title { font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 6px; letter-spacing: 0.5px; }
-        .box-value { font-size: 22px; font-weight: 700; color: #fff; }
-
-        .btn-detail-link { background: rgba(52, 152, 219, 0.12); border: 1px dashed var(--blue); color: var(--blue); width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; margin-bottom: 25px; transition: all 0.2s ease; }
-        .btn-detail-link:hover { background: rgba(52, 152, 219, 0.25); color: #fff; }
-
-        .section-title { font-size: 14px; font-weight: bold; text-transform: uppercase; margin: 20px 0 10px 0; color: #fff; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+        .section-title { font-size: 14px; font-weight: bold; text-transform: uppercase; margin: 25px 0 12px 0; color: #fff; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
         
-        .table-container { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; overflow-x: auto; margin-bottom: 25px; }
+        /* Layout Grid untuk memisahkan Global RW dan Internal RT */
+        .grid-laporan { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        @media (max-width: 600px) {
+            .grid-laporan { grid-template-columns: 1fr; }
+        }
+
+        .card-laporan { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-laporan.global { border-top: 4px solid var(--blue); }
+        .card-laporan.internal { border-top: 4px solid var(--accent); }
+        
+        .card-laporan h4 { margin: 0 0 15px 0; font-size: 14px; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .fin-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2d2d2d; font-size: 13px; }
+        .fin-row:last-of-type { border-bottom: none; margin-bottom: 15px; }
+        .fin-label { color: #aaa; }
+        .fin-value { font-weight: bold; color: #fff; }
+
+        .btn-popup { width: 100%; padding: 10px; background: rgba(255, 255, 255, 0.03); border: 1px dashed #555; color: #ccc; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; transition: all 0.2s ease; }
+        .card-laporan.global .btn-popup { border-color: var(--blue); color: var(--blue); background: rgba(52, 152, 219, 0.05); }
+        .card-laporan.global .btn-popup:hover { background: rgba(52, 152, 219, 0.15); color: #fff; }
+        .card-laporan.internal .btn-popup { border-color: var(--accent); color: var(--accent); background: rgba(114, 163, 57, 0.05); }
+        .card-laporan.internal .btn-popup:hover { background: rgba(114, 163, 57, 0.15); color: #fff; }
+
+        .table-container { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
         th, td { padding: 12px; border-bottom: 1px solid var(--border-color); }
         th { background-color: rgba(255,255,255,0.02); color: #aaa; text-transform: uppercase; font-size: 11px; }
@@ -55,16 +66,18 @@
         .badge.rt { background: rgba(52, 152, 219, 0.15); color: var(--blue); }
         .badge.aktif { background: rgba(114, 163, 57, 0.15); color: var(--accent); }
 
-        .empty-state { color: #666; font-style: italic; text-align: center; padding: 30px 0; font-size: 13px; }
+        .empty-state { color: #666; font-style: italic; text-align: center; padding: 20px 0; font-size: 13px; }
 
-        /* STYLE STRUKTUR MODAL POPUP POPUP */
+        /* MODAL STYLE (POPUP WINDOW) */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding-top: 40px; }
         .modal-content { background-color: var(--card-dark); margin: auto; padding: 20px; border: 1px solid #444; width: 90%; max-width: 650px; border-radius: 12px; max-height: 85vh; display: flex; flex-direction: column; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px; }
-        .modal-header h2 { margin: 0; font-size: 18px; color: #fff; }
+        .modal-header h2 { margin: 0; font-size: 16px; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
         .close-modal { color: #aaa; font-size: 24px; font-weight: bold; cursor: pointer; }
         .close-modal:hover { color: var(--danger); }
         .modal-body-scroll { overflow-y: auto; flex: 1; padding-right: 5px; }
+        .modal-body-scroll::-webkit-scrollbar { width: 6px; }
+        .modal-body-scroll::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
         .item-detail-tx { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid #2d2d2d; font-size: 13px; }
         .item-detail-tx:last-child { border-bottom: none; }
     </style>
@@ -85,43 +98,54 @@
         <p id="txtDetailWarga">Mencari manifestasi identitas NIK Anda di dalam basis data...</p>
     </div>
 
-    <div class="section-title">📊 Informasi Kas RW Pusat Terkini</div>
-    <div class="grid-finansial">
-        <div class="card-box masuk-box">
-            <div class="box-title">📥 Total Uang Masuk</div>
-            <div class="box-value" id="rwTotalMasuk" style="color: var(--accent);">Rp 0</div>
+    <div class="section-title">📊 Ikhtisar Laporan Keuangan Keuangan</div>
+    
+    <div class="grid-laporan">
+        
+        <div class="card-laporan global">
+            <div>
+                <h4>🌍 GLOBAL RW PUSAT <span style="font-size: 11px; color: var(--blue);">KONSOLIDASI</span></h4>
+                <div class="fin-row">
+                    <span class="fin-label">Total Pemasukan</span>
+                    <span class="fin-value" id="rwTotalMasuk" style="color: var(--accent);">Rp 0</span>
+                </div>
+                <div class="fin-row">
+                    <span class="fin-label">Total Pengeluaran</span>
+                    <span class="fin-value" id="rwTotalKeluar" style="color: var(--danger);">Rp 0</span>
+                </div>
+                <div class="fin-row">
+                    <span class="fin-label" style="font-weight: bold; color: #fff;">SALDO RW</span>
+                    <span class="fin-value" id="saldoPusat" style="color: var(--blue); font-size: 15px;">Rp 0</span>
+                </div>
+            </div>
+            <button class="btn-popup" onclick="bukaModalFinansial('RW_PUSAT')">🔍 Riwayat Kas RW Global</button>
         </div>
-        <div class="card-box keluar-box">
-            <div class="box-title">📤 Total Uang Keluar</div>
-            <div class="box-value" id="rwTotalKeluar" style="color: var(--danger);">Rp 0</div>
+
+        <div class="card-laporan internal">
+            <div>
+                <h4>🏡 INTERNAL RT <span id="labelRtKunciHeader">--</span> <span style="font-size: 10px; padding: 2px 5px; background: rgba(114, 163, 57, 0.2); color: var(--accent); border-radius:3px;">WILAYAH ANDA</span></h4>
+                <div id="loadingInternalRt" class="empty-state" style="padding: 15px 0;">Menghubungkan kas RT...</div>
+                <div id="dataInternalRt" class="d-none">
+                    <div class="fin-row">
+                        <span class="fin-label">Total Pemasukan</span>
+                        <span class="fin-value" id="rtTotalMasuk" style="color: var(--accent);">Rp 0</span>
+                    </div>
+                    <div class="fin-row">
+                        <span class="fin-label">Total Pengeluaran</span>
+                        <span class="fin-value" id="rtTotalKeluar" style="color: var(--danger);">Rp 0</span>
+                    </div>
+                    <div class="fin-row">
+                        <span class="fin-label" style="font-weight: bold; color: #fff;">SALDO RT</span>
+                        <span class="fin-value" id="saldoRtLokal" style="color: var(--accent); font-size: 15px;">Rp 0</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-popup" id="btnDetailRt" onclick="bukaModalFinansial('RT_LOKAL')" disabled>⏳ Kunci Wilayah...</button>
         </div>
-        <div class="card-box pusat">
-            <div class="box-title">💵 Saldo Akhir Kas RW</div>
-            <div class="box-value" id="saldoPusat" style="color: #fff;">Rp 0</div>
-        </div>
+
     </div>
 
-    <button class="btn-detail-link" onclick="bukaModalDetailFinansial()">🔍 Lihat Detail Keluar Masuk Uang Kas RW</button>
-
-    <div class="section-title">🏢 Laporan Keuangan Tingkat RT</div>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Wilayah</th>
-                    <th>Total Pemasukan</th>
-                    <th>Total Pengeluaran</th>
-                    <th>Saldo Kas RT</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="bodyTabelRT">
-                <tr><td colspan="5" class="empty-state">Sinkronisasi data kas wilayah...</td></tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="section-title">👨‍👩‍👧‍👦 Manifestasi Manifes Kartu Keluarga Anda</div>
+    <div class="section-title">👨‍👩‍👧‍👦 Manifes Kartu Keluarga Anda</div>
     <div class="table-container">
         <table>
             <thead>
@@ -142,8 +166,8 @@
 <div id="modalDetailKas" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>📋 Jurnal Histori Keluar Masuk Kas RW Pusat</h2>
-            <span class="close-modal" onclick="tutupModalDetailFinansial()">&times;</span>
+            <h2 id="modalTitleText">📋 Jurnal Histori Kas</h2>
+            <span class="close-modal" onclick="tutupModalFinansial()">&times;</span>
         </div>
         <div class="modal-body-scroll" id="bodyDetailJurnal">
             <div class="empty-state">Memuat riwayat pembukuan kas...</div>
@@ -155,6 +179,7 @@
     const _sb = supabase.createClient("https://nuxybltpoldavntkrabh.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51eHlibHRwb2xkYXZudGtyYWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NjA1MTEsImV4cCI6MjA5MjMzNjUxMX0.vVD4cxYt9AWA4XcLrSnA7Pat6K5Mt3mQ61Qct6j_uUg");
 
     let currentNik = null;
+    let userRtScope = null;
 
     function hitungUsia(tglLahirStr) {
         if (!tglLahirStr) return "-";
@@ -178,10 +203,10 @@
             if (currentNik) {
                 muatManifestKeluarga(currentNik);
             } else {
-                document.getElementById('bodyTabelKeluarga').innerHTML = `<tr><td colspan="4" class="empty-state">⚠️ Akun Anda belum menautkan NIK. Hubungi admin untuk sinkronisasi KK.</td></tr>`;
+                document.getElementById('bodyTabelKeluarga').innerHTML = `<tr><td colspan="4" class="empty-state">⚠️ Akun Anda belum menautkan NIK. Hubungi admin.</td></tr>`;
+                muatDataFinansialWarga(null);
             }
         }
-        muatDataFinansialWarga();
     }
 
     async function muatManifestKeluarga(nik) {
@@ -192,30 +217,33 @@
         }
 
         if (wargaSendiri && wargaSendiri.no_kk) {
-            document.getElementById('txtDetailWarga').innerHTML = `Terdaftar di wilayah: <span class="badge rt">${wargaSendiri.rt_scope.replace('_',' ')}</span> | No Kartu Keluarga: <b>${wargaSendiri.no_kk}</b>`;
+            userRtScope = wargaSendiri.rt_scope; // Contoh: "RT_01"
+            let labelRtMurni = userRtScope.replace('RT_', '');
             
+            document.getElementById('txtDetailWarga').innerHTML = `Terdaftar di wilayah: <span class="badge rt">RT ${labelRtMurni}</span> | No Kartu Keluarga: <b>${wargaSendiri.no_kk}</b>`;
+            document.getElementById('labelRtKunciHeader').innerText = labelRtMurni;
+            
+            let btnRt = document.getElementById('btnDetailRt');
+            btnRt.disabled = false;
+            btnRt.innerText = `🔍 Riwayat Kas RT ${labelRtMurni}`;
+
+            // Ambil data KK serumah
             let { data: anggotaKeluarga } = await _sb.from('warga').select('*').eq('no_kk', wargaSendiri.no_kk).order('hubungan_keluarga', {ascending: true});
-            
             if (anggotaKeluarga && anggotaKeluarga.length > 0) {
                 document.getElementById('bodyTabelKeluarga').innerHTML = anggotaKeluarga.map(w => {
                     let formatNama = w.hubungan_keluarga === 'Kepala Keluarga' ? `<span class="badge kk">KK</span> <b>${w.nama_lengkap}</b>` : `<b>${w.nama_lengkap}</b>`;
-                    return `
-                        <tr>
-                            <td>${formatNama}</td>
-                            <td><span style="color:#bbb;">${w.hubungan_keluarga}</span></td>
-                            <td>${hitungUsia(w.tanggal_lahir)}</td>
-                            <td><span class="badge aktif">${w.status_tinggal || 'Tetap'}</span></td>
-                        </tr>
-                    `;
+                    return `<tr><td>${formatNama}</td><td><span style="color:#bbb;">${w.hubungan_keluarga}</span></td><td>${hitungUsia(w.tanggal_lahir)}</td><td><span class="badge aktif">${w.status_tinggal || 'Tetap'}</span></td></tr>`;
                 }).join('');
-                return;
             }
+        } else {
+            document.getElementById('bodyTabelKeluarga').innerHTML = `<tr><td colspan="4" class="empty-state">ℹ️ Data Kartu Keluarga Anda belum dimasukkan oleh pengurus RT.</td></tr>`;
         }
-        document.getElementById('bodyTabelKeluarga').innerHTML = `<tr><td colspan="4" class="empty-state">ℹ️ NIK Anda valid, namun master data kependudukan KK Anda belum diinput oleh Admin RT Anda.</td></tr>`;
+
+        muatDataFinansialWarga(userRtScope);
     }
 
-    async function muatDataFinansialWarga() {
-        // Ambil data transaksi internal RW PUSAT
+    async function muatDataFinansialWarga(rtKunci) {
+        // 1. Ambil Kas RW Pusat (Global)
         let { data: txRw } = await _sb.from('transaksi1').select('tipe, jumlah').eq('scope', 'RW_PUSAT');
         let rwMasuk = 0, rwKeluar = 0;
         if(txRw) {
@@ -224,52 +252,61 @@
                 if (tx.tipe === 'keluar') rwKeluar += parseInt(tx.jumlah || 0);
             });
         }
-        
-        // Render rincian terpisah ke box atas sesuai instruksi baru
         document.getElementById('rwTotalMasuk').innerText = "Rp " + rwMasuk.toLocaleString('id-ID');
         document.getElementById('rwTotalKeluar').innerText = "Rp " + rwKeluar.toLocaleString('id-ID');
         document.getElementById('saldoPusat').innerText = "Rp " + (rwMasuk - rwKeluar).toLocaleString('id-ID');
 
-        // Ambil data untuk rekap tabel RT wilayah bawah
-        let { data: semuaTx } = await _sb.from('transaksi1').select('*');
-        let unitData = { 
-            "RT_01": {m:0, k:0}, "RT_02": {m:0, k:0}, "RT_03": {m:0, k:0}, 
-            "RT_04": {m:0, k:0}, "RT_05": {m:0, k:0}, "RT_06": {m:0, k:0}, 
-            "RT_07": {m:0, k:0} 
-        };
-        
-        if(semuaTx) {
-            semuaTx.forEach(tx => {
-                if(unitData[tx.scope]) {
-                    if(tx.tipe === 'masuk') unitData[tx.scope].m += parseInt(tx.jumlah || 0);
-                    if(tx.tipe === 'keluar') unitData[tx.scope].k += parseInt(tx.jumlah || 0);
-                }
-            });
+        // 2. Ambil Kas RT Internal (Terkunci Otomatis)
+        if (rtKunci) {
+            let { data: txRt } = await _sb.from('transaksi1').select('tipe, jumlah').eq('scope', rtKunci);
+            let rtMasuk = 0, rtKeluar = 0;
+            if (txRt) {
+                txRt.forEach(tx => {
+                    if (tx.tipe === 'masuk') rtMasuk += parseInt(tx.jumlah || 0);
+                    if (tx.tipe === 'keluar') rtKeluar += parseInt(tx.jumlah || 0);
+                });
+            }
+            
+            document.getElementById('loadingInternalRt').style.display = 'none';
+            
+            let wrapData = document.getElementById('dataInternalRt');
+            wrapData.style.display = 'block';
+            wrapData.classList.remove('d-none');
+            
+            document.getElementById('rtTotalMasuk').innerText = "Rp " + rtMasuk.toLocaleString('id-ID');
+            document.getElementById('rtTotalKeluar').innerText = "Rp " + rtKeluar.toLocaleString('id-ID');
+            document.getElementById('saldoRtLokal').innerText = "Rp " + (rtMasuk - rtKeluar).toLocaleString('id-ID');
+        } else {
+            document.getElementById('loadingInternalRt').innerText = "⚠️ RT tidak teridentifikasi.";
         }
-
-        let htmlTabel = "";
-        for (let key in unitData) {
-            let saldoRT = unitData[key].m - unitData[key].k;
-            htmlTabel += `<tr><td><b>${key.replace('_',' ')}</b></td><td>Rp ${unitData[key].m.toLocaleString('id-ID')}</td><td>Rp ${unitData[key].k.toLocaleString('id-ID')}</td><td style="font-weight:bold; color:var(--accent);">Rp ${saldoRT.toLocaleString('id-ID')}</td><td><span class="badge aktif">TERSEDIA</span></td></tr>`;
-        }
-        document.getElementById('bodyTabelRT').innerHTML = htmlTabel;
     }
 
-    // ENGINE BARU: MEMANGGIL DETAIL LOG DATA ALIRAN KAS RW PUSAT SECARA REALTIME
-    async function bukaModalDetailFinansial() {
+    // HANDLER POPUP JURNAL REALTIME
+    async function bukaModalFinansial(modeTarget) {
         const modal = document.getElementById('modalDetailKas');
+        const titleText = document.getElementById('modalTitleText');
         const bodyJurnal = document.getElementById('bodyDetailJurnal');
+        
         modal.style.display = "block";
-        bodyJurnal.innerHTML = `<div class="empty-state">⚡ Menghubungkan jurnal keuangan...</div>`;
+        bodyJurnal.innerHTML = `<div class="empty-state">⚡ Menyelaraskan catatan kas...</div>`;
+
+        let queryScope = "RW_PUSAT";
+        if (modeTarget === "RW_PUSAT") {
+            titleText.innerText = "📋 Histori Aliran Dana Kas RW Pusat (Global)";
+            queryScope = "RW_PUSAT";
+        } else {
+            titleText.innerText = `📋 Histori Aliran Dana Kas RT ${userRtScope.replace('RT_', '')} (Internal)`;
+            queryScope = userRtScope;
+        }
 
         let { data: listJurnal, error } = await _sb
             .from('transaksi1')
             .select('*')
-            .eq('scope', 'RW_PUSAT')
+            .eq('scope', queryScope)
             .order('created_at', { ascending: false });
 
         if (error || !listJurnal || listJurnal.length === 0) {
-            bodyJurnal.innerHTML = `<div class="empty-state">Belum ada riwayat transaksi terdata di RW Pusat.</div>`;
+            bodyJurnal.innerHTML = `<div class="empty-state">Belum ada catatan log transaksi pada scope ini.</div>`;
             return;
         }
 
@@ -277,7 +314,7 @@
             <div class="item-detail-tx">
                 <div>
                     <div style="font-weight:bold; color:#fff; margin-bottom:3px;">${tx.keterangan}</div>
-                    <div style="font-size:11px; color:#888;">${tx.tanggal} | Jenis: <b>${tx.kategori}</b></div>
+                    <div style="font-size:11px; color:#888;">${tx.tanggal} | Jenis: <b>${tx.kategori}</b> ${tx.status === 'pending' ? '<span style="color:#f1c40f;">(Pending RW)</span>' : ''}</div>
                 </div>
                 <div style="font-weight:bold; color:${tx.tipe === 'masuk' ? 'var(--accent)' : 'var(--danger)'};">
                     ${tx.tipe === 'masuk' ? '+' : '-'} Rp ${parseInt(tx.jumlah).toLocaleString('id-ID')}
@@ -286,17 +323,13 @@
         `).join('');
     }
 
-    function tutupModalDetailFinansial() {
-        document.getElementById('modalDetailKas').style.display = "none";
-    }
-
-    // Tutup popup otomatis jika warga mengklik area luar kotak hitam modal
+    function tutupModalFinansial() { document.getElementById('modalDetailKas').style.display = "none"; }
     window.onclick = function(event) {
         const modal = document.getElementById('modalDetailKas');
         if (event.target == modal) { modal.style.display = "none"; }
     }
 
-    async function prosesKeluar() { if (confirm("Keluar dari Portal Layanan Warga?")) { await _sb.auth.signOut(); window.location.href = "index.html"; } }
+    async function prosesKeluar() { if (confirm("Keluar dari sistem?")) { await _sb.auth.signOut(); window.location.href = "index.html"; } }
     window.onload = cekSesiWarga;
 </script>
 </body>
