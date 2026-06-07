@@ -18,6 +18,7 @@
             --blue: #3498db;
             --purple: #9b59b6;
             --yellow: #f1c40f;
+            --teal: #1abc9c;
         }
 
         * { box-sizing: border-box; }
@@ -51,9 +52,11 @@
         
         .filter-container { display: flex; gap: 10px; margin-bottom: 12px; }
 
-        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+        @media (max-width: 600px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
         .stat-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; text-align: center; }
-        .stat-box.full-width { grid-column: span 3; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0; border: none; background: transparent; }
+        .stat-box.full-width { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0; border: none; background: transparent; }
+        @media (max-width: 600px) { .stat-box.full-width { grid-column: span 2; } }
         .stat-box.full-width .stat-sub { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; text-align: center; }
         .stat-label { font-size: 10px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; letter-spacing: 0.5px; }
         .stat-value { font-size: 18px; font-weight: bold; color: #fff; }
@@ -81,6 +84,7 @@
         .badge.pemilih { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
         .badge.manula { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
         .badge.sosial { background: rgba(155, 89, 182, 0.2); color: #9b59b6; border: 1px solid #9b59b6; }
+        .badge.balita { background: rgba(26, 188, 156, 0.2); color: #1abc9c; border: 1px solid #1abc9c; }
 
         .d-none { display: none !important; }
         .empty-state { color: #666; font-style: italic; text-align: center; padding: 20px 0; }
@@ -99,42 +103,43 @@
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
         <div class="card" style="border-top: 4px solid var(--blue); padding: 15px; margin-bottom: 0;">
-            <div style="font-size: 14px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; color: #aaa;">📊 KAS RW PUSAT</div>
+            <div style="font-size: 16px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; color: #aaa;">📊 KAS RW PUSAT</div>
             <div style="display: flex; flex-direction: column; gap: 8px;">
                 <div style="display: flex; justify-content: space-between;">
-                    <span style="font-size: 14px; color: #aaa;">Masuk:</span>
+                    <span style="font-size: 18px; color: #aaa;">Masuk:</span>
                     <span id="rwTotalMasuk" style="font-size: 18px; font-weight: bold; color: var(--accent);">Rp 0</span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
-                    <span style="font-size: 14px; color: #aaa;">Keluar:</span>
+                    <span style="font-size: 18px; color: #aaa;">Keluar:</span>
                     <span id="rwTotalKeluar" style="font-size: 18px; font-weight: bold; color: var(--danger);">Rp 0</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 5px;">
-                    <span style="font-size: 14px; color: #fff; font-weight: bold;">SALDO:</span>
+                    <span style="font-size: 18px; color: #fff; font-weight: bold;">SALDO:</span>
                     <span id="rwSaldoAkhir" style="font-size: 18px; font-weight: bold; color: var(--blue);">Rp 0</span>
                 </div>
             </div>
         </div>
 
         <div class="card" style="border-top: 4px solid var(--accent); padding: 15px; margin-bottom: 0;">
-            <div style="font-size: 14px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; color: #fff;">📊 KAS RT <span id="labelRtKecil"></span></div>
+            <div style="font-size: 16px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; color: #fff;">📊 KAS RT <span id="labelRtKecil"></span></div>
             <div style="display: flex; flex-direction: column; gap: 8px;">
                 <div style="display: flex; justify-content: space-between;">
-                    <span style="font-size: 14px; color: #aaa;">Masuk:</span>
+                    <span style="font-size: 18px; color: #aaa;">Masuk:</span>
                     <span id="rtTotalMasuk" style="font-size: 18px; font-weight: bold; color: var(--accent);">Rp 0</span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
-                    <span style="font-size: 14px; color: #aaa;">Keluar:</span>
+                    <span style="font-size: 18px; color: #aaa;">Keluar:</span>
                     <span id="rtTotalKeluar" style="font-size: 18px; font-weight: bold; color: var(--danger);">Rp 0</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 5px;">
-                    <span style="font-size: 14px; color: #fff; font-weight: bold;">SALDO:</span>
+                    <span style="font-size: 18px; color: #fff; font-weight: bold;">SALDO:</span>
                     <span id="rtSaldoAkhir" style="font-size: 18px; font-weight: bold; color: var(--accent);">Rp 0</span>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- UPDATE BOX STATISTIK: DISET SINKRON DENGAN BATAS USIA DIBAWAH 5 TAHUN -->
     <div class="stat-grid">
         <div class="stat-box" style="border-bottom: 3px solid var(--blue);">
             <div class="stat-label">👥 Total Jiwa</div>
@@ -148,6 +153,10 @@
             <div class="stat-label">🗳️ Pemilih</div>
             <div class="stat-value" id="statTotalPemilih">0</div>
         </div>
+        <div class="stat-box" style="border-bottom: 3px solid var(--teal);">
+            <div class="stat-label">👶 Balita (<5 Thn)</div>
+            <div class="stat-value" id="statTotalBalita">0</div>
+        </div>
         <div class="stat-box full-width">
             <div class="stat-sub" style="border-bottom: 3px solid var(--danger);">
                 <div class="stat-label">🧓🏼 Manula (&ge;60 Thn)</div>
@@ -155,7 +164,13 @@
             </div>
             <div class="stat-sub" style="border-bottom: 3px solid var(--purple);">
                 <div class="stat-label">🧒🏻 Yatim / 👩🏻‍🦱 Janda</div>
-                <div class="stat-value" id="statSocialNeeds">0 <span style="font-size:11px; font-weight:normal; color:#aaa;">Jiwa</span></div>
+                <div class="stat-value" id="statSocialNeeds">0</div>
+            </div>
+        </div>
+        <div class="stat-box full-width">
+            <div class="stat-sub" style="border-bottom: 3px solid var(--purple); grid-column: span 2;">
+                <div class="stat-label">📍 KK Sini (Tinggal Luar)</div>
+                <div class="stat-value" id="statTotalKkSiniLuar">0 <span style="font-size:11px; font-weight:normal; color:#aaa;">Jiwa</span></div>
             </div>
         </div>
     </div>
@@ -284,9 +299,11 @@
                 <select id="filterKategoriWarga" onchange="setFilterWarga(this.value)">
                     <option value="semua">Semua Penduduk</option>
                     <option value="pemilih">🗳️ Data Pemilih (>= 17 Tahun)</option>
+                    <option value="balita">👶 Data Anak Balita (0 - 4 Tahun 11 Bulan)</option>
                     <option value="manula">🧓🏼 Lansia / Manula (>= 60 Tahun)</option>
                     <option value="yatim">🧒🏻 Anak Yatim (KK Tanpa Kepala Keluarga)</option>
-                    <option value="janda">👩🏻‍🦱 Janda / Single Parent (Kepala Keluarga Meninggal)</option>
+                    <option value="janda">👩🏻‍🦱 Janda / Single Parent</option>
+                    <option value="kksiniluar">📍 KK Sini (Tapi Tinggal di Luar)</option>
                 </select>
             </div>
         </div>
@@ -387,7 +404,6 @@
         return umur;
     }
 
-    // REPARASI LIVE: MENGHITUNG SALDO RW PUSAT SECARA REALTIME LANGSUNG DARI TRANSAKSI1
     async function loadSaldoRwGlobal() {
         const { data, error } = await _sb.from('transaksi1').select('tipe, jumlah').eq('scope', 'RW_PUSAT');
         if (!error && data) {
@@ -463,11 +479,11 @@
         const status = document.getElementById('statusTinggal').value;
 
         if (!kk || !nik || !nama || !tgl || !rumah) { 
-            alert("⚠️ Harap isi No. KK, NIK, Nama, Nomor Rumah, dan Tanggal Lahir!"); return; 
+            alert("⚠️ Harap isi No. KK, NIK, Nama, Nomor Rumah, and Tanggal Lahir!"); return; 
         }
 
         const { error } = await _sb.from('warga').insert([{
-            rt_scope: `RT_${currentRT}`, no_kk: kk, nik: nik, no_rumah: rumah, nama_lengkap: nama, tanggal_lahir: tgl, Black_scope: hub, hubungan_keluarga: hub, status_tinggal: status
+            rt_scope: `RT_${currentRT}`, no_kk: kk, nik: nik, no_rumah: rumah, nama_lengkap: nama, tanggal_lahir: tgl, hubungan_keluarga: hub, status_tinggal: status
         }]);
 
         if (error) { alert("Gagal menyimpan data: " + error.message); return; }
@@ -532,18 +548,24 @@
         reader.readAsArrayBuffer(file);
     }
 
+    // REVISI LOGIKA: BATAS ATAS USIA BALITA DIUBAH MENJADI DIBAWAH 5 TAHUN (< 5)
     function hitungStatistikDashboard() {
         let totalJiwa = listDataWargaLokal.length;
         let setKkUnik = new Set(listDataWargaLokal.map(w => w.no_kk));
         let totalKk = setKkUnik.size;
         const setKkMemilikiKepala = new Set(listDataWargaLokal.filter(w => w.hubungan_keluarga === 'Kepala Keluarga').map(w => w.no_kk));
-        let totalPemilih = 0, totalManula = 0, totalYatim = 0, totalJanda = 0;
+        let totalPemilih = 0, totalManula = 0, totalYatim = 0, totalJanda = 0, totalBalita = 0, totalKkSiniLuar = 0;
 
         listDataWargaLokal.forEach(w => {
             const umur = hitungUsia(w.tanggal_lahir);
             const kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
+            
             if (umur >= 17) totalPemilih++;
+            if (umur >= 0 && umur < 5) totalBalita++; // Diubah dari (<= 5) menjadi (< 5) agar pas maksimal 4 tahun 11 bulan
             if (umur >= 60) totalManula++;
+            
+            if (w.status_tinggal === 'KK Sini (Tinggal Luar)') totalKkSiniLuar++;
+
             if (!kkAdaKepala) {
                 if (w.hubungan_keluarga === 'Anak' && umur < 18) totalYatim++;
                 else if (w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') totalJanda++;
@@ -553,7 +575,9 @@
         document.getElementById('statTotalJiwa').innerText = totalJiwa;
         document.getElementById('statTotalKk').innerText = totalKk;
         document.getElementById('statTotalPemilih').innerText = totalPemilih;
+        document.getElementById('statTotalBalita').innerText = totalBalita; 
         document.getElementById('statTotalManula').innerText = totalManula;
+        document.getElementById('statTotalKkSiniLuar').innerText = totalKkSiniLuar; 
         document.getElementById('statSocialNeeds').innerHTML = `${totalYatim} <span style="font-size:11px;color:#aaa;font-weight:normal;">Yatim</span> / ${totalJanda} <span style="font-size:11px;color:#aaa;font-weight:normal;">Janda</span>`;
     }
 
@@ -571,6 +595,7 @@
 
     function setFilterWarga(jenis) { filterAktif = jenis; renderTabelWarga(); }
 
+    // REVISI LOGIKA: PENYARING USIA BALITA PADA TABEL WARGA RT MENJADI DIBAWAH 5 TAHUN (< 5)
     function renderTabelWarga() {
         const tbody = document.getElementById('tabelWarga'); tbody.innerHTML = "";
         const cariKk = document.getElementById('cariKk').value.toLowerCase();
@@ -583,7 +608,9 @@
             const kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
 
             if (filterAktif === 'pemilih') passFilterKhusus = (umur >= 17);
+            else if (filterAktif === 'balita') passFilterKhusus = (umur >= 0 && umur < 5); // Diubah dari (<= 5) menjadi (< 5)
             else if (filterAktif === 'manula') passFilterKhusus = (umur >= 60);
+            else if (filterAktif === 'kksiniluar') passFilterKhusus = (w.status_tinggal === 'KK Sini (Tinggal Luar)'); 
             else if (filterAktif === 'yatim') passFilterKhusus = (w.hubungan_keluarga === 'Anak' && umur < 18 && !kkAdaKepala);
             else if (filterAktif === 'janda') passFilterKhusus = ((w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') && !kkAdaKepala);
 
@@ -596,13 +623,18 @@
 
         dataTampil.forEach(w => {
             const umur = hitungUsia(w.tanggal_lahir); 
-            const isPemilih = umur >= 17; const isManula = umur >= 60;
+            const isPemilih = umur >= 17; const isManula = umur >= 60; const isBalita = (umur >= 0 && umur < 5); // Sinkronisasi (< 5)
             const kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
-            let badgeClass = w.status_tinggal.includes("Kontrak") ? "kontrak" : (w.status_tinggal.includes("Luar") ? "luar" : "asli");
+            
+            let badgeClass = "asli";
+            if (w.status_tinggal.includes("Kontrak")) badgeClass = "kontrak";
+            else if (w.status_tinggal.includes("Luar")) badgeClass = "luar";
             
             let badgeTambahan = "";
             if (isPemilih) badgeTambahan += `<span class="badge pemilih">🗳️ Pemilih</span> `;
+            if (isBalita) badgeTambahan += `<span class="badge balita">👶 Balita</span> `;
             if (isManula) badgeTambahan += `<span class="badge manula">🧓🏼 Manula</span> `;
+            
             if (!kkAdaKepala) {
                 if (w.hubungan_keluarga === 'Anak' && umur < 18) badgeTambahan += `<span class="badge sosial">🧒🏻 Yatim</span> `;
                 else if (w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') badgeTambahan += `<span class="badge sosial">👩🏻‍🦱 Janda</span> `;
