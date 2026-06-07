@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Portal Warga | Kas RW Jamaras</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg-dark: #121212; 
+            --card-dark: #1e1e1e; 
+            --accent: #72a339; 
+            --text-main: #e0e0e0; 
+            --border-color: #333; 
+            --blue: #3498db; 
+            --yellow: #f1c40f;
+            --danger: #ff7675;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Roboto Condensed', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
+        header h1 { margin: 0; font-size: 22px; color: #ffffff; }
+        header p { margin: 5px 0 0 0; font-size: 12px; color: var(--accent); font-weight: bold; text-transform: uppercase; }
+        
+        .btn-keluar { background-color: rgba(255, 118, 117, 0.15); border: 1px solid var(--danger); color: var(--danger); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+        
+        .welcome-card { background: linear-gradient(135deg, #1e1e1e, #252525); border: 1px solid var(--border-color); border-left: 5px solid var(--accent); border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+        .welcome-card h3 { margin: 0 0 5px 0; font-size: 18px; color: #fff; }
+        .welcome-card p { margin: 0; font-size: 13px; color: #aaa; }
+
+        .grid-finansial { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 25px; }
+        .card-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; }
+        .card-box.pusat { border-top: 4px solid var(--blue); }
+        .card-box.gabungan { border-top: 4px solid var(--accent); }
+        .box-title { font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .box-value { font-size: 24px; font-weight: 700; color: #fff; }
+
+        .section-title { font-size: 14px; font-weight: bold; text-transform: uppercase; margin: 20px 0 10px 0; color: #fff; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+        
+        .table-container { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; overflow-x: auto; margin-bottom: 25px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--border-color); }
+        th { background-color: rgba(255,255,255,0.02); color: #aaa; text-transform: uppercase; font-size: 11px; }
+        
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; display: inline-block; }
+        .badge.kk { background: rgba(241, 196, 15, 0.15); color: var(--yellow); }
+        .badge.rt { background: rgba(52, 152, 219, 0.15); color: var(--blue); }
+        .badge.aktif { background: rgba(114, 163, 57, 0.15); color: var(--accent); }
+
+        .empty-state { color: #666; font-style: italic; text-align: center; padding: 30px 0; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>PORTAL WARGA JAMARAS</h1>
+            <p>Transparansi Informasi & Keuangan Real-time</p>
+        </div>
+        <button class="btn-keluar" onclick="prosesKeluar()">Keluar</button>
+    </header>
+
+    <div class="welcome-card">
+        <h3 id="txtNamaWarga">Memuat Nama...</h3>
+        <p id="txtDetailWarga">Mencari manifestasi identitas NIK Anda di dalam basis data...</p>
+    </div>
+
+    <div class="section-title">📊 Informasi Kas Real-Time Lingkungan</div>
+    <div class="grid-finansial">
+        <div class="card-box pusat">
+            <div class="box-title">💵 Saldo Kas RW Pusat</div>
+            <div class="box-value" id="saldoPusat">Rp 0</div>
+        </div>
+        <div class="card-box gabungan">
+            <div class="box-title">💰 Total Kas Gabungan (RW + Seluruh RT)</div>
+            <div class="box-value" id="saldoTotal">Rp 0</div>
+        </div>
+    </div>
+
+    <div class="section-title">🏢 Laporan Keuangan Tingkat RT</div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Wilayah</th>
+                    <th>Total Pemasukan</th>
+                    <th>Total Pengeluaran</th>
+                    <th>Saldo Kas RT</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="bodyTabelRT">
+                <tr><td colspan="5" class="empty-state">Sinkronisasi data kas wilayah...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section-title">👨‍👩‍👧‍👦 Manifestasi Manifes Kartu Keluarga Anda</div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Lengkap Anggota Keluarga</th>
+                    <th>Hubungan Keluarga</th>
+                    <th>Usia</th>
+                    <th>Status Tinggal</th>
+                </tr>
+            </thead>
+            <tbody id="bodyTabelKeluarga">
+                <tr><td colspan="4" class="empty-state">Menghubungkan NIK KTP dengan No Kartu Keluarga...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    // Koneksi Database Supabase
+    const _sb = supabase.createClient("https://nuxybltpoldavntkrabh.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51eHlibHRwb2xkYXZudGtyYWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NjA1MTEsImV4cCI6MjA5MjMzNjUxMX0.vVD4cxYt9AWA4XcLrSnA7Pat6K5Mt3mQ61Qct6j_uUg");
+
+    let currentNik = null;
+
+    function hitungUsia(tglLahirStr) {
+        if (!tglLahirStr) return "-";
+        const lahir = new Date(tglLahirStr);
+        const hariIni = new Date();
+        let umur = hariIni.getFullYear() - lahir.getFullYear();
+        const m = hariIni.getMonth() - lahir.getMonth();
+        if (m < 0 || (m === 0 && hariIni.getDate() < lahir.getDate())) { umur--; }
+        return umur + " Tahun";
+    }
+
+    async function cekSesiWarga() {
+        let { data: { session } } = await _sb.auth.getSession();
+        if (!session) { window.location.href = "index.html"; return; }
+
+        // 1. Tarik profil akun berdasarkan UID login
+        let { data: profile } = await _sb.from('profiles').select('*').eq('id', session.user.id).single();
+        if (profile) {
+            document.getElementById('txtNamaWarga').innerText = "Selamat Datang, " + profile.nama_lengkap;
+            currentNik = profile.nik_warga;
+            
+            if (currentNik) {
+                muatManifestKeluarga(currentNik);
+            } else {
+                document.getElementById('bodyTabelKeluarga').innerHTML = `<tr><td colspan="4" class="empty-state">⚠️ Akun Anda belum menautkan NIK. Hubungi admin untuk sinkronisasi KK.</td></tr>`;
+            }
+        }
+        
+        muatDataFinansialWarga();
+    }
+
+    // ENGINE UNTUK TRACKING KK OTOMATIS BERDASARKAN ACUAN NIK DAFTAR
+    async function muatManifestKeluarga(nik) {
+        // Langkah A: Cari baris data warga untuk mencuri nomor KK aslinya
+        let { data: wargaSendiri, error: errCari } = await _sb.from('warga').select('no_kk, rt_scope').eq('nik', nik).maybeSingle();
+        
+        // Cadangan tracking jika di database tabel warga menggunakan kolom 'no_nik'
+        if(!wargaSendiri) {
+            let { data: bkp } = await _sb.from('warga').select('no_kk, rt_scope').eq('no_nik', nik).maybeSingle();
+            wargaSendiri = bkp;
+        }
+
+        if (wargaSendiri && wargaSendiri.no_kk) {
+            document.getElementById('txtDetailWarga').innerHTML = `Terdaftar di wilayah: <span class="badge rt">${wargaSendiri.rt_scope.replace('_',' ')}</span> | No Kartu Keluarga: <b>${wargaSendiri.no_kk}</b>`;
+            
+            // Langkah B: Ambil seluruh warga yang memiliki No KK kembar/sama
+            let { data: anggotaKeluarga } = await _sb.from('warga').select('*').eq('no_kk', wargaSendiri.no_kk).order('hubungan_keluarga', {ascending: true});
+            
+            if (anggotaKeluarga && anggotaKeluarga.length > 0) {
+                document.getElementById('bodyTabelKeluarga').innerHTML = anggotaKeluarga.map(w => {
+                    let formatNama = w.hubungan_keluarga === 'Kepala Keluarga' ? `<span class="badge kk">KK</span> <b>${w.nama_lengkap}</b>` : `<b>${w.nama_lengkap}</b>`;
+                    return `
+                        <tr>
+                            <td>${formatNama}</td>
+                            <td><span style="color:#bbb;">${w.hubungan_keluarga}</span></td>
+                            <td>${hitungUsia(w.tanggal_lahir)}</td>
+                            <td><span class="badge aktif">${w.status_tinggal || 'Tetap'}</span></td>
+                        </tr>
+                    `;
+                }).join('');
+                return;
+            }
+        }
+
+        document.getElementById('bodyTabelKeluarga').innerHTML = `<tr><td colspan="4" class="empty-state">ℹ️ NIK Anda valid, namun master data kependudukan KK Anda belum diinput oleh Admin RT Anda.</td></tr>`;
+    }
+
+    async function muatDataFinansialWarga() {
+        // Ambil data transaksi internal RW PUSAT
+        let { data: txRw } = await _sb.from('transaksi1').select('tipe, jumlah').eq('scope', 'RW_PUSAT');
+        let rwMasuk = 0, rwKeluar = 0;
+        if(txRw) {
+            txRw.forEach(tx => {
+                if (tx.tipe === 'masuk') rwMasuk += parseInt(tx.jumlah || 0);
+                if (tx.tipe === 'keluar') rwKeluar += parseInt(tx.jumlah || 0);
+            });
+        }
+        let saldoInternalPusat = rwMasuk - rwKeluar;
+        document.getElementById('saldoPusat').innerText = "Rp " + saldoInternalPusat.toLocaleString('id-ID');
+
+        // Ambil akumulasi seluruh RT
+        let { data: semuaTx } = await _sb.from('transaksi1').select('*');
+        let gabunganTotalSaldo = saldoInternalPusat; 
+        
+        let unitData = { 
+            "RT_01": {m:0, k:0}, "RT_02": {m:0, k:0}, "RT_03": {m:0, k:0}, 
+            "RT_04": {m:0, k:0}, "RT_05": {m:0, k:0}, "RT_06": {m:0, k:0}, 
+            "RT_07": {m:0, k:0} 
+        };
+        
+        if(semuaTx) {
+            semuaTx.forEach(tx => {
+                if(unitData[tx.scope]) {
+                    if(tx.tipe === 'masuk') unitData[tx.scope].m += parseInt(tx.jumlah || 0);
+                    if(tx.tipe === 'keluar') unitData[tx.scope].k += parseInt(tx.jumlah || 0);
+                }
+            });
+        }
+
+        let htmlTabel = "";
+        for (let key in unitData) {
+            let saldoRT = unitData[key].m - unitData[key].k;
+            gabunganTotalSaldo += saldoRT;
+            htmlTabel += `<tr><td><b>${key.replace('_',' ')}</b></td><td>Rp ${unitData[key].m.toLocaleString('id-ID')}</td><td>Rp ${unitData[key].k.toLocaleString('id-ID')}</td><td style="font-weight:bold; color:var(--accent);">Rp ${saldoRT.toLocaleString('id-ID')}</td><td><span class="badge aktif">TERBUKTI</span></td></tr>`;
+        }
+        
+        document.getElementById('saldoTotal').innerText = "Rp " + gabunganTotalSaldo.toLocaleString('id-ID');
+        document.getElementById('bodyTabelRT').innerHTML = htmlTabel;
+    }
+
+    async function prosesKeluar() { if (confirm("Keluar dari Portal Layanan Warga?")) { await _sb.auth.signOut(); window.location.href = "index.html"; } }
+    window.onload = cekSesiWarga;
+</script>
+</body>
+</html>

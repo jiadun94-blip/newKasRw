@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kas RW Jamaras | Dashboard Pusat</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg-dark: #121212; 
+            --card-dark: #1e1e1e; 
+            --accent: #72a339; 
+            --text-main: #e0e0e0; 
+            --danger: #ff7675; 
+            --border-color: #333; 
+            --blue: #3498db; 
+            --purple: #9b59b6;
+            --yellow: #f1c40f;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Roboto Condensed', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
+        header h1 { margin: 0; font-size: 24px; color: #ffffff; }
+        header p { margin: 5px 0 0 0; font-size: 12px; color: var(--accent); font-weight: bold; text-transform: uppercase; }
+        
+        .header-buttons { display: flex; gap: 8px; align-items: center; }
+        .user-badge { font-size: 11px; background: #252525; padding: 6px 10px; border-radius: 4px; border: 1px solid var(--border-color); color: #aaa; font-weight: bold; text-transform: uppercase; }
+        .btn-keluar { background-color: rgba(255, 118, 117, 0.15); border: 1px solid var(--danger); color: var(--danger); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 12px; }
+        .btn-print-connect { background-color: rgba(52, 152, 219, 0.15); border: 1px solid var(--blue); color: var(--blue); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 12px; }
+        .btn-print-connect.connected { background-color: rgba(114, 163, 57, 0.15); border: 1px solid var(--accent); color: var(--accent); }
+
+        .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { padding: 12px; background-color: #252525; border: 1px solid var(--border-color); color: #888; cursor: pointer; font-weight: bold; text-transform: uppercase; border-radius: 6px; font-size: 14px; }
+        .tab-btn.active { background-color: var(--card-dark); border-bottom: 3px solid var(--blue); color: #fff; }
+
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .card { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; }
+        .card.pusat { border-top: 4px solid #3498db; }
+        .card.gabungan { border-top: 4px solid var(--accent); }
+        .card-title { font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 6px; }
+        .card-value { font-size: 22px; font-weight: 700; color: #fff; }
+        
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; text-align: center; }
+        .stat-box.full-width { grid-column: span 3; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0; border: none; background: transparent; }
+        .stat-box.full-width .stat-sub { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; text-align: center; }
+        .stat-label { font-size: 10px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; }
+        .stat-value { font-size: 18px; font-weight: bold; color: #fff; }
+
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 5px; color: #aaa; text-transform: uppercase; }
+        input, select { width: 100%; padding: 10px; background-color: #2d2d2d; border: 1px solid #444; border-radius: 6px; color: #ffffff; font-family: inherit; font-size: 13px; }
+        
+        .tipe-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .btn-tipe { padding: 10px; border: 1px solid #444; background-color: #2d2d2d; color: #fff; font-weight: bold; cursor: pointer; border-radius: 6px; text-transform: uppercase; font-size: 12px; }
+        .btn-tipe.active-masuk { background-color: rgba(114, 163, 57, 0.2); border-color: var(--accent); color: var(--accent); }
+        .btn-tipe.active-keluar { background-color: rgba(255, 118, 117, 0.2); border-color: var(--danger); color: var(--danger); }
+
+        .btn-simpan { width: 100%; padding: 12px; background-color: var(--blue); border: none; border-radius: 6px; color: #fff; font-weight: 700; text-transform: uppercase; cursor: pointer; font-size: 13px; }
+        .section-title { font-size: 13px; font-weight: bold; text-transform: uppercase; margin: 20px 0 10px 0; color: #fff; letter-spacing: 0.5px; }
+        
+        .table-container { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; overflow-x: auto; }
+        .scroll-box { max-height: 300px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th, td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); }
+        th { background-color: rgba(255,255,255,0.03); color: #aaa; text-transform: uppercase; font-size: 11px; position: sticky; top:0; z-index: 5; }
+        
+        .btn-terima { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; text-transform: uppercase; }
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 15px; }
+        .log-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; }
+        .log-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2d2d2d; font-size: 12px; }
+        .log-item:last-child { border-bottom: none; }
+        
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .badge.kk { background: rgba(241, 196, 15, 0.15); color: #f1c40f; }
+        .badge.pemilih { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
+        .badge.manula { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
+        .badge.sosial { background: rgba(155, 89, 182, 0.2); color: #9b59b6; border: 1px solid #9b59b6; }
+        
+        .d-none { display: none !important; }
+        .empty-state { color: #666; font-style: italic; text-align: center; padding: 30px 0; font-size: 13px; }
+    </style>
+</head> 
+<body>
+
+<div class="container">
+    <header>
+        <div><h1>KAS RW JAMARAS</h1><p>Panel Monitoring &amp; Evaluasi Pusat</p></div>
+        <div class="header-buttons">
+            <div class="user-badge" id="userBadgeRole">Memuat Sesi...</div>
+            <button class="btn-print-connect" id="btnConnectPrint" onclick="sambungPrinterBluetooth()">🔌 Hubungkan Printer</button>
+            <button class="btn-keluar" onclick="prosesKeluar()">Keluar</button>
+        </div>
+    </header>
+
+    <div class="summary-grid">
+        <div class="card pusat">
+            <div class="card-title">💵 KAS RW PUSAT</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 5px;">
+                <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:#aaa;">Masuk:</span><span id="rwTotalMasuk" style="color:var(--accent); font-weight:bold;">Rp 0</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:#aaa;">Keluar:</span><span id="rwTotalKeluar" style="color:var(--danger); font-weight:bold;">Rp 0</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:13px; border-top:1px solid #333; padding-top:4px; margin-top:2px;"><span style="color:#fff; font-weight:bold;">SALDO:</span><span id="kasPusat" style="color:#fff; font-weight:bold;">Rp 0</span></div>
+            </div>
+        </div>
+        <div class="card gabungan">
+            <div class="card-title">💰 TOTAL KAS GABUNGAN (Pusat + Seluruh RT)</div>
+            <div class="card-value" id="kasTotal" style="margin-top:10px;">Rp 0</div>
+            <div style="font-size:11px; color:#aaa; margin-top:5px;">Sinkronisasi Real-time dengan 7 Wilayah RT</div>
+        </div>
+    </div>
+
+    <div class="stat-grid">
+        <div class="stat-box" style="border-bottom: 3px solid var(--blue);">
+            <div class="stat-label">👥 Total Jiwa (RW)</div>
+            <div class="stat-value" id="statTotalJiwa">0</div>
+        </div>
+        <div class="stat-box" style="border-bottom: 3px solid var(--yellow);">
+            <div class="stat-label">🏠 Total KK (RW)</div>
+            <div class="stat-value" id="statTotalKk">0</div>
+        </div>
+        <div class="stat-box" style="border-bottom: 3px solid var(--accent);">
+            <div class="stat-label">🗳️ Total Pemilih</div>
+            <div class="stat-value" id="statTotalPemilih">0</div>
+        </div>
+        <div class="stat-box full-width">
+            <div class="stat-sub" style="border-bottom: 3px solid var(--danger);">
+                <div class="stat-label">🧓🏼 Total Manula (&ge;60 Thn)</div>
+                <div class="stat-value" id="statTotalManula">0</div>
+            </div>
+            <div class="stat-sub" style="border-bottom: 3px solid var(--purple);">
+                <div class="stat-label">🧒🏻 Yatim / 👩🏻‍🦱 Janda Gabungan</div>
+                <div class="stat-value" id="statSocialNeeds">0 / 0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" id="tabFinansial" onclick="bukaTab('finansial')">💰 Operasional &amp; Kas Finansial</button>
+        <button class="tab-btn" id="tabWarga" onclick="bukaTab('warga')">👥 Kontrol Kependudukan Warga</button>
+    </div>
+
+    <div id="kontenFinansial">
+        <div class="card d-none" id="formKasRW" style="margin-bottom: 20px;">
+            <div class="section-title" style="margin-top:0; color:var(--blue);">📝 Input Pembukuan Mandiri RW Pusat</div>
+            <label>Jenis Aliran Dana</label>
+            <div class="tipe-container">
+                <button class="btn-tipe active-masuk" id="btnMasuk" onclick="setTipe('masuk')">📥 Penerimaan Manual RW</button>
+                <button class="btn-tipe" id="btnKeluar" onclick="setTipe('keluar')">📤 Pengeluaran Kas RW</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="jumlahTx">Nominal</label>
+                    <input type="text" id="jumlahTx" placeholder="Contoh: 250.000" oninput="formatRupiahInput(this)">
+                </div>
+                <div class="form-group">
+                    <label for="kategoriTx">Kategori Transaksi</label>
+                    <select id="kategoriTx"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="ketTx">Keterangan Catatan Manual</label>
+                <input type="text" id="ketTx" placeholder="Misal: Bantuan Sosial internal RW / Biaya Rapat">
+            </div>
+            <button class="btn-simpan" onclick="simpanTransaksiRW()">Simpan Transaksi Pusat</button>
+        </div>
+
+        <div class="section-title" style="color: var(--blue);">🛎️ Konfirmasi Penyetoran RT (Pending)</div>
+        <div class="table-container" style="margin-bottom:20px;">
+            <table>
+                <thead><tr><th>Asal RT</th><th>Jumlah Setoran</th><th>Keterangan Transaksi</th><th style="text-align: center;">Aksi</th></tr></thead>
+                <tbody id="bodyPending"><tr><td colspan="4" class="empty-state">Tidak ada setoran tertunda.</td></tr></tbody>
+            </table>
+        </div>
+
+        <div class="section-title">📊 Kondisi Keuangan Real-time Antar RT</div>
+        <div class="table-container" style="margin-bottom:20px;"><table id="tabelRT"><thead><tr><th>Wilayah</th><th>Pemasukan</th><th>Pengeluaran</th><th>Saldo RT</th><th>Status</th></tr></thead><tbody id="tabelRTBody"></tbody></table></div>
+
+        <div class="detail-grid">
+            <div class="log-box"><div class="section-title" style="color: var(--accent); margin-top: 0;">📥 5 Transaksi Masuk RW Terbaru</div><div id="logSetoran" class="scroll-box">Belum ada.</div></div>
+            <div class="log-box"><div class="section-title" style="color: var(--danger); margin-top: 0;">📤 5 Transaksi Keluar RW Terbaru</div><div id="logPengeluaran" class="scroll-box">Belum ada.</div></div>
+        </div>
+    </div>
+
+    <div id="kontenWarga" class="d-none">
+        <div class="card" style="border-top: 4px solid var(--blue); padding:15px; margin-bottom:15px;">
+            <div class="section-title" style="margin-top:0;">🔍 Filter &amp; Kontrol Wilayah Penduduk</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="filterRtWarga">Pilih Wilayah RT</label>
+                    <select id="filterRtWarga" onchange="renderTabelWargaPusat()">
+                        <option value="Semua">Semua RT (Seluruh RW)</option>
+                        <option value="RT_01">RT 01</option>
+                        <option value="RT_02">RT 02</option>
+                        <option value="RT_03">RT 03</option>
+                        <option value="RT_04">RT 04</option>
+                        <option value="RT_05">RT 05</option>
+                        <option value="RT_06">RT 06</option>
+                        <option value="RT_07">RT 07</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filterKategoriWarga">Klasifikasi Filter Sosial</label>
+                    <select id="filterKategoriWarga" onchange="renderTabelWargaPusat()">
+                        <option value="semua">Semua Penduduk</option>
+                        <option value="pemilih">🗳️ Data Pemilih (&ge; 17 Tahun)</option>
+                        <option value="manula">🧓🏼 Lansia / Manula (&ge; 60 Tahun)</option>
+                        <option value="yatim">🧒🏻 Anak Yatim (KK Tanpa Kepala Keluarga)</option>
+                        <option value="janda">👩🏻‍🦱 Janda / Single Parent</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label for="cariKk">Cari Nomor KK</label>
+                    <input type="text" id="cariKk" placeholder="Ketik No KK untuk melacak..." onkeyup="renderTabelWargaPusat()">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label for="filterHubungan">Hubungan Struktur</label>
+                    <select id="filterHubungan" onchange="renderTabelWargaPusat()">
+                        <option value="Semua">Semua Anggota</option>
+                        <option value="Kepala Keluarga">Hanya Kepala Keluarga</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container scroll-box" style="max-height:450px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Identitas Warga (Nama / NIK / KK)</th>
+                        <th>Wilayah</th>
+                        <th>Hubungan</th>
+                        <th>Usia / Klasifikasi</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelWargaPusatBody">
+                    <tr><td colspan="4" class="empty-state">Memuat master data kependudukan...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const _sb = supabase.createClient("https://nuxybltpoldavntkrabh.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51eHlibHRwb2xkYXZudGtyYWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NjA1MTEsImV4cCI6MjA5MjMzNjUxMX0.vVD4cxYt9AWA4XcLrSnA7Pat6K5Mt3mQ61Qct6j_uUg");
+
+    let tipeDipilih = "masuk";
+    let masterWargaRW = [];
+    let printerCharacteristic = null;
+    let isBendahara = false; 
+
+    function formatRupiahInput(input) {
+        let value = input.value.replace(/[^,\d]/g, '');
+        let split = value.split(',');
+        let sisa = split[0].length % 3;
+        let rupiah = split[0].substr(0, sisa);
+        let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+        if (ribuan) { rupiah += (sisa ? '.' : '') + ribuan.join('.'); }
+        input.value = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+    }
+
+    function hitungUsia(tglLahirStr) {
+        const lahir = new Date(tglLahirStr);
+        const hariIni = new Date();
+        let umur = hariIni.getFullYear() - lahir.getFullYear();
+        const m = hariIni.getMonth() - lahir.getMonth();
+        if (m < 0 || (m === 0 && hariIni.getDate() < lahir.getDate())) { umur--; }
+        return umur;
+    }
+
+    function bukaTab(pilihan) {
+        if (pilihan === 'finansial') {
+            document.getElementById('tabFinansial').classList.add('active'); document.getElementById('tabWarga').classList.remove('active');
+            document.getElementById('kontenFinansial').classList.remove('d-none'); document.getElementById('kontenWarga').classList.add('d-none');
+        } else {
+            document.getElementById('tabWarga').classList.add('active'); document.getElementById('tabFinansial').classList.remove('active');
+            document.getElementById('kontenWarga').classList.remove('d-none'); document.getElementById('kontenFinansial').classList.add('d-none');
+            ambilMasterWarga();
+        }
+    }
+
+    function setTipe(tipe) {
+        let bMasuk = document.getElementById('btnMasuk'); let bKeluar = document.getElementById('btnKeluar');
+        let selectKat = document.getElementById('kategoriTx');
+        document.getElementById('jumlahTx').value = ""; document.getElementById('ketTx').value = "";
+        tipeDipilih = tipe;
+
+        if (tipe === 'masuk') {
+            bMasuk.classList.add('active-masuk'); bKeluar.classList.remove('active-keluar');
+            selectKat.innerHTML = `<option value="Donasi Eksternal">Donasi Eksternal / Bantuan</option><option value="Sumbangan Warga">Sumbangan Langsung Warga</option><option value="Pemasukan Pusat Lainnya">Pemasukan Pusat Lainnya</option>`;
+        } else {
+            bKeluar.classList.add('active-keluar'); bMasuk.classList.remove('active-masuk');
+            selectKat.innerHTML = `<option value="Operasional RW">Operasional Pengurus RW</option><option value="Biaya Kegiatan Wilayah">Biaya Kegiatan Wilayah</option><option value="Santunan RW">Santunan Warga Pusat</option><option value="Pengeluaran Pusat Lainnya">Pengeluaran Pusat Lainnya</option>`;
+        }
+    }
+
+    async function sambungPrinterBluetooth() {
+        try {
+            const device = await navigator.bluetooth.requestDevice({
+                acceptAllDevices: true,
+                optionalServices: [
+                    '000018f0-0000-1000-8000-00805f9b34fb', 
+                    '0000ff00-0000-1000-8000-00805f9b34fb',
+                    '00001101-0000-1000-8000-00805f9b34fb',
+                    '0000180a-0000-1000-8000-00805f9b34fb',
+                    '0000e0ff-0000-1000-8000-00805f9b34fb'
+                ]
+            });
+            
+            const server = await device.gatt.connect();
+            const services = await server.getPrimaryServices();
+            for (let service of services) {
+                const characteristics = await service.getCharacteristics();
+                for (let char of characteristics) {
+                    if (char.properties.write || char.properties.writeWithoutResponse) {
+                        printerCharacteristic = char;
+                        break;
+                    }
+                }
+                if (printerCharacteristic) break;
+            }
+
+            if (printerCharacteristic) {
+                const btn = document.getElementById('btnConnectPrint');
+                btn.innerText = "✅ Printer Terhubung";
+                btn.classList.add('connected');
+                alert("Printer Thermal Berhasil Disambungkan!");
+            } else {
+                alert("Printer ditemukan, namun karakteristik cetak gagal dibuka.");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Gagal memindai perangkat Bluetooth: " + error.message);
+        }
+    }
+
+    async function cetakStrukThermal58mm(dataStruk) {
+        if (!printerCharacteristic) {
+            console.warn("Printer belum tersambung. Cetak dilewati.");
+            return;
+        }
+
+        const ESC = 0x1B;
+        const initPrinter = [ESC, 0x40];
+        const textCenter = [ESC, 0x61, 1];
+        const textLeft = [ESC, 0x61, 0];
+        const boldOn = [ESC, 0x45, 1];
+        const boldOff = [ESC, 0x45, 0];
+        const feedCut = [10, 10, 10, 10, ESC, 0x69];
+
+        let encoder = new TextEncoder();
+        let bytes = [];
+
+        bytes.push(...initPrinter, ...textCenter, ...boldOn);
+        bytes.push(...encoder.encode("KAS RW JAMARAS\n"));
+        bytes.push(...boldOff);
+        bytes.push(...encoder.encode("Sistem Manajemen Keuangan\n"));
+        bytes.push(...encoder.encode("================================\n"));
+
+        bytes.push(...boldOn);
+        bytes.push(...encoder.encode(`${dataStruk.judulStruk.toUpperCase()}\n\n`));
+        bytes.push(...boldOff, ...textLeft);
+
+        bytes.push(...encoder.encode(`Tanggal  : ${dataStruk.tanggal}\n`));
+        bytes.push(...encoder.encode(`Wilayah  : ${dataStruk.wilayah}\n`));
+        bytes.push(...encoder.encode(`Kategori : ${dataStruk.kategori}\n`));
+        bytes.push(...encoder.encode(`Note     : ${dataStruk.keterangan}\n`));
+        bytes.push(...encoder.encode("--------------------------------\n"));
+
+        bytes.push(...boldOn);
+        let barisJumlah = `TOTAL: Rp ${parseInt(dataStruk.jumlah).toLocaleString('id-ID')}`;
+        bytes.push(...encoder.encode(barisJumlah.padStart(32, ' ') + "\n"));
+        bytes.push(...boldOff, ...textCenter);
+
+        bytes.push(...encoder.encode("\n================================\n"));
+        bytes.push(...encoder.encode("Dokumen ini disahkan secara digital\n"));
+        bytes.push(...encoder.encode("Terima Kasih.\n"));
+        bytes.push(...feedCut);
+
+        let uint8Array = new Uint8Array(bytes);
+        let chunkSize = 20;
+        for (let i = 0; i < uint8Array.length; i += chunkSize) {
+            let chunk = uint8Array.slice(i, i + chunkSize);
+            await printerCharacteristic.writeValue(chunk);
+        }
+    }
+
+    // MODIFIKASI ABSOLUT: SISTEM KUNCI JABATAN HANYA UNTUK EMAIL ANDA
+    async function cekSesi() {
+        let { data: { session } } = await _sb.auth.getSession();
+        if (!session) { window.location.href = "index.html"; return; }
+        
+        let emailUser = session.user.email;
+        let badge = document.getElementById('userBadgeRole');
+
+        // Proteksi Akun Tunggal Bendahara Finansial
+        if (emailUser === "hadiatpermana@gmail.com") {
+            isBendahara = true;
+            badge.innerText = "👑 Bendahara RW";
+            badge.style.borderColor = "var(--accent)";
+            badge.style.color = "var(--accent)";
+            document.getElementById('formKasRW').classList.remove('d-none');
+        } else {
+            isBendahara = false;
+            badge.innerText = "👁️ Monitoring Pusat";
+            document.getElementById('formKasRW').classList.add('d-none');
+        }
+
+        setTipe('masuk');
+        muatDataDashboard();
+        loadPendingSetoran();
+        loadHistoriRWLogs();
+        ambilMasterWarga();
+    }
+
+    async function loadPendingSetoran() {
+        let { data } = await _sb.from('transaksi1').select('*').eq('status', 'pending').eq('kategori', 'Setor Ke Kas RW');
+        let body = document.getElementById('bodyPending');
+        if (data && data.length > 0) {
+            body.innerHTML = data.map(tx => {
+                let tombolAksi = isBendahara 
+                    ? `<button class="btn-terima" onclick="terimaSetoran(${tx.id}, ${tx.jumlah}, '${tx.scope}', '${tx.keterangan}')">Terima</button>`
+                    : `<span style="color:#666; font-style:italic; font-size:11px;">Menunggu Bendahara</span>`;
+
+                return `<tr><td><b>${tx.scope.replace('_', ' ')}</b></td>
+                <td><span style="color:var(--accent);font-weight:bold;">Rp ${parseInt(tx.jumlah).toLocaleString('id-ID')}</span></td>
+                <td>${tx.keterangan}</td>
+                <td style="text-align: center;">${tombolAksi}</td></tr>`;
+            }).join('');
+        } else {
+            body.innerHTML = `<tr><td colspan="4" class="empty-state">Tidak ada setoran tertunda dari RT.</td></tr>`;
+        }
+    }
+
+    async function terimaSetoran(id, jumlah, scopeRT, keteranganAsli) {
+        if (!isBendahara) { alert("⚠️ Hak akses ditolak! Hanya Bendahara yang berhak menerima setoran finansial."); return; }
+        if (!confirm("Konfirmasi penerimaan uang setoran dari " + scopeRT.replace('_',' ') + "?")) return;
+        
+        let tgl = new Date().toISOString().split('T')[0];
+        await _sb.from('transaksi1').update({ status: 'selesai' }).eq('id', id);
+        
+        await _sb.from('transaksi1').insert([{ 
+            scope: 'RW_PUSAT', tipe: 'masuk', jumlah: jumlah, 
+            kategori: 'Penerimaan Setoran RT', keterangan: `Konfirmasi ${scopeRT}: ${keteranganAsli}`, 
+            tanggal: tgl, status: 'selesai' 
+        }]);
+
+        alert("✅ Setoran berhasil masuk ke Kas Pusat RW!");
+
+        await cetakStrukThermal58mm({
+            judulStruk: "Tanda Terima Dana RT",
+            tanggal: tgl,
+            wilayah: scopeRT.replace('_', ' '),
+            kategori: "Setoran Kas Antar Unit",
+            keterangan: keteranganAsli,
+            jumlah: jumlah
+        });
+
+        loadPendingSetoran();
+        muatDataDashboard();
+        loadHistoriRWLogs();
+    }
+
+    async function muatDataDashboard() {
+        let { data: txRw } = await _sb.from('transaksi1').select('tipe, jumlah').eq('scope', 'RW_PUSAT');
+        let rwMasuk = 0, rwKeluar = 0;
+        if(txRw) {
+            txRw.forEach(tx => {
+                if (tx.tipe === 'masuk') rwMasuk += parseInt(tx.jumlah || 0);
+                if (tx.tipe === 'keluar') rwKeluar += parseInt(tx.jumlah || 0);
+            });
+        }
+        document.getElementById('rwTotalMasuk').innerText = "Rp " + rwMasuk.toLocaleString('id-ID');
+        document.getElementById('rwTotalKeluar').innerText = "Rp " + rwKeluar.toLocaleString('id-ID');
+        document.getElementById('kasPusat').innerText = "Rp " + (rwMasuk - rwKeluar).toLocaleString('id-ID');
+
+        let { data: semuaTx } = await _sb.from('transaksi1').select('*');
+        let gabunganTotalSaldo = rwMasuk - rwKeluar; 
+        
+        let unitData = { 
+            "RT_01": {m:0, k:0}, "RT_02": {m:0, k:0}, "RT_03": {m:0, k:0}, 
+            "RT_04": {m:0, k:0}, "RT_05": {m:0, k:0}, "RT_06": {m:0, k:0}, 
+            "RT_07": {m:0, k:0} 
+        };
+        
+        if(semuaTx) {
+            semuaTx.forEach(tx => {
+                if(unitData[tx.scope]) {
+                    if(tx.tipe === 'masuk') unitData[tx.scope].m += parseInt(tx.jumlah || 0);
+                    if(tx.tipe === 'keluar') unitData[tx.scope].k += parseInt(tx.jumlah || 0);
+                }
+            });
+        }
+
+        let htmlTabel = "";
+        for (let key in unitData) {
+            let saldoRT = unitData[key].m - unitData[key].k;
+            gabunganTotalSaldo += saldoRT;
+            htmlTabel += `<tr><td><b>${key.replace('_',' ')}</b></td><td>Rp ${unitData[key].m.toLocaleString('id-ID')}</td><td>Rp ${unitData[key].k.toLocaleString('id-ID')}</td><td style="font-weight:bold; color:var(--accent);">Rp ${saldoRT.toLocaleString('id-ID')}</td><td><span class="badge pemilih">AKTIF</span></td></tr>`;
+        }
+        
+        document.getElementById('kasTotal').innerText = "Rp " + gabunganTotalSaldo.toLocaleString('id-ID');
+        document.getElementById('tabelRTBody').innerHTML = htmlTabel;
+    }
+
+    async function simpanTransaksiRW() {
+        if (!isBendahara) { alert("⚠️ Hak akses ditolak! Hanya bendahara yang dapat melakukan pembukuan."); return; }
+        
+        let rawNominal = document.getElementById('jumlahTx').value.replace(/\./g, '');
+        let jumlahNum = parseInt(rawNominal) || 0;
+        let kategori = document.getElementById('kategoriTx').value;
+        let keterangan = document.getElementById('ketTx').value.trim();
+        let tgl = new Date().toISOString().split('T')[0];
+
+        if (jumlahNum <= 0 || !keterangan) { alert("⚠️ Harap isi nominal dan keterangan pembukuan Pusat!"); return; }
+
+        let { error } = await _sb.from('transaksi1').insert([{
+            scope: 'RW_PUSAT', tipe: tipeDipilih, jumlah: jumlahNum, kategori: kategori, keterangan: keterangan, tanggal: tgl, status: 'selesai'
+        }]);
+
+        if(error) { alert("Gagal menyimpan data: " + error.message); return; }
+        alert("✅ Transaksi internal RW Pusat berhasil dibukukan!");
+
+        await cetakStrukThermal58mm({
+            judulStruk: tipeDipilih === 'masuk' ? "Bukti Uang Masuk RW" : "Bukti Pengeluaran RW",
+            tanggal: tgl,
+            wilayah: "RW PUSAT",
+            kategori: kategori,
+            keterangan: keterangan,
+            jumlah: jumlahNum
+        });
+
+        document.getElementById('jumlahTx').value = ""; document.getElementById('ketTx').value = "";
+        muatDataDashboard();
+        loadHistoriRWLogs();
+    }
+
+    async function loadHistoriRWLogs() {
+        let { data: masuk } = await _sb.from('transaksi1').select('*').eq('scope', 'RW_PUSAT').eq('tipe', 'masuk').order('created_at', {ascending: false}).limit(5);
+        let { data: keluar } = await _sb.from('transaksi1').select('*').eq('scope', 'RW_PUSAT').eq('tipe', 'keluar').order('created_at', {ascending: false}).limit(5);
+
+        let boxMasuk = document.getElementById('logSetoran');
+        let boxKeluar = document.getElementById('logPengeluaran');
+
+        if(masuk && masuk.length > 0) {
+            boxMasuk.innerHTML = masuk.map(tx => `<div class="log-item"><div><b>${tx.keterangan}</b><br><small>${tx.tanggal} | ${tx.kategori}</small></div><div style="color:var(--accent); font-weight:bold;">+ Rp ${parseInt(tx.jumlah).toLocaleString('id-ID')}</div></div>`).join('');
+        } else { boxMasuk.innerHTML = `<div class="empty-state">Belum ada dana masuk.</div>`; }
+
+        if(keluar && keluar.length > 0) {
+            boxKeluar.innerHTML = keluar.map(tx => `<div class="log-item"><div><b>${tx.keterangan}</b><br><small>${tx.tanggal} | ${tx.kategori}</small></div><div style="color:var(--danger); font-weight:bold;">- Rp ${parseInt(tx.jumlah).toLocaleString('id-ID')}</div></div>`).join('');
+        } else { boxKeluar.innerHTML = `<div class="empty-state">Belum ada pengeluaran RW.</div>`; }
+    }
+
+    async function ambilMasterWarga() {
+        let { data, error } = await _sb.from('warga').select('*').order('rt_scope', {ascending:true}).order('no_kk', { ascending: true });
+        if(!error && data) {
+            masterWargaRW = data;
+            kalkulasiDemografiPusat();
+            renderTabelWargaPusat();
+        }
+    }
+
+    function kalkulasiDemografiPusat() {
+        let jiwa = masterWargaRW.length;
+        let kkUnik = new Set(masterWargaRW.map(w => w.no_kk)).size;
+        let setKkMemilikiKepala = new Set(masterWargaRW.filter(w => w.hubungan_keluarga === 'Kepala Keluarga').map(w => w.no_kk));
+        let pemilih = 0, manula = 0, yatim = 0, janda = 0;
+
+        masterWargaRW.forEach(w => {
+            let umur = hitungUsia(w.tanggal_lahir);
+            let kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
+
+            if(umur >= 17) pemilih++;
+            if(umur >= 60) manula++;
+            if(!kkAdaKepala) {
+                if(w.hubungan_keluarga === 'Anak' && umur < 18) yatim++;
+                if(w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') janda++;
+            }
+        });
+
+        document.getElementById('statTotalJiwa').innerText = jiwa;
+        document.getElementById('statTotalKk').innerText = kkUnik;
+        document.getElementById('statTotalPemilih').innerText = pemilih;
+        document.getElementById('statTotalManula').innerText = manula;
+        document.getElementById('statSocialNeeds').innerHTML = `${yatim} <span style="font-size:10px; font-weight:normal; color:#aaa;">Yatim</span> / ${janda} <span style="font-size:10px; font-weight:normal; color:#aaa;">Janda</span>`;
+    }
+
+    function renderTabelWargaPusat() {
+        let tbody = document.getElementById('tabelWargaPusatBody');
+        tbody.innerHTML = "";
+
+        let rtDipilih = document.getElementById('filterRtWarga').value;
+        let katDipilih = document.getElementById('filterKategoriWarga').value;
+        let cariKk = document.getElementById('cariKk').value.toLowerCase();
+        let hubDipilih = document.getElementById('filterHubungan').value;
+
+        let setKkMemilikiKepala = new Set(masterWargaRW.filter(w => w.hubungan_keluarga === 'Kepala Keluarga').map(w => w.no_kk));
+
+        let dataTampil = masterWargaRW.filter(w => {
+            let passRt = (rtDipilih === 'Semua' || w.rt_scope === rtDipilih);
+            let passKk = (!cariKk || w.no_kk.toLowerCase().includes(cariKk));
+            let passHub = (hubDipilih === 'Semua' || w.hubungan_keluarga === hubDipilih);
+            
+            let passKat = true;
+            let umur = hitungUsia(w.tanggal_lahir);
+            let kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
+
+            if (katDipilih === 'pemilih') passKat = (umur >= 17);
+            else if (katDipilih === 'manula') passKat = (umur >= 60);
+            else if (katDipilih === 'yatim') passKat = (w.hubungan_keluarga === 'Anak' && umur < 18 && !kkAdaKepala);
+            else if (katDipilih === 'janda') passKat = ((w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') && !kkAdaKepala);
+
+            return passRt && passKk && passHub && passKat;
+        });
+
+        if (dataTampil.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Tidak ada registrasi data penduduk ditemukan untuk kriteria ini.</td></tr>`;
+            return;
+        }
+
+        dataTampil.forEach(w => {
+            let umur = hitungUsia(w.tanggal_lahir);
+            let kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
+            
+            let badgeSocial = "";
+            if(umur >= 17) badgeSocial += `<span class="badge pemilih">🗳️ Pemilih</span> `;
+            if(umur >= 60) badgeSocial += `<span class="badge manula">🧓🏼 Manula</span> `;
+            if(!kkAdaKepala) {
+                if (w.hubungan_keluarga === 'Anak' && umur < 18) badgeSocial += `<span class="badge sosial">🧒🏻 Yatim</span> `;
+                else if (w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') badgeSocial += `<span class="badge sosial">👩🏻‍🦱 Janda</span> `;
+            }
+
+            let cetakNik = w.nik ? w.nik : (w.no_nik ? w.no_nik : "-");
+            let formatNama = w.hubungan_keluarga === 'Kepala Keluarga' ? `<span class="badge kk">KK</span> <b>${w.nama_lengkap}</b>` : `<b>${w.nama_lengkap}</b>`;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>
+                        <div style="margin-bottom:3px;">${formatNama}</div>
+                        <div style="font-size:11px; color:#aaa;">NIK: ${cetakNik} <br> KK: ${w.no_kk}</div>
+                    </td>
+                    <td><span style="font-weight:bold; color:var(--blue);">${w.rt_scope.replace('_',' ')}</span></td>
+                    <td><span style="font-size:12px; color:#bbb;">${w.hubungan_keluarga}</span></td>
+                    <td>
+                        <div>${umur} Tahun ${badgeSocial}</div>
+                        <div style="font-size:11px; margin-top:3px;"><span class="badge" style="background:rgba(255,255,255,0.05); color:#aaa;">${w.status_tinggal}</span> Lokasi: ${w.no_rumah}</div>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    async function prosesKeluar() { if (confirm("Keluar dari Dashboard Pusat RW?")) { await _sb.auth.signOut(); window.location.href = "index.html"; } }
+    window.onload = cekSesi;
+</script>
+</body>
+</html>

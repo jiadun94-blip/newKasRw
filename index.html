@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kas RW Jamaras | Sistem Keuangan & Warga</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --card-dark: #1e1e1e;
+            --accent: #72a339;
+            --text-main: #e0e0e0;
+            --danger: #ff7675;
+            --blue: #3498db;
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: 'Roboto Condensed', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-container { width: 100%; max-width: 420px; padding: 20px; }
+        .login-card { background-color: var(--card-dark); border: 1px solid #333; border-top: 5px solid var(--accent); border-radius: 12px; padding: 30px 25px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); transition: border-color 0.3s ease; }
+        .login-card.register-mode { border-top-color: var(--blue); }
+        .brand-section { text-align: center; margin-bottom: 25px; }
+        .brand-section h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 1px; color: #ffffff; }
+        .brand-section p { margin: 5px 0 0 0; font-size: 13px; color: var(--accent); font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; }
+        .login-card.register-mode .brand-section p { color: var(--blue); }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 6px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select { width: 100%; padding: 12px; background-color: #2d2d2d; border: 1px solid #444; border-radius: 6px; color: #ffffff; font-family: inherit; font-size: 14px; transition: border-color 0.3s ease; }
+        input:focus, select:focus { outline: none; border-color: var(--accent); }
+        .login-card.register-mode input:focus, .login-card.register-mode select:focus { border-color: var(--blue); }
+        .btn-submit { width: 100%; padding: 14px; background-color: var(--accent); border: none; border-radius: 6px; color: #ffffff; font-family: inherit; font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; margin-top: 10px; transition: background 0.2s ease; }
+        .login-card.register-mode .btn-submit { background-color: var(--blue); }
+        .btn-submit:disabled { background-color: #444; cursor: not-allowed; color: #888; }
+        .switch-mode-box { text-align: center; margin-top: 20px; font-size: 13px; color: #aaa; }
+        .switch-link { color: var(--accent); text-decoration: none; font-weight: bold; cursor: pointer; }
+        .login-card.register-mode .switch-link { color: var(--blue); }
+        .switch-link:hover { text-decoration: underline; }
+        .notification-box { padding: 12px; border-radius: 6px; font-size: 13px; margin-bottom: 20px; text-align: center; font-weight: bold; }
+        .box-error { background-color: rgba(255, 118, 117, 0.15); border: 1px solid var(--danger); color: var(--danger); }
+        .box-success { background-color: rgba(114, 163, 57, 0.15); border: 1px solid var(--accent); color: var(--accent); }
+        .d-none { display: none !important; }
+        .footer-text { text-align: center; font-size: 11px; color: #555; margin-top: 25px; text-transform: uppercase; letter-spacing: 0.5px; }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-card" id="mainCard">
+        
+        <div class="brand-section">
+            <h1>KAS RW JAMARAS</h1>
+            <p id="brandSubText">Sistem Keuangan Digital</p>
+        </div>
+
+        <div id="notificationBox" class="notification-box d-none"></div>
+
+        <div class="form-group">
+            <label for="emailUser">Alamat Email Pengguna</label>
+            <input type="email" id="emailUser" placeholder="contoh@email.com" autocomplete="email">
+        </div>
+
+        <div class="form-group">
+            <label for="passUser">Kata Sandi (Password)</label>
+            <input type="password" id="passUser" placeholder="******">
+        </div>
+
+        <div id="registerFields" class="d-none">
+            <div class="form-group">
+                <label for="namaLengkap">Nama Lengkap Sesuai KTP</label>
+                <input type="text" id="namaLengkap" placeholder="Nama Lengkap">
+            </div>
+
+            <div class="form-group" id="wrapNikWarga">
+                <label for="nikWarga">Nomor NIK KTP (16 Digit)</label>
+                <input type="text" id="nikWarga" placeholder="320xxxxxxxxxxxxx" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
+            
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                    <label for="regRole">Tipe Keanggotaan</label>
+                    <select id="regRole" onchange="handleRoleChange()">
+                        <option value="warga">Warga Biasa / Umum</option>
+                        <option value="admin_rt">Pengurus Wilayah RT</option>
+                        <option value="admin_rw">Pengurus Wilayah RW</option>
+                    </select>
+                </div>
+                <div class="form-group" id="wrapScopeRt">
+                    <label for="regScopeRt">Wilayah RT</label>
+                    <select id="regScopeRt">
+                        <option value="01">RT 01</option>
+                        <option value="02">RT 02</option>
+                        <option value="03">RT 03</option>
+                        <option value="04">RT 04</option>
+                        <option value="05">RT 05</option>
+                        <option value="06">RT 06</option>
+                        <option value="07">RT 07</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group d-none" id="wrapKodeAktivasi">
+                <label for="kodeAktivasi" style="color: var(--danger);">🔑 Kode Aktivasi Khusus Pengurus</label>
+                <input type="password" id="kodeAktivasi" placeholder="Masukkan kode otorisasi pusat">
+            </div>
+        </div>
+
+        <button class="btn-submit" id="btnMainAction" onclick="eksekusiSistem()">MASUK SYSTEM</button>
+
+        <div class="switch-mode-box" id="modeSwitcherText">
+            Belum punya akun? <span class="switch-link" onclick="ubahKeModeDaftar()">Daftar Disini</span>
+        </div>
+
+        <div class="footer-text">
+            © 2026 RW Jamaras Digital Environment
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const _sb = supabase.createClient("https://nuxybltpoldavntkrabh.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51eHlibHRwb2xkYXZudGtyYWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NjA1MTEsImV4cCI6MjA5MjMzNjUxMX0.vVD4cxYt9AWA4XcLrSnA7Pat6K5Mt3mQ61Qct6j_uUg");
+
+    const KODE_RAHASIA_RW = "JAMARAS2026"; 
+    let isLoginMode = true;
+
+    function tampilkanNotifikasi(pesan, jenis) {
+        const box = document.getElementById('notificationBox');
+        box.innerText = pesan;
+        box.className = "notification-box " + (jenis === "error" ? "box-error" : "box-success");
+        box.classList.remove('d-none');
+    }
+
+    function ubahKeModeDaftar() {
+        isLoginMode = false;
+        document.getElementById('mainCard').classList.add('register-mode');
+        document.getElementById('brandSubText').innerText = "Pendaftaran Pengguna Baru";
+        document.getElementById('registerFields').classList.remove('d-none');
+        document.getElementById('btnMainAction').innerText = "DAFTAR AKUN BARU";
+        document.getElementById('notificationBox').classList.add('d-none');
+        document.getElementById('modeSwitcherText').innerHTML = `Sudah punya akun? <span class="switch-link" onclick="ubahKeModeLogin()">Login Masuk</span>`;
+        handleRoleChange();
+    }
+
+    function ubahKeModeLogin() {
+        isLoginMode = true;
+        document.getElementById('mainCard').classList.remove('register-mode');
+        document.getElementById('brandSubText').innerText = "Sistem Keuangan Digital";
+        document.getElementById('registerFields').classList.add('d-none');
+        document.getElementById('btnMainAction').innerText = "MASUK SYSTEM";
+        document.getElementById('notificationBox').classList.add('d-none');
+        document.getElementById('modeSwitcherText').innerHTML = `Belum punya akun? <span class="switch-link" onclick="ubahKeModeDaftar()">Daftar Disini</span>`;
+    }
+
+    function handleRoleChange() {
+        const role = document.getElementById('regRole').value;
+        const wrapRt = document.getElementById('wrapScopeRt');
+        const wrapToken = document.getElementById('wrapKodeAktivasi');
+        const wrapNik = document.getElementById('wrapNikWarga');
+
+        if (role === 'warga') {
+            wrapRt.style.opacity = "1"; document.getElementById('regScopeRt').disabled = false;
+            wrapToken.classList.add('d-none'); wrapNik.classList.remove('d-none');
+        } else if (role === 'admin_rt') {
+            wrapRt.style.opacity = "1"; document.getElementById('regScopeRt').disabled = false;
+            wrapToken.classList.remove('d-none'); wrapNik.classList.add('d-none');
+        } else if (role === 'admin_rw') {
+            wrapRt.style.opacity = "0.3"; document.getElementById('regScopeRt').disabled = true;
+            wrapToken.classList.remove('d-none'); wrapNik.classList.add('d-none');
+        }
+    }
+
+    function eksekusiSistem() {
+        if (isLoginMode) { prosesLogin(); } else { prosesRegistrasi(); }
+    }
+
+    async function prosesLogin() {
+        const email = document.getElementById('emailUser').value.trim();
+        const pass = document.getElementById('passUser').value;
+        const btn = document.getElementById('btnMainAction');
+        document.getElementById('notificationBox').classList.add('d-none');
+
+        if (!email || !pass) {
+            tampilkanNotifikasi("⚠️ Harap isi email dan kata sandi!", "error");
+            return;
+        }
+
+        btn.disabled = true; btn.innerText = "Memeriksa Akun...";
+
+        const { data: authData, error: authError } = await _sb.auth.signInWithPassword({ email: email, password: pass });
+        if (authError) {
+            tampilkanNotifikasi("❌ " + authError.message, "error");
+            btn.disabled = false; btn.innerText = "MASUK SYSTEM";
+            return;
+        }
+        alihkanHalamanSesuaiRole(authData.user.email, authData.user.id);
+    }
+
+    // ROMBAK TOTAL DAFTAR: MENGGUNAKAN JALUR USER METADATA (DATA PASTI TEMBUS KE SERVER)
+    async function prosesRegistrasi() {
+        const email = document.getElementById('emailUser').value.trim();
+        const pass = document.getElementById('passUser').value;
+        const nama = document.getElementById('namaLengkap').value.trim();
+        const role = document.getElementById('regRole').value;
+        const rt = document.getElementById('regScopeRt').value;
+        const nikInput = document.getElementById('nikWarga').value.trim();
+        const kodeTokenInput = document.getElementById('kodeAktivasi').value.trim();
+        const btn = document.getElementById('btnMainAction');
+
+        document.getElementById('notificationBox').classList.add('d-none');
+
+        if (!email || !pass || !nama) {
+            tampilkanNotifikasi("⚠️ Harap isi field email, password, dan nama lengkap!", "error");
+            return;
+        }
+
+        if (role === 'warga' && (!nikInput || nikInput.length !== 16)) {
+            tampilkanNotifikasi("⚠️ Warga wajib memasukkan 16 digit Nomor NIK KTP secara valid!", "error");
+            return;
+        }
+
+        if (role !== 'warga' && (!kodeTokenInput || kodeTokenInput !== KODE_RAHASIA_RW)) {
+            tampilkanNotifikasi("❌ Kode Aktivasi Pengurus Salah atau Kosong!", "error");
+            return;
+        }
+
+        if (pass.length < 6) {
+            tampilkanNotifikasi("⚠️ Kata sandi minimal harus 6 karakter!", "error");
+            return;
+        }
+
+        btn.disabled = true; btn.innerText = "Mendaftarkan Akun...";
+
+        // TITIPKAN DATA FORMULIR DI DALAM SECURE USER METADATA (options.data)
+        const { data: regData, error: regError } = await _sb.auth.signUp({
+            email: email,
+            password: pass,
+            options: {
+                data: {
+                    nama_lengkap: nama,
+                    role: role,
+                    scope_rt: role === 'admin_rw' ? null : 'RT_' + rt,
+                    nik_warga: role === 'warga' ? nikInput : null
+                }
+            }
+        });
+
+        if (regError) {
+            tampilkanNotifikasi("❌ Gagal mendaftar auth: " + regError.message, "error");
+            btn.disabled = false; btn.innerText = "DAFTAR AKUN BARU";
+            return;
+        }
+
+        if (regData && regData.user) {
+            // Beri waktu sejenak agar database memproses pembuatan profil
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            // LANGKAH BACKUP: Paksa update ulang tabel profiles sekali lagi untuk menjamin 100% sinkronisasi
+            await _sb.from('profiles').update({
+                nama_lengkap: nama,
+                role: role,
+                scope_rt: role === 'admin_rw' ? null : 'RT_' + rt,
+                nik_warga: role === 'warga' ? nikInput : null
+            }).eq('id', regData.user.id);
+
+            tampilkanNotifikasi("✅ Registrasi Berhasil! Silakan masuk sistem.", "success");
+            setTimeout(() => {
+                ubahKeModeLogin();
+                document.getElementById('emailUser').value = email;
+                document.getElementById('passUser').value = pass;
+                document.getElementById('namaLengkap').value = "";
+                document.getElementById('nikWarga').value = "";
+                document.getElementById('kodeAktivasi').value = "";
+            }, 2000);
+        }
+    }
+
+    async function alihkanHalamanSesuaiRole(email, userId) {
+        const uEmail = email.toLowerCase();
+        const emailRW = ['hadiatpermana@gmail.com', 'energyofjamaras@gmail.com', 'hendra.hons0067@gmail.com'];
+        
+        if (emailRW.includes(uEmail)) { window.location.href = "dashboard-rw.html"; return; }
+
+        const { data: profile } = await _sb.from('profiles').select('*').eq('id', userId).single();
+        if (profile) {
+            if (profile.role === 'admin_rw') { window.location.href = "dashboard-rw.html"; }
+            else if (profile.role === 'admin_rt') { 
+                let cleanRt = profile.scope_rt ? profile.scope_rt.replace('RT_', '') : '01';
+                window.location.href = `dashboard-rt.html?rt=${cleanRt}`; 
+            }
+            else { window.location.href = "dashboard-warga.html"; }
+        } else {
+            let rtDef = '01';
+            if (uEmail === 'kokomk1107@gmail.com') rtDef = '05';
+            if (uEmail === 'lm680581@gmail.com') rtDef = '07';
+            window.location.href = `dashboard-rt.html?rt=${rtDef}`;
+        }
+    }
+
+    async function cekSesiAktif() {
+        const { data: { session } } = await _sb.auth.getSession();
+        if (session) { alihkanHalamanSesuaiRole(session.user.email, session.user.id); }
+    }
+
+    window.onload = function() { cekSesiAktif(); };
+</script>
+</body>
+</html>
