@@ -31,12 +31,17 @@
         .welcome-card h3 { margin: 0 0 5px 0; font-size: 18px; color: #fff; }
         .welcome-card p { margin: 0; font-size: 13px; color: #aaa; }
 
-        .grid-finansial { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 25px; }
-        .card-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; }
+        /* Grid Finansial Baru Sesuai Request */
+        .grid-finansial { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .card-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; position: relative; }
         .card-box.pusat { border-top: 4px solid var(--blue); }
-        .card-box.gabungan { border-top: 4px solid var(--accent); }
+        .card-box.masuk-box { border-top: 4px solid var(--accent); }
+        .card-box.keluar-box { border-top: 4px solid var(--danger); }
         .box-title { font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 6px; letter-spacing: 0.5px; }
-        .box-value { font-size: 24px; font-weight: 700; color: #fff; }
+        .box-value { font-size: 22px; font-weight: 700; color: #fff; }
+
+        .btn-detail-link { background: rgba(52, 152, 219, 0.12); border: 1px dashed var(--blue); color: var(--blue); width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; margin-bottom: 25px; transition: all 0.2s ease; }
+        .btn-detail-link:hover { background: rgba(52, 152, 219, 0.25); color: #fff; }
 
         .section-title { font-size: 14px; font-weight: bold; text-transform: uppercase; margin: 20px 0 10px 0; color: #fff; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
         
@@ -51,6 +56,17 @@
         .badge.aktif { background: rgba(114, 163, 57, 0.15); color: var(--accent); }
 
         .empty-state { color: #666; font-style: italic; text-align: center; padding: 30px 0; font-size: 13px; }
+
+        /* STYLE STRUKTUR MODAL POPUP POPUP */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding-top: 40px; }
+        .modal-content { background-color: var(--card-dark); margin: auto; padding: 20px; border: 1px solid #444; width: 90%; max-width: 650px; border-radius: 12px; max-height: 85vh; display: flex; flex-direction: column; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px; }
+        .modal-header h2 { margin: 0; font-size: 18px; color: #fff; }
+        .close-modal { color: #aaa; font-size: 24px; font-weight: bold; cursor: pointer; }
+        .close-modal:hover { color: var(--danger); }
+        .modal-body-scroll { overflow-y: auto; flex: 1; padding-right: 5px; }
+        .item-detail-tx { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid #2d2d2d; font-size: 13px; }
+        .item-detail-tx:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -69,17 +85,23 @@
         <p id="txtDetailWarga">Mencari manifestasi identitas NIK Anda di dalam basis data...</p>
     </div>
 
-    <div class="section-title">📊 Informasi Kas Real-Time Lingkungan</div>
+    <div class="section-title">📊 Informasi Kas RW Pusat Terkini</div>
     <div class="grid-finansial">
-        <div class="card-box pusat">
-            <div class="box-title">💵 Saldo Kas RW Pusat</div>
-            <div class="box-value" id="saldoPusat">Rp 0</div>
+        <div class="card-box masuk-box">
+            <div class="box-title">📥 Total Uang Masuk</div>
+            <div class="box-value" id="rwTotalMasuk" style="color: var(--accent);">Rp 0</div>
         </div>
-        <div class="card-box gabungan">
-            <div class="box-title">💰 Total Kas Gabungan (RW + Seluruh RT)</div>
-            <div class="box-value" id="saldoTotal">Rp 0</div>
+        <div class="card-box keluar-box">
+            <div class="box-title">📤 Total Uang Keluar</div>
+            <div class="box-value" id="rwTotalKeluar" style="color: var(--danger);">Rp 0</div>
+        </div>
+        <div class="card-box pusat">
+            <div class="box-title">💵 Saldo Akhir Kas RW</div>
+            <div class="box-value" id="saldoPusat" style="color: #fff;">Rp 0</div>
         </div>
     </div>
+
+    <button class="btn-detail-link" onclick="bukaModalDetailFinansial()">🔍 Lihat Detail Keluar Masuk Uang Kas RW</button>
 
     <div class="section-title">🏢 Laporan Keuangan Tingkat RT</div>
     <div class="table-container">
@@ -115,11 +137,21 @@
             </tbody>
         </table>
     </div>
+</div>
 
+<div id="modalDetailKas" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📋 Jurnal Histori Keluar Masuk Kas RW Pusat</h2>
+            <span class="close-modal" onclick="tutupModalDetailFinansial()">&times;</span>
+        </div>
+        <div class="modal-body-scroll" id="bodyDetailJurnal">
+            <div class="empty-state">Memuat riwayat pembukuan kas...</div>
+        </div>
+    </div>
 </div>
 
 <script>
-    // Koneksi Database Supabase
     const _sb = supabase.createClient("https://nuxybltpoldavntkrabh.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51eHlibHRwb2xkYXZudGtyYWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NjA1MTEsImV4cCI6MjA5MjMzNjUxMX0.vVD4cxYt9AWA4XcLrSnA7Pat6K5Mt3mQ61Qct6j_uUg");
 
     let currentNik = null;
@@ -138,7 +170,6 @@
         let { data: { session } } = await _sb.auth.getSession();
         if (!session) { window.location.href = "index.html"; return; }
 
-        // 1. Tarik profil akun berdasarkan UID login
         let { data: profile } = await _sb.from('profiles').select('*').eq('id', session.user.id).single();
         if (profile) {
             document.getElementById('txtNamaWarga').innerText = "Selamat Datang, " + profile.nama_lengkap;
@@ -150,16 +181,11 @@
                 document.getElementById('bodyTabelKeluarga').innerHTML = `<tr><td colspan="4" class="empty-state">⚠️ Akun Anda belum menautkan NIK. Hubungi admin untuk sinkronisasi KK.</td></tr>`;
             }
         }
-        
         muatDataFinansialWarga();
     }
 
-    // ENGINE UNTUK TRACKING KK OTOMATIS BERDASARKAN ACUAN NIK DAFTAR
     async function muatManifestKeluarga(nik) {
-        // Langkah A: Cari baris data warga untuk mencuri nomor KK aslinya
-        let { data: wargaSendiri, error: errCari } = await _sb.from('warga').select('no_kk, rt_scope').eq('nik', nik).maybeSingle();
-        
-        // Cadangan tracking jika di database tabel warga menggunakan kolom 'no_nik'
+        let { data: wargaSendiri } = await _sb.from('warga').select('no_kk, rt_scope').eq('nik', nik).maybeSingle();
         if(!wargaSendiri) {
             let { data: bkp } = await _sb.from('warga').select('no_kk, rt_scope').eq('no_nik', nik).maybeSingle();
             wargaSendiri = bkp;
@@ -168,7 +194,6 @@
         if (wargaSendiri && wargaSendiri.no_kk) {
             document.getElementById('txtDetailWarga').innerHTML = `Terdaftar di wilayah: <span class="badge rt">${wargaSendiri.rt_scope.replace('_',' ')}</span> | No Kartu Keluarga: <b>${wargaSendiri.no_kk}</b>`;
             
-            // Langkah B: Ambil seluruh warga yang memiliki No KK kembar/sama
             let { data: anggotaKeluarga } = await _sb.from('warga').select('*').eq('no_kk', wargaSendiri.no_kk).order('hubungan_keluarga', {ascending: true});
             
             if (anggotaKeluarga && anggotaKeluarga.length > 0) {
@@ -186,7 +211,6 @@
                 return;
             }
         }
-
         document.getElementById('bodyTabelKeluarga').innerHTML = `<tr><td colspan="4" class="empty-state">ℹ️ NIK Anda valid, namun master data kependudukan KK Anda belum diinput oleh Admin RT Anda.</td></tr>`;
     }
 
@@ -200,13 +224,14 @@
                 if (tx.tipe === 'keluar') rwKeluar += parseInt(tx.jumlah || 0);
             });
         }
-        let saldoInternalPusat = rwMasuk - rwKeluar;
-        document.getElementById('saldoPusat').innerText = "Rp " + saldoInternalPusat.toLocaleString('id-ID');
-
-        // Ambil akumulasi seluruh RT
-        let { data: semuaTx } = await _sb.from('transaksi1').select('*');
-        let gabunganTotalSaldo = saldoInternalPusat; 
         
+        // Render rincian terpisah ke box atas sesuai instruksi baru
+        document.getElementById('rwTotalMasuk').innerText = "Rp " + rwMasuk.toLocaleString('id-ID');
+        document.getElementById('rwTotalKeluar').innerText = "Rp " + rwKeluar.toLocaleString('id-ID');
+        document.getElementById('saldoPusat').innerText = "Rp " + (rwMasuk - rwKeluar).toLocaleString('id-ID');
+
+        // Ambil data untuk rekap tabel RT wilayah bawah
+        let { data: semuaTx } = await _sb.from('transaksi1').select('*');
         let unitData = { 
             "RT_01": {m:0, k:0}, "RT_02": {m:0, k:0}, "RT_03": {m:0, k:0}, 
             "RT_04": {m:0, k:0}, "RT_05": {m:0, k:0}, "RT_06": {m:0, k:0}, 
@@ -225,12 +250,50 @@
         let htmlTabel = "";
         for (let key in unitData) {
             let saldoRT = unitData[key].m - unitData[key].k;
-            gabunganTotalSaldo += saldoRT;
-            htmlTabel += `<tr><td><b>${key.replace('_',' ')}</b></td><td>Rp ${unitData[key].m.toLocaleString('id-ID')}</td><td>Rp ${unitData[key].k.toLocaleString('id-ID')}</td><td style="font-weight:bold; color:var(--accent);">Rp ${saldoRT.toLocaleString('id-ID')}</td><td><span class="badge aktif">TERBUKTI</span></td></tr>`;
+            htmlTabel += `<tr><td><b>${key.replace('_',' ')}</b></td><td>Rp ${unitData[key].m.toLocaleString('id-ID')}</td><td>Rp ${unitData[key].k.toLocaleString('id-ID')}</td><td style="font-weight:bold; color:var(--accent);">Rp ${saldoRT.toLocaleString('id-ID')}</td><td><span class="badge aktif">TERSEDIA</span></td></tr>`;
         }
-        
-        document.getElementById('saldoTotal').innerText = "Rp " + gabunganTotalSaldo.toLocaleString('id-ID');
         document.getElementById('bodyTabelRT').innerHTML = htmlTabel;
+    }
+
+    // ENGINE BARU: MEMANGGIL DETAIL LOG DATA ALIRAN KAS RW PUSAT SECARA REALTIME
+    async function bukaModalDetailFinansial() {
+        const modal = document.getElementById('modalDetailKas');
+        const bodyJurnal = document.getElementById('bodyDetailJurnal');
+        modal.style.display = "block";
+        bodyJurnal.innerHTML = `<div class="empty-state">⚡ Menghubungkan jurnal keuangan...</div>`;
+
+        let { data: listJurnal, error } = await _sb
+            .from('transaksi1')
+            .select('*')
+            .eq('scope', 'RW_PUSAT')
+            .order('created_at', { ascending: false });
+
+        if (error || !listJurnal || listJurnal.length === 0) {
+            bodyJurnal.innerHTML = `<div class="empty-state">Belum ada riwayat transaksi terdata di RW Pusat.</div>`;
+            return;
+        }
+
+        bodyJurnal.innerHTML = listJurnal.map(tx => `
+            <div class="item-detail-tx">
+                <div>
+                    <div style="font-weight:bold; color:#fff; margin-bottom:3px;">${tx.keterangan}</div>
+                    <div style="font-size:11px; color:#888;">${tx.tanggal} | Jenis: <b>${tx.kategori}</b></div>
+                </div>
+                <div style="font-weight:bold; color:${tx.tipe === 'masuk' ? 'var(--accent)' : 'var(--danger)'};">
+                    ${tx.tipe === 'masuk' ? '+' : '-'} Rp ${parseInt(tx.jumlah).toLocaleString('id-ID')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function tutupModalDetailFinansial() {
+        document.getElementById('modalDetailKas').style.display = "none";
+    }
+
+    // Tutup popup otomatis jika warga mengklik area luar kotak hitam modal
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalDetailKas');
+        if (event.target == modal) { modal.style.display = "none"; }
     }
 
     async function prosesKeluar() { if (confirm("Keluar dari Portal Layanan Warga?")) { await _sb.auth.signOut(); window.location.href = "index.html"; } }
