@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #121212;
+            --bg-dark: #ffffff;
             --card-dark: #1e1e1e;
             --accent: #72a339;
             --text-main: #e0e0e0;
@@ -34,6 +34,24 @@
         .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .tab-btn { padding: 10px; background-color: #252525; border: 1px solid var(--border-color); color: #888; cursor: pointer; font-weight: bold; text-transform: uppercase; border-radius: 6px; font-size: 13px; }
         .tab-btn.active { background-color: var(--card-dark); border-bottom: 3px solid var(--accent); color: #fff; }
+
+        /* TATA LETAK CARD LAPORAN FINANSIAL */
+        .grid-laporan { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        @media (max-width: 600px) { .grid-laporan { grid-template-columns: 1fr; } }
+        
+        .card-laporan { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-laporan.global { border-top: 4px solid var(--blue); }
+        .card-laporan.internal { border-top: 4px solid var(--accent); }
+        .card-laporan h4 { margin: 0 0 12px 0; font-size: 14px; text-transform: uppercase; color: #fff; letter-spacing: 0.5px; }
+        
+        .fin-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .fin-row:last-of-type { border-top: 1px solid #333; padding-top: 6px; margin-bottom: 0; }
+        .fin-label { font-size: 13px; color: #aaa; }
+        .fin-value { font-size: 15px; font-weight: bold; }
+
+        .btn-popup { width: 100%; margin-top: 12px; padding: 10px; background-color: #2d2d2d; border: 1px solid #444; color: #bbb; border-radius: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
+        .btn-popup:not(:disabled):hover { background-color: #383838; color: #fff; }
+        .btn-popup:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .card { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -87,7 +105,34 @@
         .badge.balita { background: rgba(26, 188, 156, 0.2); color: #1abc9c; border: 1px solid #1abc9c; }
 
         .d-none { display: none !important; }
-        .empty-state { color: #666; font-style: italic; text-align: center; padding: 20px 0; }
+        .empty-state { color: #666; font-style: bold; text-align: center; padding: 20px 0; }
+
+        /* REVISI UKURAN POPUP MODAL: MAKIN PANJANG KE BAWAH & LEBIH LEGA */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(3px); }
+        .modal-content { 
+            background-color: var(--card-dark); 
+            margin: 3% auto; /* Jarak atas dipangkas agar modal memanjang maksimal ke bawah */
+            padding: 20px; 
+            border: 1px solid var(--border-color); 
+            width: 92%; 
+            max-width: 600px; /* Diperlebar sedikit agar data kanan-kiri tidak menumpuk */
+            border-radius: 10px; 
+            box-shadow: 0 5px 25px rgba(0,0,0,0.6); 
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+        .modal-header h3 { margin: 0; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .close-modal { color: #aaa; font-size: 24px; font-weight: bold; cursor: pointer; line-height: 1; }
+        .close-modal:hover { color: #fff; }
+        
+        /* BOX SCROLL POPUP: TINGGI DIMAKSIMALKAN */
+        .modal-scroll-box { 
+            max-height: 480px; /* Ukuran ditambah panjang ke bawah */
+            overflow-y: auto; 
+            padding-right: 5px;
+        }
+        .modal-scroll-box::-webkit-scrollbar { width: 5px; }
+        .modal-scroll-box::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+        .modal-scroll-box::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -101,45 +146,49 @@
         <button class="btn-keluar" onclick="prosesKeluar()">Keluar</button>
     </header>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-        <div class="card" style="border-top: 4px solid var(--blue); padding: 15px; margin-bottom: 0;">
-            <div style="font-size: 16px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; color: #aaa;">📊 KAS RW PUSAT</div>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="font-size: 18px; color: #aaa;">Masuk:</span>
-                    <span id="rwTotalMasuk" style="font-size: 18px; font-weight: bold; color: var(--accent);">Rp 0</span>
+    <div class="grid-laporan">
+        <div class="card-laporan global">
+            <div>
+                <h4>🌍 GLOBAL RW PUSAT <span style="font-size: 11px; color: var(--blue);">KONSOLIDASI</span></h4>
+                <div class="fin-row">
+                    <span class="fin-label">Total Pemasukan</span>
+                    <span class="fin-value" id="rwTotalMasuk" style="color: var(--accent);">Rp 0</span>
                 </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="font-size: 18px; color: #aaa;">Keluar:</span>
-                    <span id="rwTotalKeluar" style="font-size: 18px; font-weight: bold; color: var(--danger);">Rp 0</span>
+                <div class="fin-row">
+                    <span class="fin-label">Total Pengeluaran</span>
+                    <span class="fin-value" id="rwTotalKeluar" style="color: var(--danger);">Rp 0</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 5px;">
-                    <span style="font-size: 18px; color: #fff; font-weight: bold;">SALDO:</span>
-                    <span id="rwSaldoAkhir" style="font-size: 18px; font-weight: bold; color: var(--blue);">Rp 0</span>
+                <div class="fin-row">
+                    <span class="fin-label" style="font-weight: bold; color: #fff;">SALDO RW</span>
+                    <span class="fin-value" id="saldoPusat" style="color: var(--blue); font-size: 25px;">Rp 0</span>
                 </div>
             </div>
+            <button class="btn-popup" onclick="bukaModalFinansial('RW_PUSAT')">🔍 Riwayat Kas RW Global</button>
         </div>
 
-        <div class="card" style="border-top: 4px solid var(--accent); padding: 15px; margin-bottom: 0;">
-            <div style="font-size: 16px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; color: #fff;">📊 KAS RT <span id="labelRtKecil"></span></div>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="font-size: 18px; color: #aaa;">Masuk:</span>
-                    <span id="rtTotalMasuk" style="font-size: 18px; font-weight: bold; color: var(--accent);">Rp 0</span>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="font-size: 18px; color: #aaa;">Keluar:</span>
-                    <span id="rtTotalKeluar" style="font-size: 18px; font-weight: bold; color: var(--danger);">Rp 0</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 5px;">
-                    <span style="font-size: 18px; color: #fff; font-weight: bold;">SALDO:</span>
-                    <span id="rtSaldoAkhir" style="font-size: 18px; font-weight: bold; color: var(--accent);">Rp 0</span>
+        <div class="card-laporan internal">
+            <div>
+                <h4>🏡 INTERNAL RT <span id="labelRtKunciHeader">--</span> <span style="font-size: 10px; padding: 2px 5px; background: rgba(114, 163, 57, 0.2); color: var(--accent); border-radius:3px;">WILAYAH ANDA</span></h4>
+                <div id="loadingInternalRt" class="empty-state" style="padding: 15px 0;">Menghubungkan kas RT...</div>
+                <div id="dataInternalRt" class="d-none">
+                    <div class="fin-row">
+                        <span class="fin-label">Total Pemasukan</span>
+                        <span class="fin-value" id="rtTotalMasuk" style="color: var(--accent);">Rp 0</span>
+                    </div>
+                    <div class="fin-row">
+                        <span class="fin-label">Total Pengeluaran</span>
+                        <span class="fin-value" id="rtTotalKeluar" style="color: var(--danger);">Rp 0</span>
+                    </div>
+                    <div class="fin-row">
+                        <span class="fin-label" style="font-weight: bold; color: #fff;">SALDO RT</span>
+                        <span class="fin-value" id="saldoRtLokal" style="color: var(--accent); font-size: 25px;">Rp 0</span>
+                    </div>
                 </div>
             </div>
+            <button class="btn-popup" id="btnDetailRt" onclick="bukaModalFinansial('RT_LOKAL')" disabled>⏳ Kunci Wilayah...</button>
         </div>
     </div>
 
-    <!-- UPDATE BOX STATISTIK: DISET SINKRON DENGAN BATAS USIA DIBAWAH 5 TAHUN -->
     <div class="stat-grid">
         <div class="stat-box" style="border-bottom: 3px solid var(--blue);">
             <div class="stat-label">👥 Total Jiwa</div>
@@ -154,7 +203,7 @@
             <div class="stat-value" id="statTotalPemilih">0</div>
         </div>
         <div class="stat-box" style="border-bottom: 3px solid var(--teal);">
-            <div class="stat-label">👶 Balita (<5 Thn)</div>
+            <div class="stat-label">👶 Balita (&lt; 5 Thn)</div>
             <div class="stat-value" id="statTotalBalita">0</div>
         </div>
         <div class="stat-box full-width">
@@ -215,8 +264,8 @@
         </div>
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <div style="font-size: 13px; font-weight: bold; text-transform: uppercase;">📋 Riwayat Transaksi</div>
-            <div id="statusData" style="font-size: 11px; color: #888;">Menampilkan 0 data</div>
+            <div style="font-size: 13px; font-weight: bold; text-transform: uppercase;">📋 Riwayat Transaksi Lengkap (RT Kita)</div>
+            <div id="statusData" style="font-size: 15px; color: #888;">Menampilkan 0 data</div>
         </div>
         <div class="card" style="padding: 10px;">
             <div class="scroll-box">
@@ -236,7 +285,6 @@
 
         <div class="card" style="border-top: 4px solid var(--blue);">
             <div style="font-size: 14px; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; color:#fff;">📝 Input Data Anggota Keluarga (KK) Manually</div>
-            
             <div class="form-row">
                 <div class="form-group">
                     <label for="noKk">No. Kartu Keluarga (KK)</label>
@@ -247,7 +295,6 @@
                     <input type="number" id="nikWarga" placeholder="16 Digit NIK Anggota">
                 </div>
             </div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label for="namaWarga">Nama Lengkap</label>
@@ -258,7 +305,6 @@
                     <input type="text" id="noRumah" placeholder="Contoh: No.05 / Blok B">
                 </div>
             </div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label for="tglLahir">Tanggal Lahir</label>
@@ -275,7 +321,6 @@
                     </select>
                 </div>
             </div>
-
             <div class="form-row" style="align-items: end;">
                 <div class="form-group" style="margin-bottom: 0;">
                     <label for="statusTinggal">Status Kependudukan / Tinggal</label>
@@ -292,7 +337,6 @@
         </div>
 
         <div style="font-size: 13px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px;">📊 Manifest Register Penduduk RT</div>
-        
         <div class="filter-container">
             <div style="flex: 1;">
                 <label for="filterKategoriWarga">Filter Khusus / Klasifikasi Sosial</label>
@@ -307,7 +351,6 @@
                 </select>
             </div>
         </div>
-        
         <div style="display:flex; gap:10px; margin-bottom:12px;">
             <input type="text" id="cariKk" placeholder="🔍 Cari Nomor KK..." onkeyup="renderTabelWarga()" style="margin-bottom:0; flex:1;">
             <select id="filterHubungan" onchange="renderTabelWarga()" style="margin-bottom:0; flex:1;">
@@ -315,7 +358,6 @@
                 <option value="Kepala Keluarga">Hanya Kepala Keluarga</option>
             </select>
         </div>
-
         <div class="table-container scroll-box">
             <table>
                 <thead>
@@ -333,6 +375,18 @@
     </div>
 </div>
 
+<div id="modalFinansial" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">📋 Riwayat Transaksi</h3>
+            <span class="close-modal" onclick="tutupModal()">&times;</span>
+        </div>
+        <div class="modal-scroll-box" id="modalContainerData">
+            <div class="empty-state">Memuat riwayat log...</div>
+        </div>
+    </div>
+</div>
+
 <script>
     const SB_URL = "https://nuxybltpoldavntkrabh.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51eHlibHRwb2xkYXZudGtyYWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NjA1MTEsImV4cCI6MjA5MjMzNjUxMX0.vVD4cxYt9AWA4XcLrSnA7Pat6K5Mt3mQ61Qct6j_uUg";
@@ -343,6 +397,8 @@
     let filterAktif = "semua";
     let listDataWargaLokal = [];
     let limitTransaksi = 10; 
+    let globalCacheRW = []; 
+    let globalCacheRT = [];
 
     function formatRupiahInput(input) {
         let value = input.value.replace(/[^,\d]/g, '');
@@ -359,7 +415,7 @@
         const rtParam = urlParams.get('rt');
         if (rtParam) currentRT = rtParam;
         document.getElementById('namaRt').innerText = `WILAYAH RT ${currentRT}`;
-        document.getElementById('labelRtKecil').innerText = currentRT;
+        document.getElementById('labelRtKunciHeader').innerText = currentRT;
     }
 
     function bukaTab(pilihan) {
@@ -405,8 +461,9 @@
     }
 
     async function loadSaldoRwGlobal() {
-        const { data, error } = await _sb.from('transaksi1').select('tipe, jumlah').eq('scope', 'RW_PUSAT');
+        const { data, error } = await _sb.from('transaksi1').select('*').eq('scope', 'RW_PUSAT').order('created_at', { ascending: false });
         if (!error && data) {
+            globalCacheRW = data;
             let rwMasuk = 0, rwKeluar = 0;
             data.forEach(tx => {
                 if (tx.tipe === 'masuk') rwMasuk += parseInt(tx.jumlah || 0);
@@ -414,13 +471,21 @@
             });
             document.getElementById('rwTotalMasuk').innerText = "Rp " + rwMasuk.toLocaleString('id-ID');
             document.getElementById('rwTotalKeluar').innerText = "Rp " + rwKeluar.toLocaleString('id-ID');
-            document.getElementById('rwSaldoAkhir').innerText = "Rp " + (rwMasuk - rwKeluar).toLocaleString('id-ID');
+            document.getElementById('saldoPusat').innerText = "Rp " + (rwMasuk - rwKeluar).toLocaleString('id-ID');
         }
     }
 
     async function loadSaldoRtLokal() {
-        const { data, error } = await _sb.from('transaksi1').select('tipe, jumlah').eq('scope', `RT_${currentRT}`);
+        const { data, error } = await _sb.from('transaksi1').select('*').eq('scope', `RT_${currentRT}`).order('created_at', { ascending: false });
+        
+        document.getElementById('loadingInternalRt').classList.add('d-none');
+        document.getElementById('dataInternalRt').classList.remove('d-none');
+        const btnRt = document.getElementById('btnDetailRt');
+        btnRt.disabled = false;
+        btnRt.innerText = `🔍 Riwayat Kas RT ${currentRT}`;
+
         if (!error && data) {
+            globalCacheRT = data;
             let tMasuk = 0, tKeluar = 0;
             data.forEach(tx => {
                 if (tx.tipe === 'masuk') tMasuk += parseInt(tx.jumlah || 0);
@@ -428,8 +493,43 @@
             });
             document.getElementById('rtTotalMasuk').innerText = "Rp " + tMasuk.toLocaleString('id-ID');
             document.getElementById('rtTotalKeluar').innerText = "Rp " + tKeluar.toLocaleString('id-ID');
-            document.getElementById('rtSaldoAkhir').innerText = "Rp " + (tMasuk - tKeluar).toLocaleString('id-ID');
+            document.getElementById('saldoRtLokal').innerText = "Rp " + (tMasuk - tKeluar).toLocaleString('id-ID');
         }
+    }
+
+    function bukaModalFinansial(scopeTipe) {
+        const modal = document.getElementById('modalFinansial');
+        const judul = document.getElementById('modalTitle');
+        const container = document.getElementById('modalContainerData');
+        
+        modal.style.display = "block";
+        container.innerHTML = "";
+
+        let dataSumber = (scopeTipe === 'RW_PUSAT') ? globalCacheRW : globalCacheRT;
+        judul.innerText = (scopeTipe === 'RW_PUSAT') ? "🌍 Jurnal Histori Kas RW Pusat" : `🏡 Jurnal Histori Kas RT ${currentRT}`;
+
+        if(dataSumber.length === 0) {
+            container.innerHTML = '<div class="empty-state">Belum terdapat data log mutasi finansial.</div>';
+            return;
+        }
+
+        container.innerHTML = dataSumber.map(tx => `
+            <div class="tx-item" style="padding: 10px 2px;">
+                <div>
+                    <div style="font-weight:bold; color:#fff; font-size:13px;">${tx.keterangan}</div>
+                    <div style="font-size:11px; color:#777;">${tx.tanggal} | ${tx.kategori} | ${tx.status === 'pending' ? '⏳ Pending' : '✅ Selesai'}</div>
+                </div>
+                <div style="font-weight:bold; font-size:14px; color:${tx.tipe=='masuk'?'var(--accent)':'var(--danger)'}; white-space:nowrap; margin-left: 10px;">
+                    ${tx.tipe=='masuk'?'+':'-'} Rp ${parseInt(tx.jumlah).toLocaleString('id-ID')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function tutupModal() { document.getElementById('modalFinansial').style.display = "none"; }
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalFinansial');
+        if (event.target == modal) modal.style.display = "none";
     }
 
     async function loadHistoriRT() {
@@ -548,7 +648,6 @@
         reader.readAsArrayBuffer(file);
     }
 
-    // REVISI LOGIKA: BATAS ATAS USIA BALITA DIUBAH MENJADI DIBAWAH 5 TAHUN (< 5)
     function hitungStatistikDashboard() {
         let totalJiwa = listDataWargaLokal.length;
         let setKkUnik = new Set(listDataWargaLokal.map(w => w.no_kk));
@@ -558,15 +657,14 @@
 
         listDataWargaLokal.forEach(w => {
             const umur = hitungUsia(w.tanggal_lahir);
-            const kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
             
             if (umur >= 17) totalPemilih++;
-            if (umur >= 0 && umur < 5) totalBalita++; // Diubah dari (<= 5) menjadi (< 5) agar pas maksimal 4 tahun 11 bulan
+            if (umur >= 0 && umur < 5) totalBalita++; 
             if (umur >= 60) totalManula++;
             
             if (w.status_tinggal === 'KK Sini (Tinggal Luar)') totalKkSiniLuar++;
 
-            if (!kkAdaKepala) {
+            if (!setKkMemilikiKepala.has(w.no_kk)) {
                 if (w.hubungan_keluarga === 'Anak' && umur < 18) totalYatim++;
                 else if (w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') totalJanda++;
             }
@@ -595,7 +693,6 @@
 
     function setFilterWarga(jenis) { filterAktif = jenis; renderTabelWarga(); }
 
-    // REVISI LOGIKA: PENYARING USIA BALITA PADA TABEL WARGA RT MENJADI DIBAWAH 5 TAHUN (< 5)
     function renderTabelWarga() {
         const tbody = document.getElementById('tabelWarga'); tbody.innerHTML = "";
         const cariKk = document.getElementById('cariKk').value.toLowerCase();
@@ -608,7 +705,7 @@
             const kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
 
             if (filterAktif === 'pemilih') passFilterKhusus = (umur >= 17);
-            else if (filterAktif === 'balita') passFilterKhusus = (umur >= 0 && umur < 5); // Diubah dari (<= 5) menjadi (< 5)
+            else if (filterAktif === 'balita') passFilterKhusus = (umur >= 0 && umur < 5); 
             else if (filterAktif === 'manula') passFilterKhusus = (umur >= 60);
             else if (filterAktif === 'kksiniluar') passFilterKhusus = (w.status_tinggal === 'KK Sini (Tinggal Luar)'); 
             else if (filterAktif === 'yatim') passFilterKhusus = (w.hubungan_keluarga === 'Anak' && umur < 18 && !kkAdaKepala);
@@ -623,7 +720,7 @@
 
         dataTampil.forEach(w => {
             const umur = hitungUsia(w.tanggal_lahir); 
-            const isPemilih = umur >= 17; const isManula = umur >= 60; const isBalita = (umur >= 0 && umur < 5); // Sinkronisasi (< 5)
+            const isPemilih = umur >= 17; const isManula = umur >= 60; const isBalita = (umur >= 0 && umur < 5); 
             const kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
             
             let badgeClass = "asli";
@@ -675,7 +772,7 @@
         if (tipeDipilih === 'masuk') { document.getElementById('wargaTx').value = ""; }
         
         alert(statusTx === 'pending' ? "✅ Permintaan setor terkirim! Menunggu konfirmasi RW Pusat." : "✅ Transaksi tersimpan!");
-        loadHistoriRT(); loadSaldoRtLokal(); 
+        loadHistoriRT(); loadSaldoRtLokal(); loadSaldoRwGlobal();
     }
 
     async function cekSesi() { 
