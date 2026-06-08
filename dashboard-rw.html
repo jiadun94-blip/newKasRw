@@ -45,7 +45,6 @@
         .card-title { font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 6px; }
         .card-value { font-size: 22px; font-weight: 700; color: #fff; }
         
-        /* Modifikasi Layout Grid Statistik Menjadi 4 Kolom di Pusat */
         .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
         @media (max-width: 768px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
         .stat-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; text-align: center; }
@@ -163,7 +162,7 @@
     </div>
 
     <div id="kontenFinansial">
-        <div class="card" id="formKasRW" style="margin-bottom: 20px; border-top: 4px solid var(--blue);">
+        <div class="card d-none" id="formKasRW" style="margin-bottom: 20px; border-top: 4px solid var(--blue);">
             <div class="section-title" style="margin-top:0; color:var(--blue);">📝 Input Pembukuan Mandiri RW Pusat</div>
             <label>Jenis Aliran Dana</label>
             <div class="tipe-container">
@@ -417,6 +416,7 @@
         }
     }
 
+    // VERIFIKASI SINKRONISASI EMAIL UNTUK PROSES READ-ONLY GLOBAL
     async function cekSesi() {
         let { data: { session } } = await _sb.auth.getSession();
         if (!session) { window.location.href = "index.html"; return; }
@@ -424,15 +424,23 @@
         let emailUser = session.user.email;
         let badge = document.getElementById('userBadgeRole');
 
-        // BYPASS OTOMATIS: Memberikan otorisasi Bendahara penuh agar form manual kas tidak tersembunyi
+        // VALIDASI LAPISAN EMAIL UTAMA
         if (emailUser === "hadiatpermana@gmail.com") {
             isBendahara = true;
             badge.innerText = "👑 Bendahara RW";
             badge.style.borderColor = "var(--accent)";
             badge.style.color = "var(--accent)";
+            
+            // Tampilkan form input internal untuk Bendahara RW
+            document.getElementById('formKasRW').classList.remove('d-none');
         } else {
-            isBendahara = true; 
-            badge.innerText = "👑 Bendahara RW";
+            isBendahara = false; // Kunci mutlak Read-Only untuk Ketua RW, Sekretaris, atau akun lain
+            badge.innerText = "🔍 Monitoring Pusat (Read-Only)";
+            badge.style.borderColor = "var(--purple)";
+            badge.style.color = "var(--purple)";
+            
+            // Sembunyikan form input kas mandiri
+            document.getElementById('formKasRW').classList.add('d-none');
         }
 
         setTipe('masuk');
@@ -441,12 +449,16 @@
         ambilMasterWarga();
     }
 
+    // MODIFIKASI KUNCI TOMBOL TERIMA SETORAN BERDASARKAN STATUS BENDAHARA
     async function loadPendingSetoran() {
         let { data } = await _sb.from('transaksi1').select('*').eq('status', 'pending').eq('kategori', 'Setor Ke Kas RW');
         let body = document.getElementById('bodyPending');
         if (data && data.length > 0) {
             body.innerHTML = data.map(tx => {
-                let tombolAksi = `<button class="btn-terima" onclick="terimaSetoran(${tx.id}, ${tx.jumlah}, '${tx.scope}', '${tx.keterangan}')">Terima</button>`;
+                // Cek status isBendahara untuk mengaktifkan/menonaktifkan tombol terima
+                let tombolAksi = isBendahara 
+                    ? `<button class="btn-terima" onclick="terimaSetoran(${tx.id}, ${tx.jumlah}, '${tx.scope}', '${tx.keterangan}')">Terima</button>`
+                    : `<button class="btn-terima" style="background:#444; color:#888; cursor:not-allowed; border:1px solid #555;" disabled>Hanya Lihat</button>`;
 
                 return `<tr><td><b>${tx.scope.replace('_', ' ')}</b></td>
                 <td><span style="color:var(--accent);font-weight:bold;">Rp ${parseInt(tx.jumlah).toLocaleString('id-ID')}</span></td>
@@ -459,6 +471,7 @@
     }
 
     async function terimaSetoran(id, jumlah, scopeRT, keteranganAsli) {
+        if(!isBendahara) return; // Proteksi ganda di level fungsi
         if (!confirm("Konfirmasi penerimaan uang setoran dari " + scopeRT.replace('_',' ') + "?")) return;
         
         let tgl = new Date().toISOString().split('T')[0];
@@ -526,6 +539,7 @@
     }
 
     async function simpanTransaksiRW() {
+        if(!isBendahara) return; // Proteksi ganda
         let rawNominal = document.getElementById('jumlahTx').value.replace(/\./g, '');
         let jumlahNum = parseInt(rawNominal) || 0;
         let kategori = document.getElementById('kategoriTx').value;
@@ -579,7 +593,6 @@
         }
     }
 
-    // UPDATE: ENGINE KALKULASI DEMOGRAFI GLOBAL (BATAS BALITA KUNCI PADA < 5 TAHUN)
     function kalkulasiDemografiPusat() {
         let jiwa = masterWargaRW.length;
         let kkUnik = new Set(masterWargaRW.map(w => w.no_kk)).size;
@@ -591,7 +604,7 @@
             let kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
 
             if(umur >= 17) pemilih++;
-            if(umur >= 0 && umur < 5) balita++; // Kunci Balita pada rentang usia 0-4 Tahun 11 Bulan
+            if(umur >= 0 && umur < 5) balita++; 
             if(umur >= 60) manula++;
             
             if(w.status_tinggal === 'KK Sini (Tinggal Luar)') kkSiniLuar++;
@@ -611,7 +624,6 @@
         document.getElementById('statSocialNeeds').innerHTML = `${yatim} <span style="font-size:10px; font-weight:normal; color:#aaa;">Yatim</span> / ${janda} <span style="font-size:10px; font-weight:normal; color:#aaa;">Janda</span>`;
     }
 
-    // UPDATE: PARSING LOGIKA FILTER DAN BADGE WARGA DI PANEL UTAMA RW
     function renderTabelWargaPusat() {
         let tbody = document.getElementById('tabelWargaPusatBody');
         tbody.innerHTML = "";
@@ -633,9 +645,9 @@
             let kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
 
             if (katDipilih === 'pemilih') passKat = (umur >= 17);
-            else if (katDipilih === 'balita') passKat = (umur >= 0 && umur < 5); // Filter Balita Terkunci
+            else if (katDipilih === 'balita') passKat = (umur >= 0 && umur < 5); 
             else if (katDipilih === 'manula') passKat = (umur >= 60);
-            else if (katDipilih === 'kksiniluar') passKat = (w.status_tinggal === 'KK Sini (Tinggal Luar)'); // Filter KK Sini Luar
+            else if (katDipilih === 'kksiniluar') passKat = (w.status_tinggal === 'KK Sini (Tinggal Luar)'); 
             else if (katDipilih === 'yatim') passKat = (w.hubungan_keluarga === 'Anak' && umur < 18 && !kkAdaKepala);
             else if (katDipilih === 'janda') passKat = ((w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') && !kkAdaKepala);
 
