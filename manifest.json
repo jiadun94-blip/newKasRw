@@ -2,7 +2,7 @@
   "name": "Kas RW Jamaras | Sistem Keuangan & Warga",
   "short_name": "Kas RW Jamaras ",
   "description": "Aplikasi web progresif",
-  "start_url": "/",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#38bdf8",

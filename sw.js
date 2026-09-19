@@ -1,32 +1,42 @@
-const CACHE_NAME = 'pwa-cache-v1';
-const ASSETS_TO_CACHE = [
-  '/',
+const CACHE_NAME = 'kas-jamaras-v1';
+const assetsToCache = [
   './index.html',
-  './manifest.json'
+  './dashboard-warga.html',
+  './dashboard-rt.html',
+  './dashboard-rw.html'
 ];
 
+// Saat Service Worker diinstal
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(assetsToCache);
+    })
   );
   self.skipWaiting();
 });
 
+// Mengaktifkan Service Worker
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.map((k) => (k !== CACHE_NAME ? caches.delete(k) : null))
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
       );
     })
   );
   self.clients.claim();
 });
 
+// Strategi Fetch (Network First, fallback ke Cache)
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request).catch(() => caches.match('./index.html'));
+    fetch(event.request).catch(() => {
+      return caches.match(event.request);
     })
   );
 });
