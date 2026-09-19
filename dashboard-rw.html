@@ -132,6 +132,24 @@
         .fin-label { font-size: 12px; color: var(--text-muted); }
         .fin-value { font-size: 14px; font-weight: 700; }
 
+        /* Panel Status & Printer di Bawah Card */
+        .sub-header-panel {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .sub-header-panel .user-badge {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+        }
+        .sub-header-panel .btn-print-connect {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+        }
+
         /* Tombol Popup Riwayat */
         .btn-popup {
             background-color: var(--accent-glow);
@@ -360,9 +378,7 @@
             <p>Dashboard Pusat RW</p>
         </div>
         <div class="header-buttons">
-            <div class="user-badge" id="userBadgeRole">Memuat Sesi...</div>
             <button class="btn-action" id="btnThemeToggle" onclick="toggleTema()">🌞 Tema</button>
-            <button class="btn-print-connect" id="btnConnectPrint" onclick="sambungPrinterBluetooth()">🔌 Printer</button>
             <button class="btn-keluar" onclick="prosesKeluar()">Keluar</button>
         </div>
     </header>
@@ -409,6 +425,12 @@
                 </div>
             </div>
             <button class="btn-popup" onclick="bukaModalFinansial('RW_PUSAT')">🔍 Riwayat Kas Pusat</button>
+        </div>
+
+        <!-- Status Login & Tombol Printer dipindahkan ke bawah card laporan -->
+        <div class="sub-header-panel">
+            <div class="user-badge" id="userBadgeRole">Memuat Sesi...</div>
+            <button class="btn-print-connect" id="btnConnectPrint" onclick="sambungPrinterBluetooth()">🔌 Printer</button>
         </div>
     </div>
 
