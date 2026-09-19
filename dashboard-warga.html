@@ -16,22 +16,76 @@
             --blue: #3498db; 
             --yellow: #f1c40f;
             --danger: #ff7675;
+            --header-bg: #1e1e1e;
+            --welcome-bg-1: #1e1e1e;
+            --welcome-bg-2: #252525;
+            --welcome-title: #fff;
+            --welcome-desc: #aaa;
+            --section-title: #fff;
+            --th-bg: rgba(255,255,255,0.02);
+            --th-color: #aaa;
+            --td-border: #333;
+            --fin-row-border: #2d2d2d;
+            --fin-label: #aaa;
+            --fin-value: #fff;
+            --modal-bg: #1e1e1e;
+            --modal-border: #444;
+            --modal-header-border: #333;
+            --item-border: #2d2d2d;
+            --table-container-bg: #1e1e1e;
+            --popup-bg: rgba(255, 255, 255, 0.03);
+            --popup-border: #555;
+            --popup-color: #ccc;
         }
+
+        [data-theme="light"] {
+            --bg-dark: #f4f6f9; 
+            --card-dark: #ffffff; 
+            --accent: #5c842b; 
+            --text-main: #2c3e50; 
+            --border-color: #dcdde1; 
+            --blue: #2980b9; 
+            --yellow: #f39c12;
+            --danger: #e74c3c;
+            --header-bg: #ffffff;
+            --welcome-bg-1: #ffffff;
+            --welcome-bg-2: #f8f9fa;
+            --welcome-title: #2c3e50;
+            --welcome-desc: #7f8c8d;
+            --section-title: #2c3e50;
+            --th-bg: rgba(0,0,0,0.03);
+            --th-color: #7f8c8d;
+            --td-border: #dcdde1;
+            --fin-row-border: #ecf0f1;
+            --fin-label: #7f8c8d;
+            --fin-value: #2c3e50;
+            --modal-bg: #ffffff;
+            --modal-border: #dcdde1;
+            --modal-header-border: #ecf0f1;
+            --item-border: #ecf0f1;
+            --table-container-bg: #ffffff;
+            --popup-bg: rgba(0, 0, 0, 0.02);
+            --popup-border: #bdc3c7;
+            --popup-color: #34495e;
+        }
+
         * { box-sizing: border-box; }
-        body { font-family: 'Roboto Condensed', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; }
+        body { font-family: 'Roboto Condensed', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; transition: background 0.3s, color 0.3s; }
         .container { max-width: 900px; margin: 0 auto; }
         
         header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
-        header h1 { margin: 0; font-size: 22px; color: #ffffff; }
+        header h1 { margin: 0; font-size: 22px; color: var(--text-main); }
         header p { margin: 5px 0 0 0; font-size: 12px; color: var(--accent); font-weight: bold; text-transform: uppercase; }
         
+        .header-actions { display: flex; gap: 10px; align-items: center; }
         .btn-keluar { background-color: rgba(255, 118, 117, 0.15); border: 1px solid var(--danger); color: var(--danger); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+        .btn-theme { background-color: var(--card-dark); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; display: flex; align-items: center; justify-content: center; }
         
-        .welcome-card { background: linear-gradient(135deg, #1e1e1e, #252525); border: 1px solid var(--border-color); border-left: 5px solid var(--accent); border-radius: 8px; padding: 15px; margin-bottom: 20px; }
-        .welcome-card h3 { margin: 0 0 5px 0; font-size: 20px; color: #fff; }
-        .welcome-card p { margin: 0; font-size: 18px; color: #aaa; }
+        .welcome-card { background: linear-gradient(135deg, var(--welcome-bg-1), var(--welcome-bg-2)); border: 1px solid var(--border-color); border-left: 5px solid var(--accent); border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+        .welcome-card h3 { margin: 0 0 5px 0; font-size: 20px; color: var(--welcome-title); }
+        .welcome-card p { margin: 0; font-size: 18px; color: var(--welcome-desc); }
 
-        .section-title { font-size: 14px; font-weight: bold; text-transform: uppercase; margin: 25px 0 12px 0; color: #fff; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+        .section-title { font-size: 14px; font-weight: bold; text-transform: uppercase; margin: 25px 0 12px 0; color: var(--section-title); letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
         
         /* Layout Grid untuk memisahkan Global RW dan Internal RT */
         .grid-laporan { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
@@ -39,47 +93,49 @@
             .grid-laporan { grid-template-columns: 1fr; }
         }
 
-        .card-laporan { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-laporan { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; transition: background-color 0.3s, border-color 0.3s; }
         .card-laporan.global { border-top: 4px solid var(--blue); }
         .card-laporan.internal { border-top: 4px solid var(--accent); }
         
-        .card-laporan h4 { margin: 0 0 15px 0; font-size: 14px; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
+        .card-laporan h4 { margin: 0 0 15px 0; font-size: 14px; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
         
-        .fin-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2d2d2d; font-size: 20px; }
+        .fin-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--fin-row-border); font-size: 18px; }
         .fin-row:last-of-type { border-bottom: none; margin-bottom: 15px; }
-        .fin-label { color: #aaa; }
-        .fin-value { font-weight: bold; color: #fff; }
+        .fin-label { color: var(--fin-label); font-size: 14px; }
+        .fin-value { font-weight: bold; color: var(--fin-value); }
 
-        .btn-popup { width: 100%; padding: 10px; background: rgba(255, 255, 255, 0.03); border: 1px dashed #555; color: #ccc; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; transition: all 0.2s ease; }
+        .btn-popup { width: 100%; padding: 10px; background: var(--popup-bg); border: 1px dashed var(--popup-border); color: var(--popup-color); border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; transition: all 0.2s ease; }
         .card-laporan.global .btn-popup { border-color: var(--blue); color: var(--blue); background: rgba(52, 152, 219, 0.05); }
-        .card-laporan.global .btn-popup:hover { background: rgba(52, 152, 219, 0.15); color: #fff; }
+        .card-laporan.global .btn-popup:hover { background: rgba(52, 152, 219, 0.15); color: var(--text-main); }
         .card-laporan.internal .btn-popup { border-color: var(--accent); color: var(--accent); background: rgba(114, 163, 57, 0.05); }
-        .card-laporan.internal .btn-popup:hover { background: rgba(114, 163, 57, 0.15); color: #fff; }
+        .card-laporan.internal .btn-popup:hover { background: rgba(114, 163, 57, 0.15); color: var(--text-main); }
 
-        .table-container { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; overflow-x: auto; }
+        .table-container { background-color: var(--table-container-bg); border: 1px solid var(--border-color); border-radius: 8px; overflow-x: auto; transition: background-color 0.3s, border-color 0.3s; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-        th, td { padding: 12px; border-bottom: 1px solid var(--border-color); }
-        th { background-color: rgba(255,255,255,0.02); color: #aaa; text-transform: uppercase; font-size: 11px; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--td-border); color: var(--text-main); }
+        th { background-color: var(--th-bg); color: var(--th-color); text-transform: uppercase; font-size: 11px; }
         
         .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; display: inline-block; }
         .badge.kk { background: rgba(241, 196, 15, 0.15); color: var(--yellow); }
         .badge.rt { background: rgba(52, 152, 219, 0.15); color: var(--blue); }
         .badge.aktif { background: rgba(114, 163, 57, 0.15); color: var(--accent); }
 
-        .empty-state { color: #666; font-style: italic; text-align: center; padding: 20px 0; font-size: 13px; }
+        .empty-state { color: #888; font-style: italic; text-align: center; padding: 20px 0; font-size: 13px; }
 
         /* MODAL STYLE (POPUP WINDOW) */
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding-top: 40px; }
-        .modal-content { background-color: var(--card-dark); margin: auto; padding: 20px; border: 1px solid #444; width: 90%; max-width: 650px; border-radius: 12px; max-height: 85vh; display: flex; flex-direction: column; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px; }
-        .modal-header h2 { margin: 0; font-size: 16px; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
-        .close-modal { color: #aaa; font-size: 24px; font-weight: bold; cursor: pointer; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); padding-top: 40px; }
+        .modal-content { background-color: var(--modal-bg); margin: auto; padding: 20px; border: 1px solid var(--modal-border); width: 90%; max-width: 650px; border-radius: 12px; max-height: 85vh; display: flex; flex-direction: column; transition: background-color 0.3s, border-color 0.3s; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--modal-header-border); padding-bottom: 12px; margin-bottom: 15px; }
+        .modal-header h2 { margin: 0; font-size: 16px; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; }
+        .close-modal { color: var(--fin-label); font-size: 24px; font-weight: bold; cursor: pointer; }
         .close-modal:hover { color: var(--danger); }
         .modal-body-scroll { overflow-y: auto; flex: 1; padding-right: 5px; }
         .modal-body-scroll::-webkit-scrollbar { width: 6px; }
-        .modal-body-scroll::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
-        .item-detail-tx { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid #2d2d2d; font-size: 13px; }
+        .modal-body-scroll::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        .item-detail-tx { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid var(--item-border); font-size: 13px; }
         .item-detail-tx:last-child { border-bottom: none; }
+        
+        select.filter-bulan { background-color: var(--card-dark); border: 1px solid var(--border-color); color: var(--text-main); padding: 5px 10px; border-radius: 6px; font-size: 12px; font-family: inherit; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -90,7 +146,10 @@
             <h1>PORTAL WARGA JAMARAS</h1>
             <p>Transparansi Informasi & Keuangan Real-time</p>
         </div>
-        <button class="btn-keluar" onclick="prosesKeluar()">Keluar</button>
+        <div class="header-actions">
+            <button class="btn-theme" id="btnToggleTheme" onclick="toggleTheme()" title="Ubah Tema Terang/Gelap">☀️</button>
+            <button class="btn-keluar" onclick="prosesKeluar()">Keluar</button>
+        </div>
     </header>
 
     <div class="welcome-card">
@@ -98,7 +157,26 @@
         <p id="txtDetailWarga">Mencari manifestasi identitas NIK Anda di dalam basis data...</p>
     </div>
 
-    <div class="section-title">📊 Ikhtisar Laporan Keuangan Keuangan</div>
+    <div class="section-title">
+        <span>📊 Ikhtisar Laporan Keuangan</span>
+        <div>
+            <select id="filterBulanWarga" class="filter-bulan" onchange="muatDataFinansialWarga(userRtScope)">
+                <option value="semua">Semua Bulan</option>
+                <option value="2026-01">Januari 2026</option>
+                <option value="2026-02">Februari 2026</option>
+                <option value="2026-03">Maret 2026</option>
+                <option value="2026-04">April 2026</option>
+                <option value="2026-05">Mei 2026</option>
+                <option value="2026-06">Juni 2026</option>
+                <option value="2026-07">Juli 2026</option>
+                <option value="2026-08">Agustus 2026</option>
+                <option value="2026-09" selected>September 2026</option>
+                <option value="2026-10">Oktober 2026</option>
+                <option value="2026-11">November 2026</option>
+                <option value="2026-12">Desember 2026</option>
+            </select>
+        </div>
+    </div>
     
     <div class="grid-laporan">
         
@@ -106,16 +184,20 @@
             <div>
                 <h4>🌍 GLOBAL RW PUSAT <span style="font-size: 11px; color: var(--blue);">KONSOLIDASI</span></h4>
                 <div class="fin-row">
-                    <span class="fin-label">Total Pemasukan</span>
+                    <span class="fin-label">Saldo Awal</span>
+                    <span class="fin-value" id="rwSaldoAwal" style="font-size: 16px;">Rp 0</span>
+                </div>
+                <div class="fin-row">
+                    <span class="fin-label">Total Masuk</span>
                     <span class="fin-value" id="rwTotalMasuk" style="color: var(--accent);">Rp 0</span>
                 </div>
                 <div class="fin-row">
-                    <span class="fin-label">Total Pengeluaran</span>
+                    <span class="fin-label">Total Keluar</span>
                     <span class="fin-value" id="rwTotalKeluar" style="color: var(--danger);">Rp 0</span>
                 </div>
                 <div class="fin-row">
-                    <span class="fin-label" style="font-weight: bold; color: #fff;">SALDO RW</span>
-                    <span class="fin-value" id="saldoPusat" style="color: var(--blue); font-size: 25px;">Rp 0</span>
+                    <span class="fin-label" style="font-weight: bold;">SALDO AKHIR</span>
+                    <span class="fin-value" id="saldoPusat" style="color: var(--blue); font-size: 22px;">Rp 0</span>
                 </div>
             </div>
             <button class="btn-popup" onclick="bukaModalFinansial('RW_PUSAT')">🔍 Riwayat Kas RW Global</button>
@@ -125,18 +207,22 @@
             <div>
                 <h4>🏡 INTERNAL RT <span id="labelRtKunciHeader">--</span> <span style="font-size: 10px; padding: 2px 5px; background: rgba(114, 163, 57, 0.2); color: var(--accent); border-radius:3px;">WILAYAH ANDA</span></h4>
                 <div id="loadingInternalRt" class="empty-state" style="padding: 15px 0;">Menghubungkan kas RT...</div>
-                <div id="dataInternalRt" class="d-none">
+                <div id="dataInternalRt" class="d-none" style="display:none;">
                     <div class="fin-row">
-                        <span class="fin-label">Total Pemasukan</span>
+                        <span class="fin-label">Saldo Awal</span>
+                        <span class="fin-value" id="rtSaldoAwal" style="font-size: 16px;">Rp 0</span>
+                    </div>
+                    <div class="fin-row">
+                        <span class="fin-label">Total Masuk</span>
                         <span class="fin-value" id="rtTotalMasuk" style="color: var(--accent);">Rp 0</span>
                     </div>
                     <div class="fin-row">
-                        <span class="fin-label">Total Pengeluaran</span>
+                        <span class="fin-label">Total Keluar</span>
                         <span class="fin-value" id="rtTotalKeluar" style="color: var(--danger);">Rp 0</span>
                     </div>
                     <div class="fin-row">
-                        <span class="fin-label" style="font-weight: bold; color: #fff;">SALDO RT</span>
-                        <span class="fin-value" id="saldoRtLokal" style="color: var(--accent); font-size: 25px;">Rp 0</span>
+                        <span class="fin-label" style="font-weight: bold;">SALDO AKHIR</span>
+                        <span class="fin-value" id="saldoRtLokal" style="color: var(--accent); font-size: 22px;">Rp 0</span>
                     </div>
                 </div>
             </div>
@@ -145,7 +231,7 @@
 
     </div>
 
-    <div class="section-title">👨‍👩‍👧‍👦 Manifes Kartu Keluarga Anda</div>
+    <div class="section-title"><span>👨‍👩‍👧‍👦 Manifes Kartu Keluarga Anda</span></div>
     <div class="table-container">
         <table>
             <thead>
@@ -181,6 +267,26 @@
     let currentNik = null;
     let userRtScope = null;
 
+    // --- MANAJEMEN TEMA (TERANG / GELAP) ---
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme_warga') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeButton(savedTheme);
+    }
+
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme_warga', newTheme);
+        updateThemeButton(newTheme);
+    }
+
+    function updateThemeButton(theme) {
+        const btn = document.getElementById('btnToggleTheme');
+        btn.innerText = theme === 'light' ? '🌙' : '☀️';
+    }
+
     function hitungUsia(tglLahirStr) {
         if (!tglLahirStr) return "-";
         const lahir = new Date(tglLahirStr);
@@ -192,6 +298,7 @@
     }
 
     async function cekSesiWarga() {
+        initTheme();
         let { data: { session } } = await _sb.auth.getSession();
         if (!session) { window.location.href = "index.html"; return; }
 
@@ -232,7 +339,7 @@
             if (anggotaKeluarga && anggotaKeluarga.length > 0) {
                 document.getElementById('bodyTabelKeluarga').innerHTML = anggotaKeluarga.map(w => {
                     let formatNama = w.hubungan_keluarga === 'Kepala Keluarga' ? `<span class="badge kk">KK</span> <b>${w.nama_lengkap}</b>` : `<b>${w.nama_lengkap}</b>`;
-                    return `<tr><td>${formatNama}</td><td><span style="color:#bbb;">${w.hubungan_keluarga}</span></td><td>${hitungUsia(w.tanggal_lahir)}</td><td><span class="badge aktif">${w.status_tinggal || 'Tetap'}</span></td></tr>`;
+                    return `<tr><td>${formatNama}</td><td><span style="color:var(--fin-label);">${w.hubungan_keluarga}</span></td><td>${hitungUsia(w.tanggal_lahir)}</td><td><span class="badge aktif">${w.status_tinggal || 'Tetap'}</span></td></tr>`;
                 }).join('');
             }
         } else {
@@ -243,39 +350,73 @@
     }
 
     async function muatDataFinansialWarga(rtKunci) {
-        // 1. Ambil Kas RW Pusat (Global)
-        let { data: txRw } = await _sb.from('transaksi1').select('tipe, jumlah').eq('scope', 'RW_PUSAT');
-        let rwMasuk = 0, rwKeluar = 0;
+        let bulanPilih = document.getElementById('filterBulanWarga').value;
+
+        // 1. Hitung Keuangan Kas RW Pusat (Global) dengan Filter Bulan & Saldo Awal
+        let { data: txRw } = await _sb.from('transaksi1').select('*').eq('scope', 'RW_PUSAT').order('tanggal', { ascending: true });
+        let rwSaldoAwal = 0, rwTotalMasuk = 0, rwTotalKeluar = 0;
+
         if(txRw) {
             txRw.forEach(tx => {
-                if (tx.tipe === 'masuk') rwMasuk += parseInt(tx.jumlah || 0);
-                if (tx.tipe === 'keluar') rwKeluar += parseInt(tx.jumlah || 0);
+                let tglTx = tx.tanggal;
+                let bulanTx = tglTx ? tglTx.substring(0, 7) : "";
+
+                if (bulanPilih === 'semua') {
+                    if (tx.tipe === 'masuk') rwTotalMasuk += parseInt(tx.jumlah || 0);
+                    if (tx.tipe === 'keluar') rwTotalKeluar += parseInt(tx.jumlah || 0);
+                } else {
+                    if (bulanTx < bulanPilih) {
+                        if (tx.tipe === 'masuk') rwSaldoAwal += parseInt(tx.jumlah || 0);
+                        if (tx.tipe === 'keluar') rwSaldoAwal -= parseInt(tx.jumlah || 0);
+                    } else if (bulanTx === bulanPilih) {
+                        if (tx.tipe === 'masuk') rwTotalMasuk += parseInt(tx.jumlah || 0);
+                        if (tx.tipe === 'keluar') rwTotalKeluar += parseInt(tx.jumlah || 0);
+                    }
+                }
             });
         }
-        document.getElementById('rwTotalMasuk').innerText = "Rp " + rwMasuk.toLocaleString('id-ID');
-        document.getElementById('rwTotalKeluar').innerText = "Rp " + rwKeluar.toLocaleString('id-ID');
-        document.getElementById('saldoPusat').innerText = "Rp " + (rwMasuk - rwKeluar).toLocaleString('id-ID');
+        let rwSaldoAkhir = rwSaldoAwal + rwTotalMasuk - rwTotalKeluar;
 
-        // 2. Ambil Kas RT Internal (Terkunci Otomatis)
+        document.getElementById('rwSaldoAwal').innerText = "Rp " + rwSaldoAwal.toLocaleString('id-ID');
+        document.getElementById('rwTotalMasuk').innerText = "Rp " + rwTotalMasuk.toLocaleString('id-ID');
+        document.getElementById('rwTotalKeluar').innerText = "Rp " + rwTotalKeluar.toLocaleString('id-ID');
+        document.getElementById('saldoPusat').innerText = "Rp " + rwSaldoAkhir.toLocaleString('id-ID');
+
+        // 2. Hitung Keuangan Kas RT Internal (Terkunci Otomatis) dengan Filter Bulan & Saldo Awal
         if (rtKunci) {
-            let { data: txRt } = await _sb.from('transaksi1').select('tipe, jumlah').eq('scope', rtKunci);
-            let rtMasuk = 0, rtKeluar = 0;
+            let { data: txRt } = await _sb.from('transaksi1').select('*').eq('scope', rtKunci).order('tanggal', { ascending: true });
+            let rtSaldoAwal = 0, rtTotalMasuk = 0, rtTotalKeluar = 0;
+
             if (txRt) {
                 txRt.forEach(tx => {
-                    if (tx.tipe === 'masuk') rtMasuk += parseInt(tx.jumlah || 0);
-                    if (tx.tipe === 'keluar') rtKeluar += parseInt(tx.jumlah || 0);
+                    let tglTx = tx.tanggal;
+                    let bulanTx = tglTx ? tglTx.substring(0, 7) : "";
+
+                    if (bulanPilih === 'semua') {
+                        if (tx.tipe === 'masuk') rtTotalMasuk += parseInt(tx.jumlah || 0);
+                        if (tx.tipe === 'keluar') rtTotalKeluar += parseInt(tx.jumlah || 0);
+                    } else {
+                        if (bulanTx < bulanPilih) {
+                            if (tx.tipe === 'masuk') rtSaldoAwal += parseInt(tx.jumlah || 0);
+                            if (tx.tipe === 'keluar') rtSaldoAwal -= parseInt(tx.jumlah || 0);
+                        } else if (bulanTx === bulanPilih) {
+                            if (tx.tipe === 'masuk') rtTotalMasuk += parseInt(tx.jumlah || 0);
+                            if (tx.tipe === 'keluar') rtTotalKeluar += parseInt(tx.jumlah || 0);
+                        }
+                    }
                 });
             }
+            let rtSaldoAkhir = rtSaldoAwal + rtTotalMasuk - rtTotalKeluar;
             
             document.getElementById('loadingInternalRt').style.display = 'none';
-            
             let wrapData = document.getElementById('dataInternalRt');
             wrapData.style.display = 'block';
             wrapData.classList.remove('d-none');
             
-            document.getElementById('rtTotalMasuk').innerText = "Rp " + rtMasuk.toLocaleString('id-ID');
-            document.getElementById('rtTotalKeluar').innerText = "Rp " + rtKeluar.toLocaleString('id-ID');
-            document.getElementById('saldoRtLokal').innerText = "Rp " + (rtMasuk - rtKeluar).toLocaleString('id-ID');
+            document.getElementById('rtSaldoAwal').innerText = "Rp " + rtSaldoAwal.toLocaleString('id-ID');
+            document.getElementById('rtTotalMasuk').innerText = "Rp " + rtTotalMasuk.toLocaleString('id-ID');
+            document.getElementById('rtTotalKeluar').innerText = "Rp " + rtTotalKeluar.toLocaleString('id-ID');
+            document.getElementById('saldoRtLokal').innerText = "Rp " + rtSaldoAkhir.toLocaleString('id-ID');
         } else {
             document.getElementById('loadingInternalRt').innerText = "⚠️ RT tidak teridentifikasi.";
         }
@@ -286,6 +427,7 @@
         const modal = document.getElementById('modalDetailKas');
         const titleText = document.getElementById('modalTitleText');
         const bodyJurnal = document.getElementById('bodyDetailJurnal');
+        const bulanPilih = document.getElementById('filterBulanWarga').value;
         
         modal.style.display = "block";
         bodyJurnal.innerHTML = `<div class="empty-state">⚡ Menyelaraskan catatan kas...</div>`;
@@ -303,18 +445,30 @@
             .from('transaksi1')
             .select('*')
             .eq('scope', queryScope)
-            .order('created_at', { ascending: false });
+            .order('tanggal', { ascending: false });
 
         if (error || !listJurnal || listJurnal.length === 0) {
             bodyJurnal.innerHTML = `<div class="empty-state">Belum ada catatan log transaksi pada scope ini.</div>`;
             return;
         }
 
-        bodyJurnal.innerHTML = listJurnal.map(tx => `
+        // Filter berdasarkan bulan yang dipilih di dropdown utama
+        let filteredJurnal = listJurnal.filter(tx => {
+            if (bulanPilih === 'semua') return true;
+            let tgl = tx.tanggal ? tx.tanggal.substring(0, 7) : "";
+            return tgl === bulanPilih;
+        });
+
+        if (filteredJurnal.length === 0) {
+            bodyJurnal.innerHTML = `<div class="empty-state">Tidak ada riwayat transaksi pada periode bulan ini.</div>`;
+            return;
+        }
+
+        bodyJurnal.innerHTML = filteredJurnal.map(tx => `
             <div class="item-detail-tx">
                 <div>
-                    <div style="font-weight:bold; color:#fff; margin-bottom:3px;">${tx.keterangan}</div>
-                    <div style="font-size:11px; color:#888;">${tx.tanggal} | Jenis: <b>${tx.kategori}</b> ${tx.status === 'pending' ? '<span style="color:#f1c40f;">(Pending RW)</span>' : ''}</div>
+                    <div style="font-weight:bold; color:var(--text-main); margin-bottom:3px;">${tx.keterangan}</div>
+                    <div style="font-size:11px; color:var(--fin-label);">${tx.tanggal} | Jenis: <b>${tx.kategori}</b> ${tx.status === 'pending' ? '<span style="color:var(--yellow);">(Pending RW)</span>' : ''}</div>
                 </div>
                 <div style="font-weight:bold; color:${tx.tipe === 'masuk' ? 'var(--accent)' : 'var(--danger)'};">
                     ${tx.tipe === 'masuk' ? '+' : '-'} Rp ${parseInt(tx.jumlah).toLocaleString('id-ID')}
