@@ -8,10 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #191410;          /* Nuansa earthy gelap elegan */
-            --card-dark: #241d17;        /* Warna card lebih hangat */
+            --bg-dark: #191410;          
+            --card-dark: #241d17;        
             --card-hover: #2f2720;
-            --accent: #8eaf49;           /* Hijau segar natural */
+            --accent: #8eaf49;           
             --accent-glow: rgba(142, 175, 73, 0.15);
             --text-main: #f3efe6;
             --text-muted: #aba296;
@@ -24,6 +24,24 @@
             --teal: #1abc9c;
         }
 
+        /* Tema Terang */
+        body.light-theme {
+            --bg-dark: #f4f6f9;
+            --card-dark: #ffffff;
+            --card-hover: #eaeef2;
+            --accent: #5c832f;
+            --accent-glow: rgba(92, 131, 47, 0.15);
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
+            --danger: #c0392b;
+            --danger-glow: rgba(192, 57, 43, 0.15);
+            --border-color: #dcdde1;
+            --blue: #2980b9;
+            --purple: #8e44ad;
+            --yellow: #d35400;
+            --teal: #16a085;
+        }
+
         * { box-sizing: border-box; }
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
@@ -31,6 +49,7 @@
             color: var(--text-main); 
             margin: 0; 
             padding: 15px 15px 90px 15px; 
+            transition: background 0.3s, color 0.3s;
         }
         .container { max-width: 650px; margin: 0 auto; }
 
@@ -44,14 +63,28 @@
             padding: 16px 20px;
             border-radius: 16px;
             margin-bottom: 20px; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
-        header h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; color: #fff; }
+        header h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; color: var(--text-main); }
         header p { margin: 4px 0 0 0; font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; }
 
-        .header-buttons { display: flex; gap: 6px; align-items: center; }
+        .header-buttons { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
         .user-badge { font-size: 9px; background: var(--bg-dark); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-color); color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
         
+        .btn-action {
+            background-color: var(--card-hover);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 10px;
+            transition: all 0.2s;
+        }
+        .btn-action:hover { opacity: 0.8; }
+
         .btn-keluar { 
             background-color: var(--danger-glow); 
             border: 1px solid var(--danger); 
@@ -62,7 +95,6 @@
             font-weight: 700; 
             text-transform: uppercase; 
             font-size: 10px; 
-            transition: all 0.2s;
         }
         .btn-keluar:hover { background-color: var(--danger); color: #fff; }
 
@@ -90,15 +122,92 @@
             display: flex; 
             flex-direction: column; 
             justify-content: space-between; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
         .card-laporan.pusat { border-left: 4px solid var(--blue); }
-        .card-laporan h4 { margin: 0 0 14px 0; font-size: 13px; text-transform: uppercase; color: #fff; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center;}
+        .card-laporan h4 { margin: 0 0 14px 0; font-size: 13px; text-transform: uppercase; color: var(--text-main); letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center;}
         
         .fin-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .fin-row.highlight { border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 8px 0; margin: 6px 0; }
         .fin-label { font-size: 12px; color: var(--text-muted); }
         .fin-value { font-size: 14px; font-weight: 700; }
+
+        /* Tombol Popup Riwayat */
+        .btn-popup {
+            background-color: var(--accent-glow);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            width: 100%;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-popup:hover { background-color: var(--accent); color: #fff; }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-container {
+            background: var(--card-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-container {
+            transform: translateY(0);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+        .modal-header h3 { margin: 0; font-size: 14px; text-transform: uppercase; color: var(--text-main); }
+        .btn-close-modal {
+            background: var(--card-hover);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-close-modal:hover { color: var(--danger); border-color: var(--danger); }
 
         /* Stat Grid Warga */
         .stat-grid {
@@ -116,7 +225,7 @@
             border-radius: 14px;
             padding: 14px;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
         .stat-box.full-width {
             grid-column: span 2;
@@ -136,7 +245,7 @@
             text-align: center;
         }
         .stat-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-        .stat-value { font-size: 16px; font-weight: 700; color: #fff; }
+        .stat-value { font-size: 16px; font-weight: 700; color: var(--text-main); }
 
         /* General Card & Forms */
         .card { 
@@ -145,7 +254,7 @@
             border-radius: 16px; 
             padding: 20px; 
             margin-bottom: 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
         .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
         @media(min-width: 480px) { .form-row { grid-template-columns: 1fr 1fr; } }
@@ -179,16 +288,16 @@
         .table-scroll-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
         .table-container { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; color: var(--text-main); }
         th, td { padding: 12px; border-bottom: 1px solid var(--border-color); }
-        th { background-color: rgba(0,0,0,0.2); color: var(--text-muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 2; }
+        th { background-color: var(--card-hover); color: var(--text-muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 2; }
 
         .log-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--border-color); font-size: 12px; }
         .log-item:last-child { border-bottom: none; }
 
-        .btn-terima { background: var(--accent); color: #1a250b; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 10px; text-transform: uppercase; }
+        .btn-terima { background: var(--accent); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 10px; text-transform: uppercase; }
         .btn-toggle-view { background: var(--card-hover); border: 1px solid var(--border-color); color: var(--text-muted); padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
-        .btn-toggle-view:hover { color: #fff; border-color: var(--accent); }
+        .btn-toggle-view:hover { color: var(--text-main); border-color: var(--accent); }
         
         .badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; display: inline-block; margin-top: 2px;}
         .badge.kk { background: rgba(241, 196, 15, 0.15); color: var(--yellow); }
@@ -209,14 +318,14 @@
             transform: translateX(-50%);
             width: calc(100% - 30px);
             max-width: 420px;
-            background: rgba(36, 29, 23, 0.9);
+            background: var(--card-dark);
             backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
             border-radius: 24px;
             display: flex;
             justify-content: space-around;
             padding: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             z-index: 999;
         }
         .nav-item {
@@ -252,6 +361,7 @@
         </div>
         <div class="header-buttons">
             <div class="user-badge" id="userBadgeRole">Memuat Sesi...</div>
+            <button class="btn-action" id="btnThemeToggle" onclick="toggleTema()">🌞 Tema</button>
             <button class="btn-print-connect" id="btnConnectPrint" onclick="sambungPrinterBluetooth()">🔌 Printer</button>
             <button class="btn-keluar" onclick="prosesKeluar()">Keluar</button>
         </div>
@@ -294,10 +404,11 @@
                     <span class="fin-value" id="rwTotalKeluar" style="color: var(--danger);">Rp 0</span>
                 </div>
                 <div class="fin-row highlight">
-                    <span class="fin-label" style="font-weight: 700; color: #fff;">SALDO AKHIR BULAN</span>
+                    <span class="fin-label" style="font-weight: 700; color: var(--text-main);">SALDO AKHIR BULAN</span>
                     <span class="fin-value" id="rwSaldoAkhir" style="color: var(--blue); font-size: 15px;">Rp 0</span>
                 </div>
             </div>
+            <button class="btn-popup" onclick="bukaModalFinansial('RW_PUSAT')">🔍 Riwayat Kas Pusat</button>
         </div>
     </div>
 
@@ -344,17 +455,6 @@
                 <thead><tr><th>Wilayah</th><th>Masuk</th><th>Keluar</th><th>Saldo RT</th><th>Status</th></tr></thead>
                 <tbody id="tabelRTBody"></tbody>
             </table>
-        </div>
-
-        <!-- Kombinasi Mix 1 Card untuk Histori Masuk & Keluar RW (Scrollable) -->
-        <div class="card" style="border-left: 4px solid var(--accent); margin-bottom: 20px;">
-            <div class="section-title" style="color: var(--accent); margin-top: 0;">
-                <span>📋 Histori Mutasi RW Pusat (Masuk &amp; Keluar)</span>
-                <span style="font-size: 10px; color: var(--text-muted); font-weight: normal;">Scroll ke bawah</span>
-            </div>
-            <div id="logMixRw" class="table-scroll-container scroll-box">
-                Memuat data mutasi...
-            </div>
         </div>
     </div>
 
@@ -455,6 +555,19 @@
     </div>
 </div>
 
+<!-- Modal Popup Riwayat Kas -->
+<div class="modal-overlay" id="modalRiwayat">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 id="modalTitle">📋 Histori Mutasi Kas Pusat</h3>
+            <button class="btn-close-modal" onclick="tutupModalFinansial()">×</button>
+        </div>
+        <div id="logMixRw" class="table-scroll-container scroll-box" style="flex: 1;">
+            Memuat data mutasi...
+        </div>
+    </div>
+</div>
+
 <!-- Floating Bottom Navigation Bar -->
 <div class="bottom-nav">
     <button class="nav-item active" id="tabFinansialBtn" onclick="bukaTab('finansial')">
@@ -472,6 +585,20 @@
     let masterWargaRW = [];
     let printerCharacteristic = null;
     let isBendahara = false; 
+
+    function toggleTema() {
+        document.body.classList.toggle('light-theme');
+        let isLight = document.body.classList.contains('light-theme');
+        localStorage.setItem('theme_rw', isLight ? 'light' : 'dark');
+        document.getElementById('btnThemeToggle').innerText = isLight ? "🌙 Tema" : "🌞 Tema";
+    }
+
+    function cekTemaTersimpan() {
+        if(localStorage.getItem('theme_rw') === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('btnThemeToggle').innerText = "🌙 Tema";
+        }
+    }
 
     function formatRupiahInput(input) {
         let value = input.value.replace(/[^,\d]/g, '');
@@ -502,6 +629,15 @@
             el.classList.add('d-none');
             btn.innerText = "Unhide";
         }
+    }
+
+    function bukaModalFinansial(scope) {
+        document.getElementById('modalRiwayat').classList.add('active');
+        muatDataDashboard();
+    }
+
+    function tutupModalFinansial() {
+        document.getElementById('modalRiwayat').classList.remove('active');
     }
 
     function bukaTab(pilihan) {
@@ -608,6 +744,7 @@
     }
 
     async function cekSesi() {
+        cekTemaTersimpan();
         let { data: { session } } = await _sb.auth.getSession();
         if (!session) { window.location.href = "index.html"; return; }
         
@@ -726,7 +863,7 @@
                 return `
                     <div class="log-item">
                         <div>
-                            <div style="font-weight:700; color:#fff; font-size:12px;">${tx.keterangan}</div>
+                            <div style="font-weight:700; color:var(--text-main); font-size:12px;">${tx.keterangan}</div>
                             <div style="font-size:10px; color:var(--text-muted);">${tx.tanggal} | ${tx.kategori}</div>
                         </div>
                         <div style="font-weight:700; font-size:13px; color:${warnaNominal}; white-space:nowrap; margin-left: 10px;">
@@ -872,8 +1009,6 @@
 
         dataTampil.forEach(w => {
             let umur = hitungUsia(w.tanggal_lahir);
-            let kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
-            
             let badgeClass = "asli";
             if (w.status_tinggal.includes("Kontrak")) badgeClass = "kontrak";
             else if (w.status_tinggal.includes("Luar")) badgeClass = "luar";
@@ -883,7 +1018,7 @@
             if(umur >= 0 && umur < 5) badgeTambahan += `<span class="badge balita">👶 Balita</span> `;
             if(umur >= 60) badgeTambahan += `<span class="badge manula">🧓🏼 Lansia</span> `;
 
-            let formatNama = w.hubungan_keluarga === 'Kepala Keluarga' ? `<span class="badge kk">KK</span> <b style="font-size:13px; color:#fff;">${w.nama_lengkap}</b>` : `<b style="font-size:13px; color:#fff;">${w.nama_lengkap}</b>`;
+            let formatNama = w.hubungan_keluarga === 'Kepala Keluarga' ? `<span class="badge kk">KK</span> <b style="font-size:13px; color:var(--text-main);">${w.nama_lengkap}</b>` : `<b style="font-size:13px; color:var(--text-main);">${w.nama_lengkap}</b>`;
 
             tbody.innerHTML += `
                 <tr>
@@ -892,7 +1027,7 @@
                         <div style="font-size:10px; color:var(--text-muted);">NIK: ${w.nik || '-'} | KK: ${w.no_kk}</div>
                     </td>
                     <td><span style="font-weight:700; color:var(--blue);">${w.rt_scope.replace('_',' ')}</span></td>
-                    <td><span style="font-size:11px; color:var(--text-accent); font-weight:700;">${w.hubungan_keluarga}</span></td>
+                    <td><span style="font-size:11px; font-weight:700;">${w.hubungan_keluarga}</span></td>
                     <td>
                         <div style="font-size:11px;">${umur} Thn ${badgeTambahan}</div>
                         <div style="font-size:10px; margin-top:3px;"><span class="badge ${badgeClass}">${w.status_tinggal}</span> | No: ${w.no_rumah}</div>
