@@ -5,173 +5,314 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kas RW Jamaras | Dashboard Pusat</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --bg-dark: #121212; 
-            --card-dark: #1e1e1e; 
-            --accent: #72a339; 
-            --text-main: #e0e0e0; 
-            --danger: #ff7675; 
-            --border-color: #333; 
-            --blue: #3498db; 
+        :root {
+            --bg-dark: #191410;          /* Nuansa earthy gelap elegan */
+            --card-dark: #241d17;        /* Warna card lebih hangat */
+            --card-hover: #2f2720;
+            --accent: #8eaf49;           /* Hijau segar natural */
+            --accent-glow: rgba(142, 175, 73, 0.15);
+            --text-main: #f3efe6;
+            --text-muted: #aba296;
+            --danger: #e74c3c;
+            --danger-glow: rgba(231, 76, 60, 0.15);
+            --border-color: #382e26;
+            --blue: #3498db;
             --purple: #9b59b6;
             --yellow: #f1c40f;
             --teal: #1abc9c;
         }
+
         * { box-sizing: border-box; }
-        body { font-family: 'Roboto Condensed', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        
-        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
-        header h1 { margin: 0; font-size: 24px; color: #ffffff; }
-        header p { margin: 5px 0 0 0; font-size: 12px; color: var(--accent); font-weight: bold; text-transform: uppercase; }
-        
-        .header-buttons { display: flex; gap: 8px; align-items: center; }
-        .user-badge { font-size: 11px; background: #252525; padding: 6px 10px; border-radius: 4px; border: 1px solid var(--border-color); color: #aaa; font-weight: bold; text-transform: uppercase; }
-        .btn-keluar { background-color: rgba(255, 118, 117, 0.15); border: 1px solid var(--danger); color: var(--danger); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 12px; }
-        .btn-print-connect { background-color: rgba(52, 152, 219, 0.15); border: 1px solid var(--blue); color: var(--blue); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 12px; }
-        .btn-print-connect.connected { background-color: rgba(114, 163, 57, 0.15); border: 1px solid var(--accent); color: var(--accent); }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-dark); 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 15px 15px 90px 15px; 
+        }
+        .container { max-width: 650px; margin: 0 auto; }
 
-        .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { padding: 12px; background-color: #252525; border: 1px solid var(--border-color); color: #888; cursor: pointer; font-weight: bold; text-transform: uppercase; border-radius: 6px; font-size: 14px; }
-        .tab-btn.active { background-color: var(--card-dark); border-bottom: 3px solid var(--blue); color: #fff; }
+        /* Header Modern */
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: var(--card-dark);
+            border: 1px solid var(--border-color);
+            padding: 16px 20px;
+            border-radius: 16px;
+            margin-bottom: 20px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        header h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; color: #fff; }
+        header p { margin: 4px 0 0 0; font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; }
 
-        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px; }
-        .card { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; }
-        .card.pusat { border-top: 4px solid #3498db; }
-        .card.masuk-box { border-top: 4px solid var(--accent); }
-        .card.keluar-box { border-top: 4px solid var(--danger); }
-        .card-title { font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 6px; }
-        .card-value { font-size: 22px; font-weight: 700; color: #fff; }
+        .header-buttons { display: flex; gap: 6px; align-items: center; }
+        .user-badge { font-size: 9px; background: var(--bg-dark); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-color); color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
         
-        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-        @media (max-width: 768px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
-        .stat-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; text-align: center; }
-        .stat-box.full-width { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0; border: none; background: transparent; }
-        .stat-box.full-width .stat-sub { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; text-align: center; }
-        .stat-label { font-size: 10px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; }
-        .stat-value { font-size: 18px; font-weight: bold; color: #fff; }
+        .btn-keluar { 
+            background-color: var(--danger-glow); 
+            border: 1px solid var(--danger); 
+            color: var(--danger); 
+            padding: 6px 10px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            font-size: 10px; 
+            transition: all 0.2s;
+        }
+        .btn-keluar:hover { background-color: var(--danger); color: #fff; }
 
-        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-        .form-group { margin-bottom: 12px; }
-        label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 5px; color: #aaa; text-transform: uppercase; }
-        input, select { width: 100%; padding: 10px; background-color: #2d2d2d; border: 1px solid #444; border-radius: 6px; color: #ffffff; font-family: inherit; font-size: 13px; }
-        
-        .tipe-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-        .btn-tipe { padding: 10px; border: 1px solid #444; background-color: #2d2d2d; color: #fff; font-weight: bold; cursor: pointer; border-radius: 6px; text-transform: uppercase; font-size: 12px; }
-        .btn-tipe.active-masuk { background-color: rgba(114, 163, 57, 0.2); border-color: var(--accent); color: var(--accent); }
-        .btn-tipe.active-keluar { background-color: rgba(255, 118, 117, 0.2); border-color: var(--danger); color: var(--danger); }
+        .btn-print-connect { 
+            background-color: rgba(52, 152, 219, 0.15); 
+            border: 1px solid var(--blue); 
+            color: var(--blue); 
+            padding: 6px 10px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            font-size: 10px; 
+        }
+        .btn-print-connect.connected { background-color: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
 
-        .btn-simpan { width: 100%; padding: 12px; background-color: var(--blue); border: none; border-radius: 6px; color: #fff; font-weight: 700; text-transform: uppercase; cursor: pointer; font-size: 13px; }
-        .section-title { font-size: 13px; font-weight: bold; text-transform: uppercase; margin: 20px 0 10px 0; color: #fff; letter-spacing: 0.5px; }
+        /* Card Laporan Finansial */
+        .grid-laporan { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
         
-        .table-container { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; overflow-x: auto; }
-        .scroll-box { max-height: 300px; overflow-y: auto; padding-right: 5px; }
-        .scroll-box::-webkit-scrollbar { width: 6px; }
-        .scroll-box::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 4px; }
-        .scroll-box::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+        .card-laporan { 
+            background-color: var(--card-dark); 
+            border: 1px solid var(--border-color); 
+            border-radius: 16px; 
+            padding: 18px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .card-laporan.pusat { border-left: 4px solid var(--blue); }
+        .card-laporan h4 { margin: 0 0 14px 0; font-size: 13px; text-transform: uppercase; color: #fff; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center;}
+        
+        .fin-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .fin-row.highlight { border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 8px 0; margin: 6px 0; }
+        .fin-label { font-size: 12px; color: var(--text-muted); }
+        .fin-value { font-size: 14px; font-weight: 700; }
 
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-        th, td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); }
-        th { background-color: rgba(255,255,255,0.03); color: #aaa; text-transform: uppercase; font-size: 11px; position: sticky; top:0; z-index: 5; }
+        /* Stat Grid Warga */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        @media(min-width: 480px) {
+            .stat-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        .stat-box {
+            background-color: var(--card-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .stat-box.full-width {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+        .stat-sub {
+            background-color: var(--card-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+        .stat-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .stat-value { font-size: 16px; font-weight: 700; color: #fff; }
+
+        /* General Card & Forms */
+        .card { 
+            background-color: var(--card-dark); 
+            border: 1px solid var(--border-color); 
+            border-radius: 16px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media(min-width: 480px) { .form-row { grid-template-columns: 1fr 1fr; } }
         
-        .btn-terima { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; text-transform: uppercase; }
-        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 15px; }
-        .log-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; }
-        .log-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #2d2d2d; font-size: 13px; }
+        .form-group { margin-bottom: 14px; }
+        label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            background-color: var(--bg-dark); 
+            border: 1px solid var(--border-color); 
+            border-radius: 10px; 
+            color: var(--text-main); 
+            font-family: inherit; 
+            font-size: 13px; 
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+        .tipe-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .btn-tipe { padding: 12px; border: 1px solid var(--border-color); background-color: var(--bg-dark); color: var(--text-muted); font-weight: 700; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 12px; transition: all 0.2s;}
+        .btn-tipe.active-masuk { background-color: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+        .btn-tipe.active-keluar { background-color: var(--danger-glow); border-color: var(--danger); color: var(--danger); }
+
+        .btn-simpan { width: 100%; padding: 14px; background-color: var(--blue); border: none; border-radius: 10px; color: #fff; font-weight: 700; text-transform: uppercase; cursor: pointer; font-size: 13px; box-shadow: 0 4px 12px rgba(52,152,219,0.2); transition: opacity 0.2s;}
+        .btn-simpan:hover { opacity: 0.9; }
+
+        .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; margin: 15px 0 10px 0; color: var(--text-muted); letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
+
+        .table-scroll-container { max-height: 350px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 4px; border-radius: 14px; }
+        .table-scroll-container::-webkit-scrollbar { width: 4px; }
+        .table-scroll-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+        .table-container { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--border-color); }
+        th { background-color: rgba(0,0,0,0.2); color: var(--text-muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 2; }
+
+        .log-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--border-color); font-size: 12px; }
         .log-item:last-child { border-bottom: none; }
+
+        .btn-terima { background: var(--accent); color: #1a250b; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 10px; text-transform: uppercase; }
+        .btn-toggle-view { background: var(--card-hover); border: 1px solid var(--border-color); color: var(--text-muted); padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+        .btn-toggle-view:hover { color: #fff; border-color: var(--accent); }
         
-        .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .badge.kk { background: rgba(241, 196, 15, 0.15); color: #f1c40f; }
-        .badge.pemilih { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
-        .badge.manula { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
-        .badge.sosial { background: rgba(155, 89, 182, 0.2); color: #9b59b6; border: 1px solid #9b59b6; }
-        .badge.balita { background: rgba(26, 188, 156, 0.2); color: #1abc9c; border: 1px solid #1abc9c; }
+        .badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; display: inline-block; margin-top: 2px;}
+        .badge.kk { background: rgba(241, 196, 15, 0.15); color: var(--yellow); }
+        .badge.pemilih { background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); }
+        .badge.manula { background: rgba(231, 76, 60, 0.15); color: var(--danger); border: 1px solid rgba(231, 76, 60, 0.3); }
+        .badge.sosial { background: rgba(155, 89, 182, 0.15); color: var(--purple); border: 1px solid rgba(155, 89, 182, 0.3); }
+        .badge.balita { background: rgba(26, 188, 156, 0.15); color: var(--teal); border: 1px solid rgba(26, 188, 156, 0.3); }
         .badge.luar { background: rgba(230, 126, 34, 0.15); color: #e67e22; }
 
         .d-none { display: none !important; }
-        .empty-state { color: #666; font-style: italic; text-align: center; padding: 30px 0; font-size: 13px; }
+        .empty-state { color: var(--text-muted); font-weight: 600; text-align: center; padding: 25px 0; font-size: 12px; }
+
+        /* Floating Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 30px);
+            max-width: 420px;
+            background: rgba(36, 29, 23, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .nav-item {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 20px;
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .nav-item.active {
+            background: var(--blue);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(52,152,219,0.3);
+        }
     </style>
 </head> 
 <body>
 
 <div class="container">
     <header>
-        <div><h1>KAS RW JAMARAS</h1><p>Panel Monitoring &amp; Evaluasi Pusat</p></div>
+        <div>
+            <h1>KAS RW JAMARAS</h1>
+            <p>Dashboard Pusat RW</p>
+        </div>
         <div class="header-buttons">
             <div class="user-badge" id="userBadgeRole">Memuat Sesi...</div>
-            <button class="btn-print-connect" id="btnConnectPrint" onclick="sambungPrinterBluetooth()">🔌 Hubungkan Printer</button>
+            <button class="btn-print-connect" id="btnConnectPrint" onclick="sambungPrinterBluetooth()">🔌 Printer</button>
             <button class="btn-keluar" onclick="prosesKeluar()">Keluar</button>
         </div>
     </header>
 
-    <div class="summary-grid">
-        <div class="card masuk-box">
-            <div class="card-title">📥 TOTAL TRANSAKSI MASUK (RW PUSAT)</div>
-            <div class="card-value" id="rwTotalMasuk" style="color: var(--accent);">Rp 0</div>
-        </div>
-        <div class="card keluar-box">
-            <div class="card-title">📤 TOTAL TRANSAKSI KELUAR (RW PUSAT)</div>
-            <div class="card-value" id="rwTotalKeluar" style="color: var(--danger);">Rp 0</div>
-        </div>
-        <div class="card pusat">
-            <div class="card-title">💵 SALDO AKHIR KAS RW PUSAT</div>
-            <div class="card-value" id="kasPusat">Rp 0</div>
-        </div>
-    </div>
-
-    <div class="stat-grid">
-        <div class="stat-box" style="border-bottom: 3px solid var(--blue);">
-            <div class="stat-label">👥 Total Jiwa (RW)</div>
-            <div class="stat-value" id="statTotalJiwa">0</div>
-        </div>
-        <div class="stat-box" style="border-bottom: 3px solid var(--yellow);">
-            <div class="stat-label">🏠 Total KK (RW)</div>
-            <div class="stat-value" id="statTotalKk">0</div>
-        </div>
-        <div class="stat-box" style="border-bottom: 3px solid var(--accent);">
-            <div class="stat-label">🗳️ Total Pemilih</div>
-            <div class="stat-value" id="statTotalPemilih">0</div>
-        </div>
-        <div class="stat-box" style="border-bottom: 3px solid var(--teal);">
-            <div class="stat-label">👶 Balita (0-4 Thn)</div>
-            <div class="stat-value" id="statTotalBalita">0</div>
-        </div>
-        <div class="stat-box full-width">
-            <div class="stat-sub" style="border-bottom: 3px solid var(--danger);">
-                <div class="stat-label">🧓🏼 Total Manula (&ge;60 Thn)</div>
-                <div class="stat-value" id="statTotalManula">0</div>
-            </div>
-            <div class="stat-sub" style="border-bottom: 3px solid var(--purple);">
-                <div class="stat-label">🧒🏻 Yatim / 👩🏻‍🦱 Janda Gabungan</div>
-                <div class="stat-value" id="statSocialNeeds">0 / 0</div>
-            </div>
-        </div>
-        <div class="stat-box full-width">
-            <div class="stat-sub" style="border-bottom: 3px solid var(--yellow); grid-column: span 2;">
-                <div class="stat-label">📍 Total KK Sini (Tinggal Luar)</div>
-                <div class="stat-value" id="statTotalKkSiniLuar">0 <span style="font-size:11px; font-weight:normal; color:#aaa;">Jiwa</span></div>
+    <div class="grid-laporan" style="grid-template-columns: 1fr;">
+        <div class="card-laporan pusat">
+            <div>
+                <h4>
+                    <span>💵 KAS RW PUSAT</span> 
+                    <div style="width: 130px;">
+                        <select id="filterBulanRw" style="padding: 6px; font-size: 11px;" onchange="muatDataDashboard()">
+                            <option value="semua">Semua Bulan</option>
+                            <option value="2026-01">Januari 2026</option>
+                            <option value="2026-02">Februari 2026</option>
+                            <option value="2026-03">Maret 2026</option>
+                            <option value="2026-04">April 2026</option>
+                            <option value="2026-05">Mei 2026</option>
+                            <option value="2026-06">Juni 2026</option>
+                            <option value="2026-07">Juli 2026</option>
+                            <option value="2026-08">Agustus 2026</option>
+                            <option value="2026-09" selected>September 2026</option>
+                            <option value="2026-10">Oktober 2026</option>
+                            <option value="2026-11">November 2026</option>
+                            <option value="2026-12">Desember 2026</option>
+                        </select>
+                    </div>
+                </h4>
+                
+                <div class="fin-row">
+                    <span class="fin-label">Saldo Awal Bulan</span>
+                    <span class="fin-value" id="rwSaldoAwal" style="color: var(--text-main);">Rp 0</span>
+                </div>
+                <div class="fin-row">
+                    <span class="fin-label">Total Masuk (Bulan Ini)</span>
+                    <span class="fin-value" id="rwTotalMasuk" style="color: var(--accent);">Rp 0</span>
+                </div>
+                <div class="fin-row">
+                    <span class="fin-label">Total Keluar (Bulan Ini)</span>
+                    <span class="fin-value" id="rwTotalKeluar" style="color: var(--danger);">Rp 0</span>
+                </div>
+                <div class="fin-row highlight">
+                    <span class="fin-label" style="font-weight: 700; color: #fff;">SALDO AKHIR BULAN</span>
+                    <span class="fin-value" id="rwSaldoAkhir" style="color: var(--blue); font-size: 15px;">Rp 0</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="tabs">
-        <button class="tab-btn active" id="tabFinansial" onclick="bukaTab('finansial')">💰 Operasional &amp; Kas Finansial</button>
-        <button class="tab-btn" id="tabWarga" onclick="bukaTab('warga')">👥 Kontrol Kependudukan Warga</button>
-    </div>
-
+    <!-- Konten Tab Finansial & Operasional -->
     <div id="kontenFinansial">
-        <div class="card d-none" id="formKasRW" style="margin-bottom: 20px; border-top: 4px solid var(--blue);">
+        <div class="card d-none" id="formKasRW" style="border-left: 4px solid var(--blue);">
             <div class="section-title" style="margin-top:0; color:var(--blue);">📝 Input Pembukuan Mandiri RW Pusat</div>
             <label>Jenis Aliran Dana</label>
             <div class="tipe-container">
-                <button class="btn-tipe active-masuk" id="btnMasuk" onclick="setTipe('masuk')">📥 Penerimaan Manual RW</button>
-                <button class="btn-tipe" id="btnKeluar" onclick="setTipe('keluar')">📤 Pengeluaran Kas RW</button>
+                <button class="btn-tipe active-masuk" id="btnMasuk" onclick="setTipe('masuk')">📥 Penerimaan Manual</button>
+                <button class="btn-tipe" id="btnKeluar" onclick="setTipe('keluar')">📤 Pengeluaran Kas</button>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label for="jumlahTx">Nominal</label>
+                    <label for="jumlahTx">Nominal (Rp)</label>
                     <input type="text" id="jumlahTx" placeholder="Contoh: 250.000" oninput="formatRupiahInput(this)">
                 </div>
                 <div class="form-group">
@@ -180,8 +321,8 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="ketTx">Keterangan Catatan Manual</label>
-                <input type="text" id="ketTx" placeholder="Misal: Bantuan Sosial internal RW / Biaya Rapat">
+                <label for="ketTx">Keterangan Catatan</label>
+                <input type="text" id="ketTx" placeholder="Misal: Bantuan Sosial internal RW">
             </div>
             <button class="btn-simpan" onclick="simpanTransaksiRW()">Simpan Transaksi Pusat</button>
         </div>
@@ -189,32 +330,76 @@
         <div class="section-title" style="color: var(--blue);">🛎️ Konfirmasi Penyetoran RT (Pending)</div>
         <div class="table-container" style="margin-bottom:20px;">
             <table>
-                <thead><tr><th>Asal RT</th><th>Jumlah Setoran</th><th>Keterangan Transaksi</th><th style="text-align: center;">Aksi</th></tr></thead>
+                <thead><tr><th>Asal RT</th><th>Jumlah</th><th>Keterangan</th><th style="text-align: center;">Aksi</th></tr></thead>
                 <tbody id="bodyPending"><tr><td colspan="4" class="empty-state">Tidak ada setoran tertunda.</td></tr></tbody>
             </table>
         </div>
 
-        <div class="section-title">📊 Kondisi Keuangan Real-time Antar RT</div>
-        <div class="table-container" style="margin-bottom:20px;"><table id="tabelRT"><thead><tr><th>Wilayah</th><th>Pemasukan</th><th>Pengeluaran</th><th>Saldo RT</th><th>Status</th></tr></thead><tbody id="tabelRTBody"></tbody></table></div>
+        <div class="section-title">
+            <span>📊 Saldo Real-time Antar RT</span>
+            <button class="btn-toggle-view" id="btnToggleRt" onclick="toggleTabelRt()">Hide</button>
+        </div>
+        <div class="table-container" id="containerTabelRt" style="margin-bottom:20px;">
+            <table>
+                <thead><tr><th>Wilayah</th><th>Masuk</th><th>Keluar</th><th>Saldo RT</th><th>Status</th></tr></thead>
+                <tbody id="tabelRTBody"></tbody>
+            </table>
+        </div>
 
-        <div class="detail-grid">
-            <div class="log-box">
-                <div class="section-title" style="color: var(--accent); margin-top: 0;">📥 5 Transaksi Masuk RW Terbaru</div>
-                <div id="logSetoran" class="scroll-box">Memuat data masuk...</div>
+        <!-- Kombinasi Mix 1 Card untuk Histori Masuk & Keluar RW (Scrollable) -->
+        <div class="card" style="border-left: 4px solid var(--accent); margin-bottom: 20px;">
+            <div class="section-title" style="color: var(--accent); margin-top: 0;">
+                <span>📋 Histori Mutasi RW Pusat (Masuk &amp; Keluar)</span>
+                <span style="font-size: 10px; color: var(--text-muted); font-weight: normal;">Scroll ke bawah</span>
             </div>
-            <div class="log-box">
-                <div class="section-title" style="color: var(--danger); margin-top: 0;">📤 5 Transaksi Keluar RW Terbaru</div>
-                <div id="logPengeluaran" class="scroll-box">Memuat data pengeluaran...</div>
+            <div id="logMixRw" class="table-scroll-container scroll-box">
+                Memuat data mutasi...
             </div>
         </div>
     </div>
 
+    <!-- Konten Tab Warga / Kependudukan -->
     <div id="kontenWarga" class="d-none">
-        <div class="card" style="border-top: 4px solid var(--blue); padding:15px; margin-bottom:15px;">
-            <div class="section-title" style="margin-top:0;">🔍 Filter &amp; Kontrol Wilayah Penduduk</div>
+        <div class="stat-grid">
+            <div class="stat-box" style="border-top: 3px solid var(--blue);">
+                <div class="stat-label">👥 Total Jiwa</div>
+                <div class="stat-value" id="statTotalJiwa">0</div>
+            </div>
+            <div class="stat-box" style="border-top: 3px solid var(--yellow);">
+                <div class="stat-label">🏠 Total KK</div>
+                <div class="stat-value" id="statTotalKk">0</div>
+            </div>
+            <div class="stat-box" style="border-top: 3px solid var(--accent);">
+                <div class="stat-label">🗳️ Pemilih</div>
+                <div class="stat-value" id="statTotalPemilih">0</div>
+            </div>
+            <div class="stat-box" style="border-top: 3px solid var(--teal);">
+                <div class="stat-label">👶 Balita</div>
+                <div class="stat-value" id="statTotalBalita">0</div>
+            </div>
+            <div class="stat-box full-width">
+                <div class="stat-sub" style="border-top: 3px solid var(--danger);">
+                    <div class="stat-label">🧓🏼 Lansia</div>
+                    <div class="stat-value" id="statTotalManula">0</div>
+                </div>
+                <div class="stat-sub" style="border-top: 3px solid var(--purple);">
+                    <div class="stat-label">🧒🏻 Yatim / Janda</div>
+                    <div class="stat-value" id="statSocialNeeds" style="font-size: 14px;">0 / 0</div>
+                </div>
+            </div>
+            <div class="stat-box full-width">
+                <div class="stat-sub" style="border-top: 3px solid var(--yellow); grid-column: span 2;">
+                    <div class="stat-label">📍 KK Sini (Tinggal di Luar)</div>
+                    <div class="stat-value" id="statTotalKkSiniLuar" style="font-size: 15px;">0 <span style="font-size:10px; font-weight:normal; color:var(--text-muted);">Jiwa</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--blue);">
+            <div class="section-title" style="margin-top:0;">🔍 Filter Kontrol Penduduk RW</div>
             <div class="form-row">
                 <div class="form-group">
-                    <label for="filterRtWarga">Pilih Wilayah RT</label>
+                    <label for="filterRtWarga">Wilayah RT</label>
                     <select id="filterRtWarga" onchange="renderTabelWargaPusat()">
                         <option value="Semua">Semua RT (Seluruh RW)</option>
                         <option value="RT_01">RT 01</option>
@@ -227,41 +412,39 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="filterKategoriWarga">Klasifikasi Filter Sosial</label>
+                    <label for="filterKategoriWarga">Klasifikasi Sosial</label>
                     <select id="filterKategoriWarga" onchange="renderTabelWargaPusat()">
                         <option value="semua">Semua Penduduk</option>
-                        <option value="pemilih">🗳️ Data Pemilih (&ge; 17 Tahun)</option>
-                        <option value="balita">👶 Data Anak Balita (0 - 4 Tahun 11 Bulan)</option>
-                        <option value="manula">🧓🏼 Lansia / Manula (&ge; 60 Tahun)</option>
-                        <option value="yatim">🧒🏻 Anak Yatim (KK Tanpa Kepala Keluarga)</option>
+                        <option value="pemilih">🗳️ Pemilih (&gt;= 17 Thn)</option>
+                        <option value="balita">👶 Balita (&lt; 5 Thn)</option>
+                        <option value="manula">🧓🏼 Lansia (&gt;= 60 Thn)</option>
+                        <option value="yatim">🧒🏻 Yatim</option>
                         <option value="janda">👩🏻‍🦱 Janda / Single Parent</option>
-                        <option value="kksiniluar">📍 KK Sini (Tapi Tinggal di Luar)</option>
+                        <option value="kksiniluar">📍 KK Sini (Tinggal Luar)</option>
                     </select>
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group" style="margin-bottom:0;">
-                    <label for="cariKk">Cari Nomor KK</label>
-                    <input type="text" id="cariKk" placeholder="Ketik No KK untuk melacak..." onkeyup="renderTabelWargaPusat()">
+                    <input type="text" id="cariKk" placeholder="🔍 Cari No KK..." onkeyup="renderTabelWargaPusat()">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
-                    <label for="filterHubungan">Hubungan Struktur</label>
                     <select id="filterHubungan" onchange="renderTabelWargaPusat()">
-                        <option value="Semua">Semua Anggota</option>
-                        <option value="Kepala Keluarga">Hanya Kepala Keluarga</option>
+                        <option value="Semua">Semua Hubungan</option>
+                        <option value="Kepala Keluarga">Kepala Keluarga Saja</option>
                     </select>
                 </div>
             </div>
         </div>
 
-        <div class="table-container scroll-box" style="max-height:450px;">
+        <div class="table-container table-scroll-container">
             <table>
                 <thead>
                     <tr>
-                        <th>Identitas Warga (Nama / NIK / KK)</th>
+                        <th>Identitas Warga</th>
                         <th>Wilayah</th>
                         <th>Hubungan</th>
-                        <th>Usia / Klasifikasi</th>
+                        <th>Keterangan / Usia</th>
                     </tr>
                 </thead>
                 <tbody id="tabelWargaPusatBody">
@@ -270,6 +453,16 @@
             </table>
         </div>
     </div>
+</div>
+
+<!-- Floating Bottom Navigation Bar -->
+<div class="bottom-nav">
+    <button class="nav-item active" id="tabFinansialBtn" onclick="bukaTab('finansial')">
+        <span>💰</span> Keuangan
+    </button>
+    <button class="nav-item" id="tabWargaBtn" onclick="bukaTab('warga')">
+        <span>👥</span> Warga
+    </button>
 </div>
 
 <script>
@@ -299,12 +492,26 @@
         return umur;
     }
 
+    function toggleTabelRt() {
+        let el = document.getElementById('containerTabelRt');
+        let btn = document.getElementById('btnToggleRt');
+        if(el.classList.contains('d-none')) {
+            el.classList.remove('d-none');
+            btn.innerText = "Hide";
+        } else {
+            el.classList.add('d-none');
+            btn.innerText = "Unhide";
+        }
+    }
+
     function bukaTab(pilihan) {
+        const btnFin = document.getElementById('tabFinansialBtn');
+        const btnWarga = document.getElementById('tabWargaBtn');
         if (pilihan === 'finansial') {
-            document.getElementById('tabFinansial').classList.add('active'); document.getElementById('tabWarga').classList.remove('active');
+            btnFin.classList.add('active'); btnWarga.classList.remove('active');
             document.getElementById('kontenFinansial').classList.remove('d-none'); document.getElementById('kontenWarga').classList.add('d-none');
         } else {
-            document.getElementById('tabWarga').classList.add('active'); document.getElementById('tabFinansial').classList.remove('active');
+            btnWarga.classList.add('active'); btnFin.classList.remove('active');
             document.getElementById('kontenWarga').classList.remove('d-none'); document.getElementById('kontenFinansial').classList.add('d-none');
             ambilMasterWarga();
         }
@@ -337,7 +544,6 @@
                     '0000e0ff-0000-1000-8000-00805f9b34fb'
                 ]
             });
-            
             const server = await device.gatt.connect();
             const services = await server.getPrimaryServices();
             for (let service of services) {
@@ -350,10 +556,9 @@
                 }
                 if (printerCharacteristic) break;
             }
-
             if (printerCharacteristic) {
                 const btn = document.getElementById('btnConnectPrint');
-                btn.innerText = "✅ Printer Terhubung";
+                btn.innerText = "✅ Terhubung";
                 btn.classList.add('connected');
                 alert("Printer Thermal Berhasil Disambungkan!");
             } else {
@@ -366,11 +571,7 @@
     }
 
     async function cetakStrukThermal58mm(dataStruk) {
-        if (!printerCharacteristic) {
-            console.warn("Printer belum tersambung. Cetak dilewati.");
-            return;
-        }
-
+        if (!printerCharacteristic) return;
         const ESC = 0x1B;
         const initPrinter = [ESC, 0x40];
         const textCenter = [ESC, 0x61, 1];
@@ -384,28 +585,18 @@
 
         bytes.push(...initPrinter, ...textCenter, ...boldOn);
         bytes.push(...encoder.encode("KAS RW JAMARAS\n"));
-        bytes.push(...boldOff);
-        bytes.push(...encoder.encode("Sistem Manajemen Keuangan\n"));
-        bytes.push(...encoder.encode("================================\n"));
-
-        bytes.push(...boldOn);
-        bytes.push(...encoder.encode(`${dataStruk.judulStruk.toUpperCase()}\n\n`));
-        bytes.push(...boldOff, ...textLeft);
+        bytes.push(...boldOff, ...encoder.encode("Sistem Manajemen Keuangan\n================================\n"));
+        bytes.push(...boldOn, ...encoder.encode(`${dataStruk.judulStruk.toUpperCase()}\n\n`), ...boldOff, ...textLeft);
 
         bytes.push(...encoder.encode(`Tanggal  : ${dataStruk.tanggal}\n`));
         bytes.push(...encoder.encode(`Wilayah  : ${dataStruk.wilayah}\n`));
         bytes.push(...encoder.encode(`Kategori : ${dataStruk.kategori}\n`));
-        bytes.push(...encoder.encode(`Note     : ${dataStruk.keterangan}\n`));
-        bytes.push(...encoder.encode("--------------------------------\n"));
+        bytes.push(...encoder.encode(`Note     : ${dataStruk.keterangan}\n--------------------------------\n`));
 
         bytes.push(...boldOn);
         let barisJumlah = `TOTAL: Rp ${parseInt(dataStruk.jumlah).toLocaleString('id-ID')}`;
         bytes.push(...encoder.encode(barisJumlah.padStart(32, ' ') + "\n"));
-        bytes.push(...boldOff, ...textCenter);
-
-        bytes.push(...encoder.encode("\n================================\n"));
-        bytes.push(...encoder.encode("Dokumen ini disahkan secara digital\n"));
-        bytes.push(...encoder.encode("Terima Kasih.\n"));
+        bytes.push(...boldOff, ...textCenter, ...encoder.encode("\n================================\nTerima Kasih.\n"));
         bytes.push(...feedCut);
 
         let uint8Array = new Uint8Array(bytes);
@@ -416,7 +607,6 @@
         }
     }
 
-    // VERIFIKASI SINKRONISASI EMAIL UNTUK PROSES READ-ONLY GLOBAL
     async function cekSesi() {
         let { data: { session } } = await _sb.auth.getSession();
         if (!session) { window.location.href = "index.html"; return; }
@@ -424,22 +614,13 @@
         let emailUser = session.user.email;
         let badge = document.getElementById('userBadgeRole');
 
-        // VALIDASI LAPISAN EMAIL UTAMA
         if (emailUser === "hadiatpermana@gmail.com") {
             isBendahara = true;
             badge.innerText = "👑 Bendahara RW";
-            badge.style.borderColor = "var(--accent)";
-            badge.style.color = "var(--accent)";
-            
-            // Tampilkan form input internal untuk Bendahara RW
             document.getElementById('formKasRW').classList.remove('d-none');
         } else {
-            isBendahara = false; // Kunci mutlak Read-Only untuk Ketua RW, Sekretaris, atau akun lain
-            badge.innerText = "🔍 Monitoring Pusat (Read-Only)";
-            badge.style.borderColor = "var(--purple)";
-            badge.style.color = "var(--purple)";
-            
-            // Sembunyikan form input kas mandiri
+            isBendahara = false;
+            badge.innerText = "🔍 Monitoring (Read-Only)";
             document.getElementById('formKasRW').classList.add('d-none');
         }
 
@@ -449,16 +630,14 @@
         ambilMasterWarga();
     }
 
-    // MODIFIKASI KUNCI TOMBOL TERIMA SETORAN BERDASARKAN STATUS BENDAHARA
     async function loadPendingSetoran() {
         let { data } = await _sb.from('transaksi1').select('*').eq('status', 'pending').eq('kategori', 'Setor Ke Kas RW');
         let body = document.getElementById('bodyPending');
         if (data && data.length > 0) {
             body.innerHTML = data.map(tx => {
-                // Cek status isBendahara untuk mengaktifkan/menonaktifkan tombol terima
                 let tombolAksi = isBendahara 
                     ? `<button class="btn-terima" onclick="terimaSetoran(${tx.id}, ${tx.jumlah}, '${tx.scope}', '${tx.keterangan}')">Terima</button>`
-                    : `<button class="btn-terima" style="background:#444; color:#888; cursor:not-allowed; border:1px solid #555;" disabled>Hanya Lihat</button>`;
+                    : `<button class="btn-terima" style="background:#444; color:#888; cursor:not-allowed;" disabled>Lihat</button>`;
 
                 return `<tr><td><b>${tx.scope.replace('_', ' ')}</b></td>
                 <td><span style="color:var(--accent);font-weight:bold;">Rp ${parseInt(tx.jumlah).toLocaleString('id-ID')}</span></td>
@@ -471,7 +650,7 @@
     }
 
     async function terimaSetoran(id, jumlah, scopeRT, keteranganAsli) {
-        if(!isBendahara) return; // Proteksi ganda di level fungsi
+        if(!isBendahara) return;
         if (!confirm("Konfirmasi penerimaan uang setoran dari " + scopeRT.replace('_',' ') + "?")) return;
         
         let tgl = new Date().toISOString().split('T')[0];
@@ -484,7 +663,6 @@
         }]);
 
         alert("✅ Setoran berhasil masuk ke Kas Pusat RW!");
-
         await cetakStrukThermal58mm({
             judulStruk: "Tanda Terima Dana RT",
             tanggal: tgl,
@@ -499,20 +677,69 @@
     }
 
     async function muatDataDashboard() {
-        let { data: txRw } = await _sb.from('transaksi1').select('tipe, jumlah').eq('scope', 'RW_PUSAT');
-        let rwMasuk = 0, rwKeluar = 0;
+        let bulanPilih = document.getElementById('filterBulanRw').value;
+
+        let { data: txRw } = await _sb.from('transaksi1').select('*').eq('scope', 'RW_PUSAT').order('tanggal', { ascending: true });
+        
+        let saldoAwal = 0;
+        let totalMasukBulanIni = 0;
+        let totalKeluarBulanIni = 0;
+        let filteredTxForLog = [];
+
         if(txRw) {
             txRw.forEach(tx => {
-                if (tx.tipe === 'masuk') rwMasuk += parseInt(tx.jumlah || 0);
-                if (tx.tipe === 'keluar') rwKeluar += parseInt(tx.jumlah || 0);
+                let tglTx = tx.tanggal; 
+                let bulanTx = tglTx ? tglTx.substring(0, 7) : "";
+
+                if (bulanPilih === 'semua') {
+                    if (tx.tipe === 'masuk') totalMasukBulanIni += parseInt(tx.jumlah || 0);
+                    if (tx.tipe === 'keluar') totalKeluarBulanIni += parseInt(tx.jumlah || 0);
+                    filteredTxForLog.push(tx);
+                } else {
+                    if (bulanTx < bulanPilih) {
+                        if (tx.tipe === 'masuk') saldoAwal += parseInt(tx.jumlah || 0);
+                        if (tx.tipe === 'keluar') saldoAwal -= parseInt(tx.jumlah || 0);
+                    } else if (bulanTx === bulanPilih) {
+                        if (tx.tipe === 'masuk') totalMasukBulanIni += parseInt(tx.jumlah || 0);
+                        if (tx.tipe === 'keluar') totalKeluarBulanIni += parseInt(tx.jumlah || 0);
+                        filteredTxForLog.push(tx);
+                    }
+                }
             });
         }
-        document.getElementById('rwTotalMasuk').innerText = "Rp " + rwMasuk.toLocaleString('id-ID');
-        document.getElementById('rwTotalKeluar').innerText = "Rp " + rwKeluar.toLocaleString('id-ID');
-        document.getElementById('kasPusat').innerText = "Rp " + (rwMasuk - rwKeluar).toLocaleString('id-ID');
+
+        let saldoAkhir = saldoAwal + totalMasukBulanIni - totalKeluarBulanIni;
+
+        document.getElementById('rwSaldoAwal').innerText = "Rp " + saldoAwal.toLocaleString('id-ID');
+        document.getElementById('rwTotalMasuk').innerText = "Rp " + totalMasukBulanIni.toLocaleString('id-ID');
+        document.getElementById('rwTotalKeluar').innerText = "Rp " + totalKeluarBulanIni.toLocaleString('id-ID');
+        document.getElementById('rwSaldoAkhir').innerText = "Rp " + saldoAkhir.toLocaleString('id-ID');
+
+        let boxMix = document.getElementById('logMixRw');
+        filteredTxForLog.reverse();
+
+        if(filteredTxForLog.length > 0) {
+            boxMix.innerHTML = filteredTxForLog.map(tx => {
+                let isMasuk = tx.tipe === 'masuk';
+                let warnaNominal = isMasuk ? 'var(--accent)' : 'var(--danger)';
+                let tanda = isMasuk ? '+' : '-';
+                return `
+                    <div class="log-item">
+                        <div>
+                            <div style="font-weight:700; color:#fff; font-size:12px;">${tx.keterangan}</div>
+                            <div style="font-size:10px; color:var(--text-muted);">${tx.tanggal} | ${tx.kategori}</div>
+                        </div>
+                        <div style="font-weight:700; font-size:13px; color:${warnaNominal}; white-space:nowrap; margin-left: 10px;">
+                            ${tanda} Rp ${parseInt(tx.jumlah).toLocaleString('id-ID')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            boxMix.innerHTML = `<div class="empty-state">Tidak ada riwayat transaksi pada periode bulan ini.</div>`;
+        }
 
         let { data: semuaTx } = await _sb.from('transaksi1').select('*');
-        
         let unitData = { 
             "RT_01": {m:0, k:0}, "RT_02": {m:0, k:0}, "RT_03": {m:0, k:0}, 
             "RT_04": {m:0, k:0}, "RT_05": {m:0, k:0}, "RT_06": {m:0, k:0}, 
@@ -521,7 +748,10 @@
         
         if(semuaTx) {
             semuaTx.forEach(tx => {
-                if(unitData[tx.scope]) {
+                let tglTx = tx.tanggal ? tx.tanggal.substring(0, 7) : "";
+                let passBulanRt = (bulanPilih === 'semua' || tglTx === bulanPilih);
+
+                if(unitData[tx.scope] && passBulanRt) {
                     if(tx.tipe === 'masuk') unitData[tx.scope].m += parseInt(tx.jumlah || 0);
                     if(tx.tipe === 'keluar') unitData[tx.scope].k += parseInt(tx.jumlah || 0);
                 }
@@ -531,22 +761,20 @@
         let htmlTabel = "";
         for (let key in unitData) {
             let saldoRT = unitData[key].m - unitData[key].k;
-            htmlTabel += `<tr><td><b>${key.replace('_',' ')}</b></td><td>Rp ${unitData[key].m.toLocaleString('id-ID')}</td><td>Rp ${unitData[key].k.toLocaleString('id-ID')}</td><td style="font-weight:bold; color:var(--accent);">Rp ${saldoRT.toLocaleString('id-ID')}</td><td><span class="badge pemilih">AKTIF</span></td></tr>`;
+            htmlTabel += `<tr><td><b>${key.replace('_',' ')}</b></td><td>Rp ${unitData[key].m.toLocaleString('id-ID')}</td><td>Rp ${unitData[key].k.toLocaleString('id-ID')}</td><td style="font-weight:700; color:var(--accent);">Rp ${saldoRT.toLocaleString('id-ID')}</td><td><span class="badge pemilih">AKTIF</span></td></tr>`;
         }
         document.getElementById('tabelRTBody').innerHTML = htmlTabel;
-
-        loadHistoriRWLogs();
     }
 
     async function simpanTransaksiRW() {
-        if(!isBendahara) return; // Proteksi ganda
+        if(!isBendahara) return;
         let rawNominal = document.getElementById('jumlahTx').value.replace(/\./g, '');
         let jumlahNum = parseInt(rawNominal) || 0;
         let kategori = document.getElementById('kategoriTx').value;
         let keterangan = document.getElementById('ketTx').value.trim();
         let tgl = new Date().toISOString().split('T')[0];
 
-        if (jumlahNum <= 0 || !keterangan) { alert("⚠️ Harap isi nominal dan keterangan pembukuan Pusat!"); return; }
+        if (jumlahNum <= 0 || !keterangan) { alert("⚠️ Harap isi nominal dan keterangan!"); return; }
 
         let { error } = await _sb.from('transaksi1').insert([{
             scope: 'RW_PUSAT', tipe: tipeDipilih, jumlah: jumlahNum, kategori: kategori, keterangan: keterangan, tanggal: tgl, status: 'selesai'
@@ -566,22 +794,6 @@
 
         document.getElementById('jumlahTx').value = ""; document.getElementById('ketTx').value = "";
         muatDataDashboard();
-    }
-
-    async function loadHistoriRWLogs() {
-        let { data: masuk } = await _sb.from('transaksi1').select('*').eq('scope', 'RW_PUSAT').eq('tipe', 'masuk').order('created_at', {ascending: false}).limit(5);
-        let { data: keluar } = await _sb.from('transaksi1').select('*').eq('scope', 'RW_PUSAT').eq('tipe', 'keluar').order('created_at', {ascending: false}).limit(5);
-
-        let boxMasuk = document.getElementById('logSetoran');
-        let boxKeluar = document.getElementById('logPengeluaran');
-
-        if(masuk && masuk.length > 0) {
-            boxMasuk.innerHTML = masuk.map(tx => `<div class="log-item"><div><b>${tx.keterangan}</b><br><small>${tx.tanggal} | ${tx.kategori}</small></div><div style="color:var(--accent); font-weight:bold;">+ Rp ${parseInt(tx.jumlah).toLocaleString('id-ID')}</div></div>`).join('');
-        } else { boxMasuk.innerHTML = `<div class="empty-state">Belum ada dana masuk.</div>`; }
-
-        if(keluar && keluar.length > 0) {
-            boxKeluar.innerHTML = keluar.map(tx => `<div class="log-item"><div><b>${tx.keterangan}</b><br><small>${tx.tanggal} | ${tx.kategori}</small></div><div style="color:var(--danger); font-weight:bold;">- Rp ${parseInt(tx.jumlah).toLocaleString('id-ID')}</div></div>`).join('');
-        } else { boxKeluar.innerHTML = `<div class="empty-state">Belum ada pengeluaran RW.</div>`; }
     }
 
     async function ambilMasterWarga() {
@@ -606,7 +818,6 @@
             if(umur >= 17) pemilih++;
             if(umur >= 0 && umur < 5) balita++; 
             if(umur >= 60) manula++;
-            
             if(w.status_tinggal === 'KK Sini (Tinggal Luar)') kkSiniLuar++;
 
             if(!kkAdaKepala) {
@@ -620,8 +831,8 @@
         document.getElementById('statTotalPemilih').innerText = pemilih;
         document.getElementById('statTotalBalita').innerText = balita;
         document.getElementById('statTotalManula').innerText = manula;
-        document.getElementById('statTotalKkSiniLuar').innerText = kkSiniLuar;
-        document.getElementById('statSocialNeeds').innerHTML = `${yatim} <span style="font-size:10px; font-weight:normal; color:#aaa;">Yatim</span> / ${janda} <span style="font-size:10px; font-weight:normal; color:#aaa;">Janda</span>`;
+        document.getElementById('statTotalKkSiniLuar').innerHTML = `${kkSiniLuar} <span style="font-size:10px; font-weight:normal; color:var(--text-muted);">Jiwa</span>`;
+        document.getElementById('statSocialNeeds').innerText = `${yatim} Yatim / ${janda} Janda`;
     }
 
     function renderTabelWargaPusat() {
@@ -655,7 +866,7 @@
         });
 
         if (dataTampil.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Tidak ada registrasi data penduduk ditemukan untuk kriteria ini.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Tidak ada data ditemukan.</td></tr>`;
             return;
         }
 
@@ -663,31 +874,28 @@
             let umur = hitungUsia(w.tanggal_lahir);
             let kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
             
-            let badgeSocial = "";
-            if(umur >= 17) badgeSocial += `<span class="badge pemilih">🗳️ Pemilih</span> `;
-            if(umur >= 0 && umur < 5) badgeSocial += `<span class="badge balita">👶 Balita</span> `;
-            if(umur >= 60) badgeSocial += `<span class="badge manula">🧓🏼 Manula</span> `;
-            if(w.status_tinggal === 'KK Sini (Tinggal Luar)') badgeSocial += `<span class="badge luar">📍 KK Sini (Luar)</span> `;
-            
-            if(!kkAdaKepala) {
-                if (w.hubungan_keluarga === 'Anak' && umur < 18) badgeSocial += `<span class="badge sosial">🧒🏻 Yatim</span> `;
-                else if (w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') badgeSocial += `<span class="badge sosial">👩🏻‍🦱 Janda</span> `;
-            }
+            let badgeClass = "asli";
+            if (w.status_tinggal.includes("Kontrak")) badgeClass = "kontrak";
+            else if (w.status_tinggal.includes("Luar")) badgeClass = "luar";
 
-            let cetakNik = w.nik ? w.nik : (w.no_nik ? w.no_nik : "-");
-            let formatNama = w.hubungan_keluarga === 'Kepala Keluarga' ? `<span class="badge kk">KK</span> <b>${w.nama_lengkap}</b>` : `<b>${w.nama_lengkap}</b>`;
+            let badgeTambahan = "";
+            if(umur >= 17) badgeTambahan += `<span class="badge pemilih">🗳️ Pemilih</span> `;
+            if(umur >= 0 && umur < 5) badgeTambahan += `<span class="badge balita">👶 Balita</span> `;
+            if(umur >= 60) badgeTambahan += `<span class="badge manula">🧓🏼 Lansia</span> `;
+
+            let formatNama = w.hubungan_keluarga === 'Kepala Keluarga' ? `<span class="badge kk">KK</span> <b style="font-size:13px; color:#fff;">${w.nama_lengkap}</b>` : `<b style="font-size:13px; color:#fff;">${w.nama_lengkap}</b>`;
 
             tbody.innerHTML += `
                 <tr>
                     <td>
                         <div style="margin-bottom:3px;">${formatNama}</div>
-                        <div style="font-size:11px; color:#aaa;">NIK: ${cetakNik} <br> KK: ${w.no_kk}</div>
+                        <div style="font-size:10px; color:var(--text-muted);">NIK: ${w.nik || '-'} | KK: ${w.no_kk}</div>
                     </td>
-                    <td><span style="font-weight:bold; color:var(--blue);">${w.rt_scope.replace('_',' ')}</span></td>
-                    <td><span style="font-size:12px; color:#bbb;">${w.hubungan_keluarga}</span></td>
+                    <td><span style="font-weight:700; color:var(--blue);">${w.rt_scope.replace('_',' ')}</span></td>
+                    <td><span style="font-size:11px; color:var(--text-accent); font-weight:700;">${w.hubungan_keluarga}</span></td>
                     <td>
-                        <div>${umur} Tahun ${badgeSocial}</div>
-                        <div style="font-size:11px; margin-top:3px;"><span class="badge" style="background:rgba(255,255,255,0.05); color:#aaa;">${w.status_tinggal}</span> Lokasi: ${w.no_rumah}</div>
+                        <div style="font-size:11px;">${umur} Thn ${badgeTambahan}</div>
+                        <div style="font-size:10px; margin-top:3px;"><span class="badge ${badgeClass}">${w.status_tinggal}</span> | No: ${w.no_rumah}</div>
                     </td>
                 </tr>
             `;
