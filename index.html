@@ -43,6 +43,10 @@
         .d-none { display: none !important; }
         .footer-text { text-align: center; font-size: 11px; color: #555; margin-top: 25px; text-transform: uppercase; letter-spacing: 0.5px; }
     </style>
+  <!-- Injeksi PWA Otomatis -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#38bdf8">
+  <link rel="icon" href="https://api.iconify.design/ph/book-open-text-bold.svg?color=%2338bdf8" type="image/svg+xml">
 </head>
 <body>
 
@@ -305,5 +309,17 @@
 
     window.onload = function() { cekSesiAktif(); };
 </script>
+  <!-- Injeksi Registrasi Service Worker -->
+  <script>
+    if (location.protocol === "file:") {
+      console.warn("PWA Service Worker memerlukan server web (http/https/Vercel) dan tidak dapat aktif langsung di file:///.");
+    } else if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js")
+          .then(reg => console.log("PWA Aktif!", reg.scope))
+          .catch(err => console.error("SW gagal:", err));
+      });
+    }
+  </script>
 </body>
 </html>
