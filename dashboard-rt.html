@@ -104,6 +104,44 @@
         .btn-popup:not(:disabled):hover { background-color: #3a2e26; border-color: var(--accent); color: var(--accent); }
         .btn-popup:disabled { opacity: 0.5; cursor: not-allowed; }
 
+        /* Stat Grid Warga */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        @media(min-width: 480px) {
+            .stat-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        .stat-box {
+            background-color: var(--card-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .stat-box.full-width {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+        .stat-sub {
+            background-color: var(--card-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+        .stat-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .stat-value { font-size: 16px; font-weight: 700; color: #fff; }
+
         /* General Card & Forms */
         .card { 
             background-color: var(--card-dark); 
@@ -143,20 +181,14 @@
 
         .filter-container { display: flex; gap: 10px; margin-bottom: 12px; }
 
-        /* Stat Grid ala Kartu Referensi */
-        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-        @media(min-width: 500px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
-        
-        .stat-box { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .stat-box.full-width { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0; border: none; background: transparent; }
-        .stat-box.full-width .stat-sub { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; text-align: center; }
-        
-        .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; }
-        .stat-value { font-size: 18px; font-weight: 700; color: #fff; }
-
         .scroll-box { max-height: 340px; overflow-y: auto; padding-right: 4px; }
         .scroll-box::-webkit-scrollbar { width: 4px; }
         .scroll-box::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+        /* Tabel manifest warga agar memiliki scroll dan tidak terpotong */
+        .table-scroll-container { max-height: 400px; overflow-y: auto; padding-right: 4px; border-radius: 14px; }
+        .table-scroll-container::-webkit-scrollbar { width: 4px; }
+        .table-scroll-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
         .btn-load-more { width: 100%; padding: 12px; background-color: var(--card-hover); border: 1px dashed var(--border-color); color: var(--text-muted); border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 11px; text-transform: uppercase; margin-top: 10px; }
 
@@ -181,7 +213,7 @@
         .d-none { display: none !important; }
         .empty-state { color: var(--text-muted); font-weight: 600; text-align: center; padding: 25px 0; font-size: 12px; }
 
-        /* Floating Bottom Navigation ala Aplikasi Modern di Referensi */
+        /* Floating Bottom Navigation */
         .bottom-nav {
             position: fixed;
             bottom: 15px;
@@ -343,6 +375,42 @@
 
     <!-- Konten Tab Warga -->
     <div id="kontenWarga" class="d-none">
+        <!-- Stat Grid Statistik Warga -->
+        <div class="stat-grid">
+            <div class="stat-box" style="border-top: 3px solid var(--blue);">
+                <div class="stat-label">👥 Total Jiwa</div>
+                <div class="stat-value" id="statTotalJiwa">0</div>
+            </div>
+            <div class="stat-box" style="border-top: 3px solid var(--yellow);">
+                <div class="stat-label">🏠 Total KK</div>
+                <div class="stat-value" id="statTotalKk">0</div>
+            </div>
+            <div class="stat-box" style="border-top: 3px solid var(--accent);">
+                <div class="stat-label">🗳️ Pemilih</div>
+                <div class="stat-value" id="statTotalPemilih">0</div>
+            </div>
+            <div class="stat-box" style="border-top: 3px solid var(--teal);">
+                <div class="stat-label">👶 Balita</div>
+                <div class="stat-value" id="statTotalBalita">0</div>
+            </div>
+            <div class="stat-box full-width">
+                <div class="stat-sub" style="border-top: 3px solid var(--danger);">
+                    <div class="stat-label">🧓🏼 Lansia</div>
+                    <div class="stat-value" id="statTotalManula">0</div>
+                </div>
+                <div class="stat-sub" style="border-top: 3px solid var(--purple);">
+                    <div class="stat-label">🧒🏻 Yatim / Janda</div>
+                    <div class="stat-value" id="statSocialNeeds" style="font-size: 14px;">0</div>
+                </div>
+            </div>
+            <div class="stat-box full-width">
+                <div class="stat-sub" style="border-top: 3px solid var(--purple); grid-column: span 2;">
+                    <div class="stat-label">📍 KK Sini (Tinggal di Luar)</div>
+                    <div class="stat-value" id="statTotalKkSiniLuar" style="font-size: 15px;">0 <span style="font-size:10px; font-weight:normal; color:var(--text-muted);">Jiwa</span></div>
+                </div>
+            </div>
+        </div>
+
         <div class="card" style="border-left: 4px solid var(--purple);">
             <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color:#fff;">📁 Import Excel Warga</div>
             <p style="font-size:11px; color:var(--text-muted); margin:0 0 12px 0; line-height:1.4;">Format kolom: <b>no_kk, nik, nama_lengkap, no_rumah, tanggal_lahir, hubungan_keluarga, status_tinggal</b></p>
@@ -350,7 +418,13 @@
             <button class="btn-excel" onclick="document.getElementById('fileExcelWarga').click()">⚡ UPLOAD FILE EXCEL</button>
         </div>
 
-        <div class="card" style="border-left: 4px solid var(--blue);">
+        <!-- Tombol Toggle Form Input Warga (Hide / Unhide) -->
+        <button class="btn-popup" style="margin-bottom: 20px; background-color: var(--card-dark); border-color: var(--blue); color: var(--blue);" onclick="toggleFormWarga()">
+            <span id="labelToggleForm">➕ Tambah Warga Baru (Form Input)</span>
+        </button>
+
+        <!-- Container Form Input Warga (Default Disembunyikan / Hide) -->
+        <div class="card d-none" id="formInputWargaContainer" style="border-left: 4px solid var(--blue);">
             <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 14px; color:#fff;">📝 Input Data Anggota Keluarga</div>
             <div class="form-row">
                 <div class="form-group">
@@ -388,17 +462,17 @@
                     </select>
                 </div>
             </div>
-            <div class="form-row" style="align-items: end;">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label for="statusTinggal">Status Kependudukan</label>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="statusTinggal">Status Kependudukan (Tipe Warga)</label>
                     <select id="statusTinggal">
                         <option value="Asli (Menetap)">Warga Asli (Menetap)</option>
                         <option value="Kontrak / Kos">Ngontrak / Kos</option>
                         <option value="KK Sini (Tinggal Luar)">KK Sini (Tinggal di Luar)</option>
                     </select>
                 </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <button class="btn-simpan" style="background-color: var(--blue); color:#fff;" id="btnWarga" onclick="simpanWarga()">Simpan Data</button>
+                <div class="form-group" style="display: flex; align-items: flex-end;">
+                    <button class="btn-simpan" style="background-color: var(--blue); color:#fff; height: 46px;" id="btnWarga" onclick="simpanWarga()">Simpan Data</button>
                 </div>
             </div>
         </div>
@@ -424,7 +498,9 @@
                 <option value="Kepala Keluarga">Kepala Keluarga Saja</option>
             </select>
         </div>
-        <div class="table-container scroll-box">
+        
+        <!-- Tabel Warga dibungkus dengan table-scroll-container agar tidak terpotong di bawah -->
+        <div class="table-container table-scroll-container">
             <table>
                 <thead>
                     <tr>
@@ -441,7 +517,7 @@
     </div>
 </div>
 
-<!-- Floating Bottom Navigation Bar (Gaya Aplikasi Modern di Referensi) -->
+<!-- Floating Bottom Navigation Bar -->
 <div class="bottom-nav">
     <button class="nav-item active" id="tabKas" onclick="bukaTab('kas')">
         <span>💰</span> Kas
@@ -504,6 +580,19 @@
         } else {
             btnWarga.classList.add('active'); btnKas.classList.remove('active');
             document.getElementById('kontenWarga').classList.remove('d-none'); document.getElementById('kontenKas').classList.add('d-none');
+        }
+    }
+
+    /* Fungsi Hide/Unhide Form Input Warga */
+    function toggleFormWarga() {
+        const formContainer = document.getElementById('formInputWargaContainer');
+        const labelToggle = document.getElementById('labelToggleForm');
+        if (formContainer.classList.contains('d-none')) {
+            formContainer.classList.remove('d-none');
+            labelToggle.innerText = "✖ Tutup Form Input Warga";
+        } else {
+            formContainer.classList.add('d-none');
+            labelToggle.innerText = "➕ Tambah Warga Baru (Form Input)";
         }
     }
 
@@ -726,11 +815,54 @@
         const { data, error } = await _sb.from('warga').select('*').eq('rt_scope', `RT_${currentRT}`).order('no_kk', { ascending: true });
         if (!error && data) { 
             listDataWargaLokal = data; 
+            updateStatistikWarga(data);
             renderTabelWarga(); 
             const dlWarga = document.getElementById('listWargaTx');
             dlWarga.innerHTML = '';
             data.forEach(w => { dlWarga.innerHTML += `<option value="${w.nama_lengkap}">`; });
         }
+    }
+
+    function updateStatistikWarga(data) {
+        const totalJiwa = data.length;
+        const setKk = new Set(data.map(w => w.no_kk));
+        const totalKk = setKk.size;
+
+        const setKkMemilikiKepala = new Set(data.filter(w => w.hubungan_keluarga === 'Kepala Keluarga').map(w => w.no_kk));
+
+        let totalPemilih = 0;
+        let totalBalita = 0;
+        let totalManula = 0;
+        let totalYatim = 0;
+        let totalJanda = 0;
+        let totalKkSiniLuar = 0;
+
+        data.forEach(w => {
+            const umur = hitungUsia(w.tanggal_lahir);
+            const kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
+
+            if (umur >= 17) totalPemilih++;
+            if (umur >= 0 && umur < 5) totalBalita++;
+            if (umur >= 60) totalManula++;
+            if (w.status_tinggal === 'KK Sini (Tinggal Luar)') totalKkSiniLuar++;
+
+            // Yatim: Anak dengan usia < 18 tahun dan KK tidak memiliki Kepala Keluarga terdata
+            if (w.hubungan_keluarga === 'Anak' && umur < 18 && !kkAdaKepala) {
+                totalYatim++;
+            }
+            // Janda / Single Parent: Istri, Kepala Keluarga, atau Lainnya jika KK tidak memiliki Kepala Keluarga terdata
+            if ((w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') && !kkAdaKepala) {
+                totalJanda++;
+            }
+        });
+
+        document.getElementById('statTotalJiwa').innerText = totalJiwa;
+        document.getElementById('statTotalKk').innerText = totalKk;
+        document.getElementById('statTotalPemilih').innerText = totalPemilih;
+        document.getElementById('statTotalBalita').innerText = totalBalita;
+        document.getElementById('statTotalManula').innerText = totalManula;
+        document.getElementById('statSocialNeeds').innerText = `${totalYatim} Yatim / ${totalJanda} Janda`;
+        document.getElementById('statTotalKkSiniLuar').innerHTML = `${totalKkSiniLuar} <span style="font-size:10px; font-weight:normal; color:var(--text-muted);">Jiwa</span>`;
     }
 
     function setFilterWarga(jenis) { filterAktif = jenis; renderTabelWarga(); }
@@ -763,7 +895,6 @@
         dataTampil.forEach(w => {
             const umur = hitungUsia(w.tanggal_lahir); 
             const isPemilih = umur >= 17; const isManula = umur >= 60; const isBalita = (umur >= 0 && umur < 5); 
-            const kkAdaKepala = setKkMemilikiKepala.has(w.no_kk);
             
             let badgeClass = "asli";
             if (w.status_tinggal.includes("Kontrak")) badgeClass = "kontrak";
