@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kas-jamaras-v1';
+const CACHE_NAME = 'kas-jamaras-v2';
 const assetsToCache = [
   './index.html',
   './dashboard-warga.html',
@@ -6,7 +6,6 @@ const assetsToCache = [
   './dashboard-rw.html'
 ];
 
-// Saat Service Worker diinstal
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -16,7 +15,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Mengaktifkan Service Worker
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -32,7 +30,6 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Strategi Fetch (Network First, fallback ke Cache)
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request).catch(() => {

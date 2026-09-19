@@ -1,15 +1,15 @@
 {
-  "name": "Kas RW Jamaras | Sistem Keuangan & Warga",
-  "short_name": "Kas RW Jamaras ",
-  "description": "Aplikasi web progresif",
-  "start_url": "/index.html",
+  "name": "Kas RW Jamaras",
+  "short_name": "Kas Jamaras",
+  "description": "Sistem Keuangan Digital dan Portal Warga RW Jamaras",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#38bdf8",
+  "background_color": "#121212",
+  "theme_color": "#72a339",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://api.iconify.design/ph/book-open-text-bold.svg?color=%2338bdf8",
+      "src": "https://api.iconify.design/ph/book-open-text-bold.svg?color=%2372a339",
       "sizes": "192x192 512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
