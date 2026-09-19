@@ -8,21 +8,42 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Variabel Tema Terang (Default) */
         :root {
-            --bg-dark: #191410;          /* Nuansa earthy gelap elegan ala referensi */
-            --card-dark: #241d17;        /* Warna card lebih hangat */
-            --card-hover: #2f2720;
-            --accent: #8eaf49;           /* Hijau segar natural */
-            --accent-glow: rgba(142, 175, 73, 0.15);
-            --text-main: #f3efe6;
-            --text-muted: #aba296;
-            --danger: #e74c3c;
-            --danger-glow: rgba(231, 76, 60, 0.15);
-            --border-color: #382e26;
-            --blue: #3498db;
-            --purple: #9b59b6;
-            --yellow: #f1c40f;
-            --teal: #1abc9c;
+            --bg-dark: #f8fafc;          
+            --card-dark: #ffffff;        
+            --card-hover: #f1f5f9;
+            --accent: #16a34a;           
+            --accent-glow: rgba(22, 163, 74, 0.15);
+            --text-main: #1e293b;        
+            --text-muted: #64748b;       
+            --danger: #dc2626;
+            --danger-glow: rgba(220, 38, 38, 0.15);
+            --border-color: #e2e8f0;
+            --blue: #2563eb;
+            --purple: #9333ea;
+            --yellow: #ca8a04;
+            --teal: #0d9488;
+            --input-bg: #f8fafc;
+        }
+
+        /* Variabel Tema Gelap (Dark Mode) */
+        [data-theme="dark"] {
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+            --card-hover: #334155;
+            --accent: #22c55e;
+            --accent-glow: rgba(34, 197, 94, 0.2);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.2);
+            --border-color: #334155;
+            --blue: #3b82f6;
+            --purple: #a855f7;
+            --yellow: #eab308;
+            --teal: #14b8a6;
+            --input-bg: #0f172a;
         }
 
         * { box-sizing: border-box; }
@@ -31,7 +52,8 @@
             background-color: var(--bg-dark); 
             color: var(--text-main); 
             margin: 0; 
-            padding: 15px 15px 90px 15px; /* Padding bawah disisakan untuk bottom bar */
+            padding: 15px 15px 90px 15px; 
+            transition: background-color 0.3s, color 0.3s;
         }
         .container { max-width: 650px; margin: 0 auto; }
 
@@ -45,10 +67,24 @@
             padding: 16px 20px;
             border-radius: 16px;
             margin-bottom: 20px; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
-        header h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; color: #fff; }
+        header h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; color: var(--text-main); }
         header p { margin: 4px 0 0 0; font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; }
+
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+
+        .btn-theme { 
+            background-color: var(--card-hover); 
+            border: 1px solid var(--border-color); 
+            color: var(--text-main); 
+            padding: 6px 10px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            transition: all 0.2s;
+        }
+        .btn-theme:hover { border-color: var(--accent); }
 
         .btn-keluar { 
             background-color: var(--danger-glow); 
@@ -76,11 +112,11 @@
             display: flex; 
             flex-direction: column; 
             justify-content: space-between; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
         .card-laporan.global { border-left: 4px solid var(--blue); }
         .card-laporan.internal { border-left: 4px solid var(--accent); }
-        .card-laporan h4 { margin: 0 0 14px 0; font-size: 13px; text-transform: uppercase; color: #fff; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center;}
+        .card-laporan h4 { margin: 0 0 14px 0; font-size: 13px; text-transform: uppercase; color: var(--text-main); letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center;}
         
         .fin-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .fin-row:last-of-type { border-top: 1px solid var(--border-color); padding-top: 8px; margin-top: 4px; }
@@ -101,7 +137,7 @@
             cursor: pointer; 
             transition: all 0.2s; 
         }
-        .btn-popup:not(:disabled):hover { background-color: #3a2e26; border-color: var(--accent); color: var(--accent); }
+        .btn-popup:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
         .btn-popup:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Stat Grid Warga */
@@ -120,14 +156,14 @@
             border-radius: 14px;
             padding: 14px;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
         .stat-box.full-width {
             grid-column: span 2;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            padding: 10px;
+            padding: 0;
             background: transparent;
             border: none;
             box-shadow: none;
@@ -140,7 +176,7 @@
             text-align: center;
         }
         .stat-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-        .stat-value { font-size: 16px; font-weight: 700; color: #fff; }
+        .stat-value { font-size: 16px; font-weight: 700; color: var(--text-main); }
 
         /* General Card & Forms */
         .card { 
@@ -149,7 +185,7 @@
             border-radius: 16px; 
             padding: 20px; 
             margin-bottom: 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
         .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; }
         @media(min-width: 480px) { .form-row { grid-template-columns: 1fr 1fr; } }
@@ -159,7 +195,7 @@
         input, select, textarea { 
             width: 100%; 
             padding: 12px; 
-            background-color: var(--bg-dark); 
+            background-color: var(--input-bg); 
             border: 1px solid var(--border-color); 
             border-radius: 10px; 
             color: var(--text-main); 
@@ -169,15 +205,15 @@
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 
         .tipe-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .btn-tipe { padding: 12px; border: 1px solid var(--border-color); background-color: var(--bg-dark); color: var(--text-muted); font-weight: 700; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 12px; transition: all 0.2s;}
+        .btn-tipe { padding: 12px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-muted); font-weight: 700; cursor: pointer; border-radius: 10px; text-transform: uppercase; font-size: 12px; transition: all 0.2s;}
         .btn-tipe.active-masuk { background-color: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
         .btn-tipe.active-keluar { background-color: var(--danger-glow); border-color: var(--danger); color: var(--danger); }
 
-        .btn-simpan { width: 100%; padding: 14px; background-color: var(--accent); border: none; border-radius: 10px; color: #1a250b; font-weight: 700; text-transform: uppercase; cursor: pointer; font-size: 13px; box-shadow: 0 4px 12px var(--accent-glow); transition: opacity 0.2s;}
+        .btn-simpan { width: 100%; padding: 14px; background-color: var(--accent); border: none; border-radius: 10px; color: #fff; font-weight: 700; text-transform: uppercase; cursor: pointer; font-size: 13px; box-shadow: 0 4px 12px var(--accent-glow); transition: opacity 0.2s;}
         .btn-simpan:hover { opacity: 0.9; }
         
         .btn-excel { background-color: var(--accent-glow); border: 1px dashed var(--accent); color: var(--accent); font-weight: 700; text-transform: uppercase; font-size: 11px; padding: 12px; border-radius: 10px; cursor: pointer; width: 100%; display: block; text-align: center; transition: background 0.2s; }
-        .btn-excel:hover { background-color: rgba(142, 175, 73, 0.25); }
+        .btn-excel:hover { opacity: 0.8; }
 
         .filter-container { display: flex; gap: 10px; margin-bottom: 12px; }
 
@@ -185,7 +221,6 @@
         .scroll-box::-webkit-scrollbar { width: 4px; }
         .scroll-box::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
-        /* Tabel manifest warga agar memiliki scroll dan tidak terpotong */
         .table-scroll-container { max-height: 400px; overflow-y: auto; padding-right: 4px; border-radius: 14px; }
         .table-scroll-container::-webkit-scrollbar { width: 4px; }
         .table-scroll-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
@@ -195,20 +230,20 @@
         .table-container { background-color: var(--card-dark); border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
         th, td { padding: 12px; border-bottom: 1px solid var(--border-color); }
-        th { background-color: rgba(0,0,0,0.2); color: var(--text-muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 2; }
+        th { background-color: var(--card-hover); color: var(--text-muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 2; }
 
         .tx-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 8px; border-bottom: 1px solid var(--border-color); font-size: 12px; }
         .tx-item:last-child { border-bottom: none; }
 
         .badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; display: inline-block; margin-top: 2px;}
-        .badge.kk { background: rgba(241, 196, 15, 0.15); color: var(--yellow); }
-        .badge.asli { background: rgba(52, 152, 219, 0.15); color: var(--blue); }
-        .badge.kontrak { background: rgba(230, 126, 34, 0.15); color: #e67e22; }
-        .badge.luar { background: rgba(155, 89, 182, 0.15); color: var(--purple); }
-        .badge.pemilih { background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); }
-        .badge.manula { background: rgba(231, 76, 60, 0.15); color: var(--danger); border: 1px solid rgba(231, 76, 60, 0.3); }
-        .badge.sosial { background: rgba(155, 89, 182, 0.15); color: var(--purple); border: 1px solid rgba(155, 89, 182, 0.3); }
-        .badge.balita { background: rgba(26, 188, 156, 0.15); color: var(--teal); border: 1px solid rgba(26, 188, 156, 0.3); }
+        .badge.kk { background: rgba(202, 138, 4, 0.15); color: var(--yellow); }
+        .badge.asli { background: rgba(37, 99, 235, 0.15); color: var(--blue); }
+        .badge.kontrak { background: rgba(217, 119, 6, 0.15); color: #d97706; }
+        .badge.luar { background: rgba(147, 51, 234, 0.15); color: var(--purple); }
+        .badge.pemilih { background: rgba(22, 163, 74, 0.15); color: var(--accent); border: 1px solid rgba(22, 163, 74, 0.3); }
+        .badge.manula { background: rgba(220, 38, 38, 0.15); color: var(--danger); border: 1px solid rgba(220, 38, 38, 0.3); }
+        .badge.sosial { background: rgba(147, 51, 234, 0.15); color: var(--purple); border: 1px solid rgba(147, 51, 234, 0.3); }
+        .badge.balita { background: rgba(13, 148, 136, 0.15); color: var(--teal); border: 1px solid rgba(13, 148, 136, 0.3); }
 
         .d-none { display: none !important; }
         .empty-state { color: var(--text-muted); font-weight: 600; text-align: center; padding: 25px 0; font-size: 12px; }
@@ -221,14 +256,14 @@
             transform: translateX(-50%);
             width: calc(100% - 30px);
             max-width: 420px;
-            background: rgba(36, 29, 23, 0.9);
+            background: var(--card-dark);
             backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
             border-radius: 24px;
             display: flex;
             justify-content: space-around;
             padding: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             z-index: 999;
         }
         .nav-item {
@@ -249,12 +284,12 @@
         }
         .nav-item.active {
             background: var(--accent);
-            color: #191410;
+            color: #ffffff;
             box-shadow: 0 4px 12px var(--accent-glow);
         }
 
         /* Modal Pop-up */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(4px); }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
         .modal-content { 
             background-color: var(--card-dark); 
             margin: 5% auto; 
@@ -263,12 +298,12 @@
             width: 90%; 
             max-width: 550px; 
             border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px; }
-        .modal-header h3 { margin: 0; font-size: 15px; text-transform: uppercase; color: #fff; }
+        .modal-header h3 { margin: 0; font-size: 15px; text-transform: uppercase; color: var(--text-main); }
         .close-modal { color: var(--text-muted); font-size: 22px; font-weight: bold; cursor: pointer; line-height: 1; }
-        .close-modal:hover { color: #fff; }
+        .close-modal:hover { color: var(--text-main); }
         .modal-scroll-box { max-height: 450px; overflow-y: auto; padding-right: 4px; }
     </style>
 </head>
@@ -280,13 +315,41 @@
             <h1 id="namaRt">WILAYAH RT --</h1>
             <p>Sistem Keuangan & Warga</p>
         </div>
-        <button class="btn-keluar" onclick="prosesKeluar()">Keluar</button>
+        <div class="header-actions">
+            <!-- Tombol Toggle Tema Terang/Gelap -->
+            <button class="btn-theme" id="btnToggleTheme" onclick="toggleTheme()" title="Ganti Tema Gelap/Terang">☀️</button>
+            <button class="btn-keluar" onclick="prosesKeluar()">Keluar</button>
+        </div>
     </header>
 
     <div class="grid-laporan">
+        <!-- Kas RW Pusat -->
         <div class="card-laporan global">
             <div>
                 <h4><span>🌍 RW PUSAT</span> <span style="font-size: 9px; color: var(--blue);">KONSOLIDASI</span></h4>
+                
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <select id="filterBulanRw" onchange="renderLaporanRw()">
+                        <option value="semua">Semua Bulan (Keseluruhan)</option>
+                        <option value="2026-01">Januari 2026</option>
+                        <option value="2026-02">Februari 2026</option>
+                        <option value="2026-03">Maret 2026</option>
+                        <option value="2026-04">April 2026</option>
+                        <option value="2026-05">Mei 2026</option>
+                        <option value="2026-06">Juni 2026</option>
+                        <option value="2026-07">Juli 2026</option>
+                        <option value="2026-08">Agustus 2026</option>
+                        <option value="2026-09" selected>September 2026</option>
+                        <option value="2026-10">Oktober 2026</option>
+                        <option value="2026-11">November 2026</option>
+                        <option value="2026-12">Desember 2026</option>
+                    </select>
+                </div>
+
+                <div class="fin-row">
+                    <span class="fin-label">Saldo Awal Bulan</span>
+                    <span class="fin-value" id="rwSaldoAwal" style="color: var(--text-muted);">Rp 0</span>
+                </div>
                 <div class="fin-row">
                     <span class="fin-label">Total Masuk</span>
                     <span class="fin-value" id="rwTotalMasuk" style="color: var(--accent);">Rp 0</span>
@@ -296,13 +359,14 @@
                     <span class="fin-value" id="rwTotalKeluar" style="color: var(--danger);">Rp 0</span>
                 </div>
                 <div class="fin-row">
-                    <span class="fin-label" style="font-weight: 700; color: #fff;">SALDO RW</span>
+                    <span class="fin-label" style="font-weight: 700; color: var(--text-main);">SALDO AKHIR</span>
                     <span class="fin-value" id="saldoPusat" style="color: var(--blue); font-size: 16px;">Rp 0</span>
                 </div>
             </div>
             <button class="btn-popup" onclick="bukaModalFinansial('RW_PUSAT')">🔍 Riwayat Kas RW</button>
         </div>
 
+        <!-- Kas RT Lokal -->
         <div class="card-laporan internal">
             <div>
                 <h4><span>🏡 RT <span id="labelRtKunciHeader">--</span></span> <span style="font-size: 9px; color: var(--accent);">WILAYAH ANDA</span></h4>
@@ -317,7 +381,7 @@
                         <span class="fin-value" id="rtTotalKeluar" style="color: var(--danger);">Rp 0</span>
                     </div>
                     <div class="fin-row">
-                        <span class="fin-label" style="font-weight: 700; color: #fff;">SALDO RT</span>
+                        <span class="fin-label" style="font-weight: 700; color: var(--text-main);">SALDO RT</span>
                         <span class="fin-value" id="saldoRtLokal" style="color: var(--accent); font-size: 16px;">Rp 0</span>
                     </div>
                 </div>
@@ -375,7 +439,6 @@
 
     <!-- Konten Tab Warga -->
     <div id="kontenWarga" class="d-none">
-        <!-- Stat Grid Statistik Warga -->
         <div class="stat-grid">
             <div class="stat-box" style="border-top: 3px solid var(--blue);">
                 <div class="stat-label">👥 Total Jiwa</div>
@@ -412,20 +475,18 @@
         </div>
 
         <div class="card" style="border-left: 4px solid var(--purple);">
-            <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color:#fff;">📁 Import Excel Warga</div>
+            <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color:var(--text-main);">📁 Import Excel Warga</div>
             <p style="font-size:11px; color:var(--text-muted); margin:0 0 12px 0; line-height:1.4;">Format kolom: <b>no_kk, nik, nama_lengkap, no_rumah, tanggal_lahir, hubungan_keluarga, status_tinggal</b></p>
             <input type="file" id="fileExcelWarga" accept=".xlsx, .xls" style="display:none;" onchange="prosesImportExcel(this)">
             <button class="btn-excel" onclick="document.getElementById('fileExcelWarga').click()">⚡ UPLOAD FILE EXCEL</button>
         </div>
 
-        <!-- Tombol Toggle Form Input Warga (Hide / Unhide) -->
         <button class="btn-popup" style="margin-bottom: 20px; background-color: var(--card-dark); border-color: var(--blue); color: var(--blue);" onclick="toggleFormWarga()">
             <span id="labelToggleForm">➕ Tambah Warga Baru (Form Input)</span>
         </button>
 
-        <!-- Container Form Input Warga (Default Disembunyikan / Hide) -->
         <div class="card d-none" id="formInputWargaContainer" style="border-left: 4px solid var(--blue);">
-            <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 14px; color:#fff;">📝 Input Data Anggota Keluarga</div>
+            <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 14px; color:var(--text-main);">📝 Input Data Anggota Keluarga</div>
             <div class="form-row">
                 <div class="form-group">
                     <label for="noKk">No. Kartu Keluarga</label>
@@ -499,7 +560,6 @@
             </select>
         </div>
         
-        <!-- Tabel Warga dibungkus dengan table-scroll-container agar tidak terpotong di bawah -->
         <div class="table-container table-scroll-container">
             <table>
                 <thead>
@@ -553,6 +613,32 @@
     let globalCacheRW = []; 
     let globalCacheRT = [];
 
+    // Fungsi Pengaturan Tema (Gelap / Terang)
+    function inisialisasiTema() {
+        const savedTheme = localStorage.getItem('theme_rt') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateIkonTombolTema(savedTheme);
+    }
+
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme_rt', newTheme);
+        updateIkonTombolTema(newTheme);
+    }
+
+    function updateIkonTombolTema(theme) {
+        const btn = document.getElementById('btnToggleTheme');
+        if (theme === 'dark') {
+            btn.innerText = "🌙";
+            btn.title = "Ubah ke Tema Terang";
+        } else {
+            btn.innerText = "☀️";
+            btn.title = "Ubah ke Tema Gelap";
+        }
+    }
+
     function formatRupiahInput(input) {
         let value = input.value.replace(/[^,\d]/g, '');
         let split = value.split(',');
@@ -583,7 +669,6 @@
         }
     }
 
-    /* Fungsi Hide/Unhide Form Input Warga */
     function toggleFormWarga() {
         const formContainer = document.getElementById('formInputWargaContainer');
         const labelToggle = document.getElementById('labelToggleForm');
@@ -632,15 +717,44 @@
         const { data, error } = await _sb.from('transaksi1').select('*').eq('scope', 'RW_PUSAT').order('created_at', { ascending: false });
         if (!error && data) {
             globalCacheRW = data;
-            let rwMasuk = 0, rwKeluar = 0;
-            data.forEach(tx => {
-                if (tx.tipe === 'masuk') rwMasuk += parseInt(tx.jumlah || 0);
-                if (tx.tipe === 'keluar') rwKeluar += parseInt(tx.jumlah || 0);
-            });
-            document.getElementById('rwTotalMasuk').innerText = "Rp " + rwMasuk.toLocaleString('id-ID');
-            document.getElementById('rwTotalKeluar').innerText = "Rp " + rwKeluar.toLocaleString('id-ID');
-            document.getElementById('saldoPusat').innerText = "Rp " + (rwMasuk - rwKeluar).toLocaleString('id-ID');
+            renderLaporanRw();
         }
+    }
+
+    function renderLaporanRw() {
+        const filterBulan = document.getElementById('filterBulanRw').value;
+        let saldoAwal = 0;
+        let totalMasuk = 0;
+        let totalKeluar = 0;
+
+        if (filterBulan === 'semua') {
+            globalCacheRW.forEach(tx => {
+                if (tx.tipe === 'masuk') totalMasuk += parseInt(tx.jumlah || 0);
+                if (tx.tipe === 'keluar') totalKeluar += parseInt(tx.jumlah || 0);
+            });
+            saldoAwal = 0;
+        } else {
+            globalCacheRW.forEach(tx => {
+                if (!tx.tanggal) return;
+                const bulanTx = tx.tanggal.substring(0, 7); 
+                const jml = parseInt(tx.jumlah || 0);
+                
+                if (bulanTx < filterBulan) {
+                    if (tx.tipe === 'masuk') saldoAwal += jml;
+                    if (tx.tipe === 'keluar') saldoAwal -= jml;
+                } else if (bulanTx === filterBulan) {
+                    if (tx.tipe === 'masuk') totalMasuk += jml;
+                    if (tx.tipe === 'keluar') totalKeluar += jml;
+                }
+            });
+        }
+
+        const saldoAkhir = saldoAwal + totalMasuk - totalKeluar;
+
+        document.getElementById('rwSaldoAwal').innerText = "Rp " + saldoAwal.toLocaleString('id-ID');
+        document.getElementById('rwTotalMasuk').innerText = "Rp " + totalMasuk.toLocaleString('id-ID');
+        document.getElementById('rwTotalKeluar').innerText = "Rp " + totalKeluar.toLocaleString('id-ID');
+        document.getElementById('saldoPusat').innerText = "Rp " + saldoAkhir.toLocaleString('id-ID');
     }
 
     async function loadSaldoRtLokal() {
@@ -684,7 +798,7 @@
         container.innerHTML = dataSumber.map(tx => `
             <div class="tx-item">
                 <div>
-                    <div style="font-weight:700; color:#fff; font-size:12px;">${tx.keterangan}</div>
+                    <div style="font-weight:700; color:var(--text-main); font-size:12px;">${tx.keterangan}</div>
                     <div style="font-size:10px; color:var(--text-muted);">${tx.tanggal} | ${tx.kategori} | ${tx.status === 'pending' ? '⏳ Pending' : '✅ Selesai'}</div>
                 </div>
                 <div style="font-weight:700; font-size:13px; color:${tx.tipe=='masuk'?'var(--accent)':'var(--danger)'}; white-space:nowrap; margin-left: 10px;">
@@ -725,7 +839,7 @@
         box.innerHTML = data.map(tx => `
             <div class="tx-item">
                 <div>
-                    <div style="font-weight:700; color:#fff;">${tx.keterangan}</div>
+                    <div style="font-weight:700; color:var(--text-main);">${tx.keterangan}</div>
                     <div style="font-size:10px; color:var(--text-muted);">${tx.tanggal} | ${tx.kategori} | ${tx.status === 'pending' ? '<span style="color:var(--yellow);">⏳ Pending</span>' : '✅ Selesai'}</div>
                 </div>
                 <div style="font-weight:700; color:${tx.tipe=='masuk'?'var(--accent)':'var(--danger)'};">
@@ -846,11 +960,9 @@
             if (umur >= 60) totalManula++;
             if (w.status_tinggal === 'KK Sini (Tinggal Luar)') totalKkSiniLuar++;
 
-            // Yatim: Anak dengan usia < 18 tahun dan KK tidak memiliki Kepala Keluarga terdata
             if (w.hubungan_keluarga === 'Anak' && umur < 18 && !kkAdaKepala) {
                 totalYatim++;
             }
-            // Janda / Single Parent: Istri, Kepala Keluarga, atau Lainnya jika KK tidak memiliki Kepala Keluarga terdata
             if ((w.hubungan_keluarga === 'Istri' || w.hubungan_keluarga === 'Kepala Keluarga' || w.hubungan_keluarga === 'Lainnya') && !kkAdaKepala) {
                 totalJanda++;
             }
@@ -905,7 +1017,7 @@
             if (isBalita) badgeTambahan += `<span class="badge balita">👶 Balita</span> `;
             if (isManula) badgeTambahan += `<span class="badge manula">🧓🏼 Lansia</span> `;
 
-            const formatNama = w.hubungan_keluarga === 'Kepala Keluarga' ? `<span class="badge kk">KK</span> <b style="font-size:13px; color:#fff;">${w.nama_lengkap}</b>` : `<b style="font-size:13px; color:#fff;">${w.nama_lengkap}</b>`;
+            const formatNama = w.hubungan_keluarga === 'Kepala Keluarga' ? `<span class="badge kk">KK</span> <b style="font-size:13px; color:var(--text-main);">${w.nama_lengkap}</b>` : `<b style="font-size:13px; color:var(--text-main);">${w.nama_lengkap}</b>`;
 
             tbody.innerHTML += `
                 <tr>
@@ -913,7 +1025,7 @@
                         <div style="margin-bottom:3px;">${formatNama}</div>
                         <div style="font-size:10px; color:var(--text-muted);">NIK: ${w.nik || '-'} | KK: ${w.no_kk}</div>
                     </td>
-                    <td><span style="font-size:11px; color:var(--text-accent); font-weight:700;">${w.hubungan_keluarga}</span></td>
+                    <td><span style="font-size:11px; color:var(--accent); font-weight:700;">${w.hubungan_keluarga}</span></td>
                     <td>
                         <div style="font-size:11px;">${umur} Thn ${badgeTambahan}</div>
                         <div style="font-size:10px; margin-top:3px;"><span class="badge ${badgeClass}">${w.status_tinggal}</span> | No: ${w.no_rumah}</div>
@@ -958,11 +1070,15 @@
         ambilDataWargaDb(); loadHistoriRT(); 
     }
     
-    async function prosesKeluar() { if (confirm("Keluar dari sistem?")) { await _sb.auth.signOut(); window.location.html = "index.html"; } }
+    async function prosesKeluar() { if (confirm("Keluar dari sistem?")) { await _sb.auth.signOut(); window.location.href = "index.html"; } }
     
     window.onload = function() { 
-        ambilParameterURL(); setTipe('masuk'); cekSesi(); 
-        loadSaldoRwGlobal(); loadSaldoRtLokal(); 
+        inisialisasiTema();
+        ambilParameterURL(); 
+        setTipe('masuk'); 
+        cekSesi(); 
+        loadSaldoRwGlobal(); 
+        loadSaldoRtLokal(); 
     };
 </script>
 </body>
