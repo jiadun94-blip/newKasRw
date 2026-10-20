@@ -1073,6 +1073,7 @@
     async function prosesKeluar() { if (confirm("Keluar dari sistem?")) { await _sb.auth.signOut(); window.location.href = "index.html"; } }
     
     window.onload = function() { 
+        inisialisasiFilterBulanRw();
         inisialisasiTema();
         ambilParameterURL(); 
         setTipe('masuk'); 
@@ -1080,6 +1081,32 @@
         loadSaldoRwGlobal(); 
         loadSaldoRtLokal(); 
     };
+
+    // Filter bulan otomatis mengikuti bulan dan tahun saat ini.
+    function inisialisasiFilterBulanRw() {
+        const select = document.getElementById('filterBulanRw');
+        if (!select) return;
+        const sekarang = new Date();
+        const nilaiBulanIni = `${sekarang.getFullYear()}-${String(sekarang.getMonth() + 1).padStart(2, '0')}`;
+        const labelSemua = select.options[0]?.textContent || 'Semua Bulan';
+        select.innerHTML = '';
+        const opsiSemua = document.createElement('option');
+        opsiSemua.value = 'semua';
+        opsiSemua.textContent = labelSemua;
+        select.appendChild(opsiSemua);
+        for (let tahun = sekarang.getFullYear() - 2; tahun <= sekarang.getFullYear() + 1; tahun++) {
+            for (let bulan = 1; bulan <= 12; bulan++) {
+                const opsi = document.createElement('option');
+                opsi.value = `${tahun}-${String(bulan).padStart(2, '0')}`;
+                opsi.textContent = new Date(tahun, bulan - 1, 1).toLocaleDateString('id-ID', {
+                    month: 'long', year: 'numeric'
+                });
+                select.appendChild(opsi);
+            }
+        }
+        select.value = nilaiBulanIni;
+    }
+
 </script>
 </body>
 </html>
