@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kas RW Jamaras | Dashboard Pusat</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Library html2canvas untuk Konversi Kwitansi HTML ke PNG -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-dark: #191410;          
@@ -427,7 +429,7 @@
             <button class="btn-popup" onclick="bukaModalFinansial('RW_PUSAT')">🔍 Riwayat Kas Pusat</button>
         </div>
 
-        <!-- Status Login & Tombol Printer dipindahkan ke bawah card laporan -->
+        <!-- Status Login & Tombol Printer -->
         <div class="sub-header-panel">
             <div class="user-badge" id="userBadgeRole">Memuat Sesi...</div>
             <button class="btn-print-connect" id="btnConnectPrint" onclick="sambungPrinterBluetooth()">🔌 Printer</button>
@@ -590,6 +592,34 @@
     </div>
 </div>
 
+<!-- Modal Popup Struk Digital Format Kwitansi Dinamis -->
+<div class="modal-overlay" id="modalStrukDigital">
+    <div class="modal-container" style="max-width: 480px;">
+        <div class="modal-header">
+            <h3 id="modalStrukTitle">📑 Kwitansi Digital Resmi</h3>
+            <button class="btn-close-modal" onclick="tutupStrukDigital()">×</button>
+        </div>
+        
+        <!-- Layout Kwitansi Resmi (Exportable ke PNG oleh html2canvas) -->
+        <div style="background: #ffffff; color: #111111; font-family: 'Plus Jakarta Sans', Arial, sans-serif; padding: 22px; border-radius: 12px; border: 2px solid #2c3e50; font-size: 12px; line-height: 1.6; box-shadow: 0 4px 15px rgba(0,0,0,0.15);" id="previewStrukDigital">
+            <!-- Isi Kwitansi Di-generate via Javascript -->
+        </div>
+
+        <!-- Tombol Aksi Download PNG & Berbagi -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px;">
+            <button class="btn-action" style="background: #27ae60; color: #ffffff; border: none; padding: 12px; border-radius: 10px; font-size: 11px;" onclick="unduhStrukPNG()">🖼️ Download PNG</button>
+            <button class="btn-action" style="background: #16a085; color: #ffffff; border: none; padding: 12px; border-radius: 10px; font-size: 11px;" onclick="bagikanStrukPNG()">📲 Bagikan PNG</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+            <button class="btn-action" style="background: #25D366; color: #ffffff; border: none; padding: 10px; border-radius: 10px; font-size: 11px;" onclick="kirimStrukWA()">💬 WhatsApp Teks</button>
+            <button class="btn-action" style="background: var(--blue); color: #ffffff; border: none; padding: 10px; border-radius: 10px; font-size: 11px;" onclick="salinStrukTeks()">📋 Salin Teks</button>
+        </div>
+
+        <button class="btn-action" style="margin-top: 8px; width: 100%; padding: 10px; border-radius: 10px; font-size: 11px; background: var(--card-hover);" onclick="cetakUlangThermal()">🖨️ Cetak Thermal 58mm</button>
+    </div>
+</div>
+
 <!-- Floating Bottom Navigation Bar -->
 <div class="bottom-nav">
     <button class="nav-item active" id="tabFinansialBtn" onclick="bukaTab('finansial')">
@@ -607,6 +637,7 @@
     let masterWargaRW = [];
     let printerCharacteristic = null;
     let isBendahara = false; 
+    let dataStrukAktif = null;
 
     function toggleTema() {
         document.body.classList.toggle('light-theme');
@@ -738,23 +769,33 @@
         const boldOff = [ESC, 0x45, 0];
         const feedCut = [10, 10, 10, 10, ESC, 0x69];
 
+        let isMasuk = dataStruk.tipe === 'masuk';
         let encoder = new TextEncoder();
         let bytes = [];
 
         bytes.push(...initPrinter, ...textCenter, ...boldOn);
-        bytes.push(...encoder.encode("KAS RW JAMARAS\n"));
-        bytes.push(...boldOff, ...encoder.encode("Sistem Manajemen Keuangan\n================================\n"));
+        bytes.push(...encoder.encode("KWITANSI KAS RW JAMARAS\n"));
+        bytes.push(...boldOff, ...encoder.encode("Sekretariat Keuangan Resmi\n================================\n"));
         bytes.push(...boldOn, ...encoder.encode(`${dataStruk.judulStruk.toUpperCase()}\n\n`), ...boldOff, ...textLeft);
 
+        bytes.push(...encoder.encode(`No. Ref  : ${dataStruk.refNo}\n`));
+        if (isMasuk) {
+            bytes.push(...encoder.encode(`Dari     : ${dataStruk.pihakLuar}\n`));
+        } else {
+            bytes.push(...encoder.encode(`Kepada   : ${dataStruk.pihakLuar}\n`));
+        }
         bytes.push(...encoder.encode(`Tanggal  : ${dataStruk.tanggal}\n`));
-        bytes.push(...encoder.encode(`Wilayah  : ${dataStruk.wilayah}\n`));
         bytes.push(...encoder.encode(`Kategori : ${dataStruk.kategori}\n`));
-        bytes.push(...encoder.encode(`Note     : ${dataStruk.keterangan}\n--------------------------------\n`));
+        bytes.push(...encoder.encode(`Ket.     : ${dataStruk.keterangan}\n--------------------------------\n`));
 
         bytes.push(...boldOn);
         let barisJumlah = `TOTAL: Rp ${parseInt(dataStruk.jumlah).toLocaleString('id-ID')}`;
         bytes.push(...encoder.encode(barisJumlah.padStart(32, ' ') + "\n"));
-        bytes.push(...boldOff, ...textCenter, ...encoder.encode("\n================================\nTerima Kasih.\n"));
+        
+        let teksTTD = isMasuk ? `Penerima: ${dataStruk.penanggungJawab}` : `Dibayarkan Oleh: ${dataStruk.penanggungJawab}`;
+        let teksStatus = isMasuk ? "[ LUNAS & TERVERIFIKASI ]" : "[ PENGELUARAN SAH ]";
+        
+        bytes.push(...boldOff, ...textCenter, ...encoder.encode(`\n${teksTTD}\n================================\n${teksStatus}\n`));
         bytes.push(...feedCut);
 
         let uint8Array = new Uint8Array(bytes);
@@ -764,6 +805,198 @@
             await printerCharacteristic.writeValue(chunk);
         }
     }
+
+    /* --- FUNGSI KWITANSI DIGITAL (LOGIKA TERBALIK) --- */
+    function bukaStrukDigital(dataStruk) {
+        if (!dataStruk.refNo) {
+            dataStruk.refNo = 'KW-RW-' + Date.now().toString().slice(-6);
+        }
+        dataStrukAktif = dataStruk;
+        
+        const container = document.getElementById('previewStrukDigital');
+        const nominalFormatted = parseInt(dataStruk.jumlah).toLocaleString('id-ID');
+        const isMasuk = dataStruk.tipe === 'masuk';
+
+        // Penyesuaian Variabel Format Terbalik
+        const labelPihak = isMasuk ? "Telah Diterima Dari" : "Telah Dibayarkan Kepada";
+        const labelKeperluan = isMasuk ? "Untuk Pembayaran" : "Untuk Keperluan";
+        const labelTTD = isMasuk ? "PENERIMA / BENDAHARA" : "DIBAYARKAN OLEH / BENDAHARA";
+        const badgeColor = isMasuk ? 
+            "background: #e8f8f5; color: #16a085; border: 1px solid #a3e4d7;" : 
+            "background: #fdeae8; color: #c0392b; border: 1px solid #f5b7b1;";
+        const badgeText = isMasuk ? "✔ LUNAS &amp; TERVERIFIKASI" : "✔ PENGELUARAN RESMI SAH";
+        const borderHeaderColor = isMasuk ? "#2c3e50" : "#c0392b";
+        
+        container.style.borderColor = borderHeaderColor;
+
+        container.innerHTML = `
+            <!-- Kop Kwitansi -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid ${borderHeaderColor}; padding-bottom: 8px; margin-bottom: 12px;">
+                <div>
+                    <div style="font-weight: 800; font-size: 14px; color: #1a252f; letter-spacing: 0.5px;">KWITANSI DIGITAL</div>
+                    <div style="font-size: 10px; color: #555; font-weight: 700;">KAS RW JAMARAS</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 9px; color: #777; font-weight: bold;">NO. REGISTRASI</div>
+                    <div style="font-size: 11px; font-weight: 800; color: #e67e22;">${dataStruk.refNo}</div>
+                </div>
+            </div>
+
+            <!-- Rincian Kwitansi (Dinamis Kebalikan Pemasukan / Pengeluaran) -->
+            <table style="width: 100%; font-size: 11.5px; border-collapse: collapse; margin-bottom: 15px;">
+                <tr>
+                    <td style="padding: 5px 0; width: 38%; color: #555; font-weight: 600;">${labelPihak}</td>
+                    <td style="padding: 5px 0; width: 4%; font-weight: bold;">:</td>
+                    <td style="padding: 5px 0; font-weight: 700; color: #1a252f;">${dataStruk.pihakLuar}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: 600;">Uang Sejumlah</td>
+                    <td style="padding: 5px 0; font-weight: bold;">:</td>
+                    <td style="padding: 5px 0;">
+                        <span style="${badgeColor} padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 13.5px; display: inline-block;">
+                            Rp ${nominalFormatted}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: 600;">${labelKeperluan}</td>
+                    <td style="padding: 5px 0; font-weight: bold;">:</td>
+                    <td style="padding: 5px 0; font-weight: 600; color: #2c3e50;">${dataStruk.keterangan}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: 600;">Kategori Transaksi</td>
+                    <td style="padding: 5px 0; font-weight: bold;">:</td>
+                    <td style="padding: 5px 0; font-weight: 600; color: #7f8c8d;">${dataStruk.kategori}</td>
+                </tr>
+            </table>
+
+            <!-- Tanda Tangan & Stempel Legalisasi -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 10px;">
+                <div>
+                    <div style="font-size: 9px; color: #777; font-weight:600;">TANGGAL TRANSAKSI</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #333;">${dataStruk.tanggal}</div>
+                    <div style="margin-top: 6px; ${badgeColor} padding: 3px 8px; border-radius: 5px; font-weight: 800; font-size: 9px; display: inline-block;">
+                        ${badgeText}
+                    </div>
+                </div>
+                <div style="text-align: center; width: 140px;">
+                    <div style="font-size: 8.5px; color: #777; font-weight:700; margin-bottom: 25px;">${labelTTD}</div>
+                    <div style="font-size: 10.5px; font-weight: 800; color: #1a252f; border-bottom: 1px dashed #333; padding-bottom: 2px;">${dataStruk.penanggungJawab}</div>
+                    <div style="font-size: 8px; color: #7f8c8d; margin-top: 2px;">Sekretariat RW Jamaras</div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('modalStrukDigital').classList.add('active');
+    }
+
+    function tutupStrukDigital() {
+        document.getElementById('modalStrukDigital').classList.remove('active');
+    }
+
+    async function unduhStrukPNG() {
+        if (!dataStrukAktif) return;
+        const element = document.getElementById('previewStrukDigital');
+        if (!element) return;
+        try {
+            const canvas = await html2canvas(element, {
+                scale: 3,
+                backgroundColor: '#ffffff',
+                useCORS: true
+            });
+            const refName = dataStrukAktif.refNo ? dataStrukAktif.refNo : 'rw';
+            const link = document.createElement('a');
+            link.download = `kwitansi-digital-${refName}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } catch (err) {
+            alert("Gagal mengunduh gambar kwitansi: " + err.message);
+        }
+    }
+
+    async function bagikanStrukPNG() {
+        if (!dataStrukAktif) return;
+        const element = document.getElementById('previewStrukDigital');
+        if (!element) return;
+        try {
+            const canvas = await html2canvas(element, {
+                scale: 3,
+                backgroundColor: '#ffffff',
+                useCORS: true
+            });
+            canvas.toBlob(async (blob) => {
+                const refName = dataStrukAktif.refNo ? dataStrukAktif.refNo : 'rw';
+                const file = new File([blob], `kwitansi-digital-${refName}.png`, { type: 'image/png' });
+                
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Kwitansi Digital Kas RW Jamaras',
+                        text: `Kwitansi Keuangan Resmi Kas RW Jamaras (${dataStrukAktif.refNo})`
+                    });
+                } else {
+                    const link = document.createElement('a');
+                    link.download = file.name;
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                    alert("Gambar Kwitansi PNG berhasil diunduh. Anda dapat melampirkan gambar tersebut ke aplikasi WhatsApp.");
+                }
+            }, 'image/png');
+        } catch (err) {
+            alert("Gagal membagikan kwitansi gambar: " + err.message);
+        }
+    }
+
+    function buatTeksStrukWA(data) {
+        const nominalFormatted = parseInt(data.jumlah).toLocaleString('id-ID');
+        const isMasuk = data.tipe === 'masuk';
+        const labelPihak = isMasuk ? "📥 *Telah Diterima Dari*" : "📤 *Telah Dibayarkan Kepada*";
+        const labelKeperluan = isMasuk ? "📝 *Untuk Pembayaran*" : "📝 *Untuk Keperluan*";
+        const labelTTD = isMasuk ? "👤 *Penerima*" : "👤 *Dibayarkan Oleh*";
+        const badgeStatus = isMasuk ? "✔ *[ LUNAS & TERVERIFIKASI DIGITAL ]*" : "✔ *[ PENGELUARAN RESMI SAH ]*";
+
+        return `*KWITANSI DIGITAL RESMI*\n` +
+               `*KAS RW JAMARAS*\n` +
+               `No. Ref: *${data.refNo}*\n` +
+               `--------------------------------------\n` +
+               `${labelPihak} : ${data.pihakLuar}\n` +
+               `💰 *Uang Sejumlah*      : *Rp ${nominalFormatted}*\n` +
+               `${labelKeperluan}   : ${data.keterangan}\n` +
+               `🏷️ *Kategori Transaksi* : ${data.kategori}\n` +
+               `📅 *Tanggal*            : ${data.tanggal}\n` +
+               `--------------------------------------\n` +
+               `${labelTTD}           : ${data.penanggungJawab}\n` +
+               `${badgeStatus}\n` +
+               `--------------------------------------\n` +
+               `_Sekretariat Keuangan RW Jamaras_`;
+    }
+
+    function kirimStrukWA() {
+        if (!dataStrukAktif) return;
+        const teks = buatTeksStrukWA(dataStrukAktif);
+        const urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(teks)}`;
+        window.open(urlWA, '_blank');
+    }
+
+    function salinStrukTeks() {
+        if (!dataStrukAktif) return;
+        const teks = buatTeksStrukWA(dataStrukAktif);
+        navigator.clipboard.writeText(teks).then(() => {
+            alert("📋 Teks Kwitansi berhasil disalin ke clipboard!");
+        }).catch(err => {
+            alert("Gagal menyalin teks: " + err);
+        });
+    }
+
+    async function cetakUlangThermal() {
+        if (!dataStrukAktif) return;
+        if (!printerCharacteristic) {
+            alert("⚠️ Printer Bluetooth belum terhubung! Silakan klik tombol '🔌 PRINTER' terlebih dahulu.");
+            return;
+        }
+        await cetakStrukThermal58mm(dataStrukAktif);
+    }
+    /* ------------------------------ */
 
     async function cekSesi() {
         cekTemaTersimpan();
@@ -813,6 +1046,8 @@
         if (!confirm("Konfirmasi penerimaan uang setoran dari " + scopeRT.replace('_',' ') + "?")) return;
         
         let tgl = new Date().toISOString().split('T')[0];
+        let refNo = 'KW-RW-' + Date.now().toString().slice(-6);
+        
         await _sb.from('transaksi1').update({ status: 'selesai' }).eq('id', id);
         
         await _sb.from('transaksi1').insert([{ 
@@ -821,18 +1056,28 @@
             tanggal: tgl, status: 'selesai' 
         }]);
 
-        alert("✅ Setoran berhasil masuk ke Kas Pusat RW!");
-        await cetakStrukThermal58mm({
-            judulStruk: "Tanda Terima Dana RT",
+        const dataStruk = {
+            refNo: refNo,
+            tipe: 'masuk',
+            judulStruk: "KWITANSI PENERIMAAN DANA RT",
+            pihakLuar: "Pengurus " + scopeRT.replace('_', ' '),
             tanggal: tgl,
             wilayah: scopeRT.replace('_', ' '),
             kategori: "Setoran Kas Antar Unit",
             keterangan: keteranganAsli,
-            jumlah: jumlah
-        });
+            jumlah: jumlah,
+            penanggungJawab: "Hadiat Permana (Bendahara)"
+        };
+
+        if (printerCharacteristic) {
+            await cetakStrukThermal58mm(dataStruk);
+        }
 
         loadPendingSetoran();
         muatDataDashboard();
+        
+        // Tampilkan Modal Kwitansi Digital
+        bukaStrukDigital(dataStruk);
     }
 
     async function muatDataDashboard() {
@@ -932,6 +1177,7 @@
         let kategori = document.getElementById('kategoriTx').value;
         let keterangan = document.getElementById('ketTx').value.trim();
         let tgl = new Date().toISOString().split('T')[0];
+        let refNo = 'KW-RW-' + Date.now().toString().slice(-6);
 
         if (jumlahNum <= 0 || !keterangan) { alert("⚠️ Harap isi nominal dan keterangan!"); return; }
 
@@ -940,19 +1186,34 @@
         }]);
 
         if(error) { alert("Gagal menyimpan data: " + error.message); return; }
-        alert("✅ Transaksi internal RW Pusat berhasil dibukukan!");
 
-        await cetakStrukThermal58mm({
-            judulStruk: tipeDipilih === 'masuk' ? "Bukti Uang Masuk RW" : "Bukti Pengeluaran RW",
+        // Penentuan Nama Pihak Berdasarkan Jenis Transaksi (Masuk vs Keluar)
+        let pihakLuar = tipeDipilih === 'masuk' ? 
+            (kategori.includes("Sumbangan Warga") ? "Warga RW Jamaras" : "Donatur / Pihak Eksternal") : 
+            keterangan; // Jika Pengeluaran, penerimanya adalah yang tertera di keterangan / penerima kegiatan
+
+        const dataStruk = {
+            refNo: refNo,
+            tipe: tipeDipilih,
+            judulStruk: tipeDipilih === 'masuk' ? "KWITANSI PENERIMAAN DANA" : "KWITANSI PENGELUARAN DANA",
+            pihakLuar: pihakLuar,
             tanggal: tgl,
             wilayah: "RW PUSAT",
             kategori: kategori,
             keterangan: keterangan,
-            jumlah: jumlahNum
-        });
+            jumlah: jumlahNum,
+            penanggungJawab: "Hadiat Permana (Bendahara)"
+        };
+
+        if (printerCharacteristic) {
+            await cetakStrukThermal58mm(dataStruk);
+        }
 
         document.getElementById('jumlahTx').value = ""; document.getElementById('ketTx').value = "";
         muatDataDashboard();
+
+        // Tampilkan Modal Kwitansi Digital
+        bukaStrukDigital(dataStruk);
     }
 
     async function ambilMasterWarga() {
